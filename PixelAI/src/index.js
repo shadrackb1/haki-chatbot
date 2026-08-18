@@ -438,7 +438,8 @@ async function startBot() {
         if (type !== 'notify') return;
 
         for (const msg of messages) {
-            if (msg.key.fromMe) continue;
+            const senderId = msg.key.participant || msg.key.remoteJid;
+            if (msg.key.fromMe && !isBotOwner(senderId)) continue;
             if (msg.key.remoteJid === 'status@broadcast') continue;
 
             const chatId = msg.key.remoteJid;
@@ -447,7 +448,6 @@ async function startBot() {
             // Skip group messages for now
             if (isGroup) continue;
             
-            const senderId = msg.key.participant || msg.key.remoteJid;
             const senderName = msg.pushName || 'friend';
 
             // Parse message body (text, image, voice, location, etc.)
@@ -789,3 +789,7 @@ startBot().catch(err => {
     console.error('❌ Failed to start:', err);
     process.exit(1);
 });
+
+
+
+
