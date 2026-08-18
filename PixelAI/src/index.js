@@ -49,7 +49,7 @@ await skillRegistry.loadSkills();
 const llmEngine = new LLMReasoningEngine();
 const humanizer = new Humanizer();
 const conversationManager = new ConversationManager();
-const mediaHandler = new MediaHandler({ dataDir: 'data/media', maxFileSize: 10 * 1024 * 1024 });
+const mediaHandler = new MediaHandler({ dataDir: path.join(__dirname, '..', 'data', 'media'), maxFileSize: 10 * 1024 * 1024 });
 const voiceHandler = new VoiceHandler();
 const locationHandler = new LocationHandler();
 const adminCommands = new AdminCommands({
@@ -245,7 +245,7 @@ async function startBot() {
     console.log('🔑 Starting Pixel AI...');
     console.log('📱 Scan QR code with WhatsApp to connect');
 
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+    const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '..', 'auth_info'));
     const { version } = await fetchLatestBaileysVersion();
 
     const sock = makeWASocket({
@@ -306,7 +306,7 @@ async function startBot() {
                 setTimeout(startBot, 3000);
             } else {
                 console.log('👋 Logged out. Scan QR again.');
-                fs.rmSync('auth_info', { recursive: true, force: true });
+                fs.rmSync(path.join(__dirname, '..', 'auth_info'), { recursive: true, force: true });
                 setTimeout(startBot, 3000);
             }
         }

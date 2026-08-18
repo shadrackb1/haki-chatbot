@@ -8,14 +8,18 @@
  */
 
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { join, extname } from 'node:path';
+import { join, extname, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const LLM_API_KEY = process.env.LLM_API_KEY || '';
 const LLM_API_URL =
   process.env.LLM_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LLM_MODEL = process.env.LLM_MODEL || 'meta/llama-3.1-8b-instruct';
 
-const KB_DIR = join(process.cwd(), 'data', 'knowledge-base');
+const KB_DIR = join(__dirname, '..', '..', '..', 'data', 'knowledge-base');
 
 const SUPPORTED_EXTENSIONS = new Set(['.txt', '.md', '.json', '.csv']);
 

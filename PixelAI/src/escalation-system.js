@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
 const ESCALATION_LOG_PATH = path.join(DATA_DIR, 'escalation-log.json');
 const MAX_LOG_ENTRIES = 100;
 

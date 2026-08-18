@@ -1,8 +1,12 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import conversationManager from './conversation-manager.js';
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ============================================
 // LLM REASONING ENGINE
@@ -388,7 +392,7 @@ Be firm but supportive. Make them feel empowered.`;
 
   getRuleBasedLegalResponse(violationType, lang) {
     // Import legal KB
-    const legalKB = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'legal-knowledge-base.json'), 'utf8'));
+    const legalKB = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'legal-knowledge-base.json'), 'utf8'));
     const category = legalKB.violation_categories.find(v => v.id === violationType);
     
     if (!category) {

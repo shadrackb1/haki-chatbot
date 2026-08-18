@@ -587,7 +587,7 @@ async function startBot() {
   console.log('🔑 Starting Haki Chatbot...');
   console.log('📱 Scan QR code with WhatsApp to connect');
   
-  const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+  const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '..', 'auth_info'));
   const { version } = await fetchLatestBaileysVersion();
   
   const sock = makeWASocket({
@@ -644,7 +644,7 @@ if (qr) {
       } else {
         console.log('👋 Logged out. Please scan QR code again.');
         // Clear auth info and restart
-        fs.rmSync('auth_info', { recursive: true, force: true });
+        fs.rmSync(path.join(__dirname, '..', 'auth_info'), { recursive: true, force: true });
         startBot();
       }
     }
