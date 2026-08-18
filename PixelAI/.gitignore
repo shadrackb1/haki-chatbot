@@ -1,0 +1,35 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.example
+
+# Logs
+logs
+*.log
+
+# Data files (containing personal information)
+data/
+auth_info/
+
+# QR codes
+qr-code.png
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Build outputs
+dist/
+build/

@@ -1,0 +1,61 @@
+# ============================================
+# HAKI CHATBOT — Docker Compose
+# Runs Haki + PixelAI bots side by side
+# ============================================
+# Usage:
+#   1. Copy .env.production to .env and fill in keys
+#   2. docker compose up -d
+#   3. docker compose logs -f        (watch both)
+#   4. docker compose down           (stop both)
+#   5. docker compose restart        (restart both)
+# ============================================
+
+services:
+  # ── HAKI: Human Rights & Agribusiness Bot ──
+  haki:
+    build:
+      context: .
+      dockerfile: Dockerfile.haki
+    container_name: haki-bot
+    restart: always              # auto-restart on crash or reboot
+    env_file: .env
+    volumes:
+      - haki-auth:/app/data/auth_info    # persist WhatsApp session
+      - haki-data:/app/data              # persist conversation data
+      - haki-kb:/app/data/knowledge-base # persist legal KB
+    environment:
+      - BOT_NAME=Haki
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ── PIXEL AI: Multi-purpose AI Companion ──
+  pixelai:
+    build:
+      context: .
+      dockerfile: Dockerfile.pixelai
+    container_name: pixelai-bot
+    restart: always              # auto-restart on crash or reboot
+    env_file: .env
+    volumes:
+      - pixelai-auth:/app/data/auth_info    # persist WhatsApp session
+      - pixelai-data:/app/data              # persist conversation data
+      - pixelai-kb:/app/data/knowledge-base # persist knowledge base
+    environment:
+      - BOT_NAME=PixelAI
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Named volumes — survive container rebuilds
+volumes:
+  haki-auth:
+  haki-data:
+  haki-kb:
+  pixelai-auth:
+  pixelai-data:
+  pixelai-kb:

@@ -1,0 +1,28 @@
+# ============================================
+# HAKI BOT — Dockerfile
+# AI WhatsApp Bot for Human Rights & Agribusiness
+# ============================================
+FROM node:20-alpine
+
+# ffmpeg for voice messages
+RUN apk add --no-cache ffmpeg
+
+WORKDIR /app
+
+# Copy package files first (cache layer)
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copy source
+COPY src/ ./src/
+COPY data/ ./data/
+
+# Create persistent dirs
+RUN mkdir -p data/auth_info data/media data/knowledge-base
+
+# Health check — verify node process is alive
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "process.exit(0)" || exit 1
+
+ENV NODE_ENV=production
+CMD ["node", "src/index.js"]

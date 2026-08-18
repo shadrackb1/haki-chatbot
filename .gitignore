@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Auth state (WhatsApp sessions — persisted via Docker volumes)
+auth_info/
+creds.json
+pre-key-*.json
+app-state-sync-*.json
+session-*.json
+sender-key-*.json
+
+# Data (persisted via Docker volumes)
+data/
+users.json
+legal-knowledge-base.json
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+*.pid
+
+# Other
+.mimocode/
+.bin/
+.cron-lock
+qr-code.png
+test-humanizer.js
