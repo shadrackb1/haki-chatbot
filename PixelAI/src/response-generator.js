@@ -4,46 +4,40 @@ class ResponseGenerator {
         this.responseTemplates = {
             en: {
                 greeting: [
-                    "Hello! I'm Pixel AI, your personal assistant. How can I help you today?",
-                    "Hi there! I'm Pixel AI. What do you need help with?",
-                    "Hey! I'm your personal AI assistant. How can I assist you?"
+                    "Hey {name}! What's up?",
+                    "Yo {name}, how's it going?",
+                    "Hey! What's on your mind?",
+                    "What's good {name}?"
                 ],
                 help: [
-                    "I'm Pixel AI, your personal WhatsApp assistant. Here's what I can help you with:\n\n" +
-                    "• Ask about me: 'Who are you?' or 'What do you do?'\n" +
-                    "• Check my schedule: 'When are you available?'\n" +
-                    "• Get my contact info: 'How can I contact you?'\n" +
-                    "• Just chat with me naturally!\n\n" +
-                    "Try asking me something!",
-                    "I can help you with information about me, my schedule, and how to contact me. Just ask!"
+                    "What do you need?",
+                    "Sure, what's up?",
+                    "Hit me with it."
                 ],
                 profile_query: [
-                    "I'm {name}, a {occupation} passionate about helping people stay connected and informed. {bio}",
-                    "My name is {name}. I work as a {occupation}. {bio}",
-                    "I'm {name}, working in {occupation}. {bio}"
+                    "I'm {name} — {bio} If you wanna know anything else, just ask.",
+                    "{bio} That's the short version. What do you want to know?"
                 ],
                 schedule_inquiry: [
-                    "I'm typically available {working_hours} in the {timezone} timezone. {availability_details}",
-                    "My regular schedule is {working_hours} ({timezone}). {availability_details}",
-                    "I'm usually free during {working_hours} {timezone}. {availability_details}"
+                    "My schedule: {working_hours} ({timezone}). {availability_details}",
+                    "I work {working_hours} {timezone}. {availability_details}"
                 ],
                 contact_request: [
-                    "You can reach me via:\n• Email: {email}\n• Phone: {phone}\n• WhatsApp: You're already talking to me! 😊",
-                    "Best ways to contact me:\n📧 Email: {email}\n📞 Phone: {phone}\n💬 WhatsApp: This chat!",
-                    "Here's how to get in touch:\nEmail: {email}\nPhone: {phone}\nWhatsApp: You're doing it right now!"
+                    "Email: {email} | Phone: {phone} | WhatsApp: you're already here 😄",
+                    "Drop me an email at {email} or call {phone}. Or just keep texting me here."
                 ],
                 status_check: [
-                    "I'm doing great! Ready to help you with whatever you need. How about you?",
-                    "I'm doing well and here to assist you. How's your day going?",
-                    "All systems operational! How can I help you today?"
+                    "Doing well! You?",
+                    "Pretty good, just vibing. You?",
+                    "All good here. How about you?"
                 ],
                 general_chat: [
-                    "That's interesting! Could you tell me more about that?",
-                    "I see. What aspect of that would you like to discuss?",
-                    "Thanks for sharing. Is there a particular question you have about that?",
-                    "I'm here to help. What would you like to explore together?"
+                    "Tell me more about that",
+                    "Hmm, what do you mean?",
+                    "That's a new one for me — go on",
+                    "What's the story there?"
                 ],
-                default: "I'm not sure I understand. Could you rephrase that or ask something else?"
+                default: "Not sure I follow — can you rephrase that?"
             }
         };
     }
@@ -148,10 +142,10 @@ class ResponseGenerator {
         // For now, just acknowledge it
         const templates = this.responseTemplates[language] || this.responseTemplates.en;
         const feedbackResponses = [
-            "Thanks for letting me know! I'll remember that for next time.",
-            "I appreciate the feedback. I'll try to do better moving forward.",
-            "Got it! I'll keep that in mind for future conversations.",
-            "Thanks for telling me. I'm always learning and improving."
+            "Got it, noted.",
+            "Makes sense. I'll keep that in mind.",
+            "Cool, thanks for saying.",
+            "Noted. Anything else?"
         ];
         const randomIndex = Math.floor(Math.random() * feedbackResponses.length);
         return feedbackResponses[randomIndex];
@@ -187,11 +181,10 @@ class ResponseGenerator {
         
         // Topic-specific response templates
         const topicResponses = [
-            `That's an interesting topic: "${topic}". What would you like to know about it?`,
-            `I'd be happy to discuss "${topic}" with you. What specific aspects interest you?`,
-            `"${topic}" is a great subject to explore. What questions do you have about it?`,
-            `Let's talk about "${topic}". What would you like to discuss regarding this topic?`,
-            `I find "${topic}" fascinating. What would you like to explore about it?`
+            `"${topic}" — yeah, what about it?`,
+            `Oh interesting, what specifically?`,
+            `What do you want to know about ${topic}?`,
+            `Go on, what's your question about ${topic}?`,
         ];
         
         const randomIndex = Math.floor(Math.random() * topicResponses.length);

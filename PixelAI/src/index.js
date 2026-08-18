@@ -523,6 +523,7 @@ async function startBot() {
                 isGroup,
                 senderId,
                 senderName,
+                phoneNumber: senderId.replace(/@s\.whatsapp\.net$/, '').replace(/:.*/, ''),
                 participant: isGroup ? senderId : null,
                 msgType: body.type
             };

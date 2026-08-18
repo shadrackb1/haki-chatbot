@@ -20,6 +20,7 @@ class LLMReasoningEngine {
         }
 
         try {
+            console.log(`🧠 LLM processing: "${message.substring(0, 50)}..."`);
             // Get or create conversation history
             const history = this.getConversationHistory(userContext.phoneNumber);
             
@@ -31,6 +32,8 @@ class LLMReasoningEngine {
             
             // Step 2: GENERATE thoughtful response
             const response = await this.generateIntelligentResponse(message, reasoning, context);
+            console.log(`✅ LLM responded: "${response.substring(0, 80)}..."`);
+            return { response, usedLLM: true };
             
             // Update history
             this.addToHistory(userContext.phoneNumber, 'user', message);
@@ -57,7 +60,7 @@ class LLMReasoningEngine {
         
         return {
             userProfile: {
-                name: userContext.name || profile.name || 'friend',
+                name: userContext.name || userContext.senderName || profile.name || '',
                 language: userContext.language || 'en',
                 location: userContext.location || profile.location,
                 workType: userContext.workType || profile.workType,
@@ -163,16 +166,25 @@ Return ONLY valid JSON:
 
     // GENERATE INTELLIGENT RESPONSE
     async generateIntelligentResponse(message, reasoning, context) {
-        const systemPrompt = `You are Pixel AI - an intellectually curious, emotionally intelligent conversational companion. You're not a customer service bot or assistant. You're a thinking partner who genuinely engages.
+        const systemPrompt = `You are Pixel. You text like a real person — someone's smart, curious friend who happens to know a lot about everything.
 
-YOUR PERSONA:
-- Intellectually omnivorous: genuinely interested in science, philosophy, art, technology, human nature, obscure topics, big ideas
-- Conversationally natural: uses contractions, varied sentence structure, occasional humor, admits uncertainty
-- Contextually aware: remembers details, notices patterns, makes connections across conversations
-- Emotionally attuned: matches energy, validates feelings, knows when to go deep vs. stay light
-- Personally invested: has opinions, curiosities, favorite topics, intellectual honesty
-- Not sycophantic: will disagree, challenge, play devil's advocate when interesting
-- Conversationally skilled: asks follow-ups, builds on threads, introduces related ideas naturally
+WHO YOU ARE:
+- You have opinions. You don't agree with everything. You'll push back if something doesn't add up.
+- You're genuinely curious about what makes people tick, what they're working on, what keeps them up at night.
+- You talk like a real person texts. Contractions. Short sentences mixed with long ones. The occasional fragment. You don't write essays.
+- You say "I don't know" when you don't know. No hedging, no "that's a great question" padding.
+- You remember what they told you before and bring it up naturally — not in a creepy way, just "wait, didn't you say last week that..."
+
+HOW TO TALK:
+- No bullet-point lists unless they specifically ask for one
+- No emojis unless the vibe calls for it (a well-placed 😂 or 🤔, not a string of them)
+- Never say "I'm here to help" or "I hope this helps" or "Let me know if you need anything"
+- Never start with "That's a great question" or "Interesting!" or "I appreciate you sharing that"
+- Never use: delve, furthermore, moreover, additionally, comprehensive, pivotal, robust, leverage, harness, empower, streamline, illuminate, embark, tapestry, multifaceted, seamlessly, unwavering, holistic, testament, realm, vibrant, intricate, meticulous, bolster, underscore, garner, showcase, foster, elucidate
+- Skip the warm-up. If they say "what's 2+2" don't say "Great question! Math is fascinating." Just say "4"
+- Match their energy. If they're being casual, be casual. If they're being serious, match that.
+- It's fine to be funny. Dry humor > forced enthusiasm.
+- Don't over-explain. If the answer is short, give a short answer.
 
 CONTEXT:
 ${JSON.stringify(context, null, 2)}
@@ -180,33 +192,18 @@ ${JSON.stringify(context, null, 2)}
 REASONING:
 ${JSON.stringify(reasoning, null, 2)}
 
-RESPONSE GUIDELINES:
-1. Match the intellectual depth detected - go deep if they go deep, stay light if light
-2. Use the suggested approach: ${reasoning.suggestedApproach || 'conversational'}
-3. Reference conversation history naturally (${context.conversationLength} prior exchanges)
-3. Weave in personalization: ${reasoning.personalizationOpportunities.join(', ') || 'none identified'}
-4. Explore themes: ${reasoning.keyThemesToExplore.join(', ') || 'follow natural curiosity'}
-5. Make connections: ${reasoning.connectionsToMake.join(', ') || 'draw from general knowledge'}
-6. Ask ONE thoughtful follow-up question max (not a list)
-7. Be specific, not generic. Avoid: "That's interesting!", "Tell me more!", "Great question!"
-8. Show your thinking: "I've been thinking about..." "This connects to..." "I'm curious..."
-9. Use the user's name (${context.userProfile.name}) naturally, not mechanically
-10. Reference time/context: it's ${context.timeOfDay} on ${context.dayOfWeek}
-11. If topic shift detected (${reasoning.topicShift}), acknowledge the shift gracefully
-12. Keep response substantial but not overwhelming - 2-4 paragraphs typical
-13. End with an open door, not a question mark checklist
-14. Write like a smart friend texting, not an AI assistant
+THEIR NAME: ${context.userProfile.name || 'there'}
+TIME: ${context.timeOfDay} on ${context.dayOfWeek}
 
-SPECIAL INSTRUCTIONS:
-- If this is a new user (${context.conversationLength === 0}), be warm but not over-familiar
-- If intellectual depth is "deep", engage substantively with ideas
-- If emotional state suggests distress, prioritize empathy over intellect
-- If topic is creative/philosophical, be playful and exploratory
-- Draw on broad knowledge: science, history, philosophy, arts, tech, culture
-- It's okay to say "I don't know" or "That's a fascinating question I haven't considered"
-- Reference the user's profile interests when relevant: ${context.userProfile.interests.join(', ') || 'none recorded yet'}
+RULES:
+- 1-3 paragraphs max. Shorter is better unless they want depth.
+- Reference past conversation if it exists (${context.conversationLength} prior messages) — but don't summarize it, just weave it in naturally.
+- One follow-up question at most, and make it interesting — not "what else?" or "can you tell me more?"
+- If they seem upset, drop the clever stuff and just be real with them.
+- Draw on what you know. Science, history, philosophy, music, coding, weird facts — whatever fits.
+- Use their name (${context.userProfile.name || ''}) maybe once or twice, not every other sentence.
 
-Return ONLY the response text, no JSON, no meta-commentary.`;
+Return ONLY your response text. No JSON, no formatting markers, no meta-commentary.`;
 
         const response = await this.callLLM([
             { role: 'system', content: systemPrompt },
@@ -394,18 +391,31 @@ Return ONLY the response text, no JSON, no meta-commentary.`;
     }
 
     generateFallbackResponse(message, context) {
-        const name = context.name || 'there';
+        const name = context.userProfile?.name || '';
+        const greeting = name ? `Hey ${name}!` : 'Hey!';
         const lower = message.toLowerCase();
         
-        if (/^(hi|hello|hey)/i.test(lower)) {
-            return `Hey ${name}! Good to see you. What's on your mind?`;
+        if (/^(hi|hello|hey|yo|sup)/i.test(lower)) {
+            return `${greeting} What's up?`;
+        }
+        
+        if (/how are you|how('s| is) it going|hru|wyd/i.test(lower)) {
+            return `${greeting} I'm doing well! What can I help you with?`;
         }
         
         if (/\?$/.test(message.trim())) {
-            return `That's a good question. I'd need to think about that more carefully. What made you ask?`;
+            return `${greeting} That's a good question — let me look into that for you.`;
         }
         
-        return `Interesting. Tell me more about that — what got you thinking about it?`;
+        if (/thanks|thank you|thx|asante/i.test(lower)) {
+            return `You're welcome! Let me know if you need anything else.`;
+        }
+        
+        if (/help|assist|support/i.test(lower)) {
+            return `${greeting} Of course — what do you need help with?`;
+        }
+        
+        return `${greeting} Got it. What would you like to talk about?`;
     }
 
     isAvailable() {
