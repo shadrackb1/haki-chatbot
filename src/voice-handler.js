@@ -39,7 +39,7 @@ class VoiceHandler {
   }
 
   // Transcribe audio using Whisper API
-  async transcribe(audioPath, language = 'sw') {
+  async transcribe(audioPath, language = 'en') {
     if (!this.enabled) {
       return { text: '', error: 'Whisper API not configured' };
     }
@@ -90,7 +90,7 @@ class VoiceHandler {
       fs.writeFileSync(audioPath, buffer);
 
       // Detect language from user
-      const userLang = 'sw'; // Default to Swahili
+      const userLang = 'en'; // Default to English
 
       // Transcribe
       const result = await this.transcribe(audioPath, userLang);

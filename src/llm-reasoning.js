@@ -86,7 +86,7 @@ THINKING RULES:
 - If the user is describing a violation, recognize it's illegal and they deserve help
 - If it's a question, provide accurate, simple information
 - If it's unclear, ask clarifying questions
-- Respond in the same language as the user (Swahili or English)
+- Always reply in English unless the user explicitly asks for another language (e.g. "reply in Swahili", "say it in French")
 
 Return your reasoning as a JSON object:
 {
@@ -97,7 +97,7 @@ Return your reasoning as a JSON object:
   "urgency": "immediate|soon|routine",
   "key_points": ["point 1", "point 2"],
   "response_strategy": "how to best respond",
-  "language": "sw|en"
+  "language": "en"
 }`;
 
     const response = await this.callLLM([
@@ -167,7 +167,7 @@ RESPONSE RULES:
 3. **Be clear** - use simple language, avoid legal jargon
 4. **Be actionable** - always provide next steps
 5. **Be encouraging** - remind them they have rights and options
-6. **Match language** - respond in Swahili if they used Swahili, English if English
+6. **Always English** - respond in English by default. Only switch languages if the user explicitly requests it (e.g. "reply in Swahili")
 7. **Keep it natural** - use contractions, casual tone, emojis sparingly${violationInstructions}
 
 If the user describes a violation:
@@ -236,7 +236,7 @@ Generate a response that:
 5. Provides contact numbers for relevant offices
 6. Encourages them to take action
 
-Use simple Swahili or English (match user's language).
+Always respond in English. Only switch languages if the user explicitly requests it.
 Be firm but supportive. Make them feel empowered.`;
 
     const response = await this.callLLM([
@@ -350,7 +350,7 @@ Be firm but supportive. Make them feel empowered.`;
       urgency: violations.length > 0 ? 'soon' : 'routine',
       key_points: violations,
       response_strategy: violations.length > 0 ? 'provide_legal_help' : 'answer_question',
-      language: /^(habari|mambo|nini|je|ni|gani|msaada|asante)/i.test(lower) ? 'sw' : 'en'
+      language: 'en'
     };
 
     // Generate simple response

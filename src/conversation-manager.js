@@ -163,7 +163,7 @@ class ConversationManager {
   // WELCOME FLOW FOR NEW USERS
   // ============================================
 
-  getWelcomeMessage(user, lang = 'sw') {
+  getWelcomeMessage(user, lang = 'en') {
     if (lang === 'sw') {
       return `🇰🇪 *Karibu sana Haki Chatbot!*
 
@@ -211,7 +211,7 @@ Or type one of these:
   // CONVERSATIONAL RESPONSE GENERATORS
   // ============================================
 
-  getConversationalGreeting(user, lang = 'sw') {
+  getConversationalGreeting(user, lang = 'en') {
     const hour = new Date().getHours();
     let timeGreeting = '';
     
@@ -254,7 +254,7 @@ If you forgot, you can type:
 I'm here to help! 💪`;
   }
 
-  getConversationalResponse(intent, violation, user, lang = 'sw') {
+  getConversationalResponse(intent, violation, user, lang = 'en') {
     // Add human-like conversational elements
     const empathyPhrases = {
       sw: [
@@ -367,7 +367,7 @@ I'm here to help! 💪`;
   // CONVERSATIONAL CLARIFICATION
   // ============================================
 
-  getClarificationMessage(lang = 'sw') {
+  getClarificationMessage(lang = 'en') {
     if (lang === 'sw') {
       return `🤔 *Ningependa kuelewa zaidi...*
 
@@ -393,7 +393,7 @@ Example: "I work on a coffee farm in Nyeri. I am paid only KES 200 per day and h
   // CONVERSATIONAL FOLLOW-UPS
   // ============================================
 
-  getFollowUpMessage(user, lang = 'sw') {
+  getFollowUpMessage(user, lang = 'en') {
     const hour = new Date().getHours();
     const timeOfDay = hour < 12 ? 'asubuhi' : hour < 17 ? 'mchana' : 'jioni';
 
@@ -428,7 +428,7 @@ If you had a problem earlier, please tell me more so I can help you better.
   // HUMAN-LIKE ERROR HANDLING
   // ============================================
 
-  getErrorMessage(lang = 'sw') {
+  getErrorMessage(lang = 'en') {
     if (lang === 'sw') {
       return `😅 *Samahani, kuna kitu kimefanyika vibaya.*
 
@@ -452,7 +452,7 @@ I'm here to help! 💪`;
   // HUMAN-LIKE CLOSING
   // ============================================
 
-  getClosingMessage(user, lang = 'sw') {
+  getClosingMessage(user, lang = 'en') {
     if (lang === 'sw') {
       return `🙏 *Asante sana, ${user.firstName || 'rafiki'}!*
 
