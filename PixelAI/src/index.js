@@ -443,6 +443,10 @@ async function startBot() {
 
             const chatId = msg.key.remoteJid;
             const isGroup = chatId.endsWith('@g.us');
+            
+            // Skip group messages for now
+            if (isGroup) continue;
+            
             const senderId = msg.key.participant || msg.key.remoteJid;
             const senderName = msg.pushName || 'friend';
 
