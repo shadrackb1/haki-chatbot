@@ -19,7 +19,7 @@ const LLM_API_URL =
   process.env.LLM_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LLM_MODEL = process.env.LLM_MODEL || 'meta/llama-3.1-8b-instruct';
 
-const KB_DIR = join(__dirname, '..', '..', '..', 'data', 'knowledge-base');
+const KB_DIR = join(__dirname, '..', '..', 'data', 'knowledge-base');
 
 const SUPPORTED_EXTENSIONS = new Set(['.txt', '.md', '.json', '.csv']);
 

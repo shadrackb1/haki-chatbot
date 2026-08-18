@@ -10,7 +10,7 @@ const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
 const OVERPASS_BASE = 'https://overpass-api.de/api/interpreter';
 const OSRM_BASE = 'https://router.project-osrm.org/route/v1/foot';
 
-const USER_AGENT = 'HakiChatbot/1.0 (location-skill)';
+const USER_AGENT = 'PixelAI/1.0 (location-skill)';
 const NOMINATIM_DELAY_MS = 1100;
 
 let lastNominatimCall = 0;

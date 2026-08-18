@@ -169,7 +169,7 @@ export class LocationHandler {
     );
 
     const body = await httpsGet(url, {
-      "User-Agent": "HakiChatbot/1.0 (contact@haki-bot)",
+      "User-Agent": "PixelAI/1.0 (contact@pixel-bot)",
       Accept: "application/json",
     });
 
@@ -198,7 +198,7 @@ export class LocationHandler {
     const url = `${OVERPASS_BASE}?data=${encoded}`;
 
     const body = await httpsGet(url, {
-      "User-Agent": "HakiChatbot/1.0 (contact@haki-bot)",
+      "User-Agent": "PixelAI/1.0 (contact@pixel-bot)",
       Accept: "application/json",
     });
 
@@ -234,7 +234,7 @@ export class LocationHandler {
     );
 
     const body = await httpsGet(url, {
-      "User-Agent": "HakiChatbot/1.0 (contact@haki-bot)",
+      "User-Agent": "PixelAI/1.0 (contact@pixel-bot)",
       Accept: "application/json",
     });
 
