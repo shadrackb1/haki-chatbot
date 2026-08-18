@@ -288,6 +288,7 @@ async function startBot() {
         }
 
         if (connection === 'open') {
+            botLive = true;
             botJid = sock.user?.id;
             console.log('✅ Pixel AI is LIVE!');
             console.log('🤖 Bot JID:', botJid);
