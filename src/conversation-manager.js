@@ -23,15 +23,49 @@ function loadUsers() {
   return {};
 }
 
-// Save users database
-function saveUsers(users) {
+const SAVE_DEBOUNCE_MS = 1500;
+let saveTimer = null;
+let pendingUsers = null;
+
+function writeUsers(users) {
   try {
-    console.log(`💾 Saving users to: ${USERS_FILE}`);
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-    console.log(`✅ Users saved successfully`);
   } catch (error) {
     console.log('⚠️ Could not save users database:', error.message);
   }
+}
+
+function flushPendingSave() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    writeUsers(pendingUsers);
+    pendingUsers = null;
+  }
+}
+
+// One incoming message can touch the profile several times (lastSeen,
+// history, context). Debounce so each burst hits the disk once instead of
+// on every call; pending changes are flushed on shutdown.
+function saveUsers(users) {
+  pendingUsers = users;
+  if (!saveTimer) {
+    saveTimer = setTimeout(() => {
+      saveTimer = null;
+      writeUsers(pendingUsers);
+      pendingUsers = null;
+    }, SAVE_DEBOUNCE_MS);
+    // A pending save alone shouldn't keep the process alive
+    if (typeof saveTimer.unref === 'function') saveTimer.unref();
+  }
+}
+
+process.on('exit', flushPendingSave);
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    flushPendingSave();
+    process.exit(0);
+  });
 }
 
 // ============================================
