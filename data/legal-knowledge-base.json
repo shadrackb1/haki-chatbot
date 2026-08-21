@@ -2,12 +2,58 @@
   "violation_categories": [
     {
       "id": "WAGE_VIOLATION",
-      "keywords_sw": ["mshahara", "mishahara", "pesa", "kulipwa", "haunipii", "kidogo", "hawajanilipa", "deni", "madeni", "nalipwa", "wanalipa", "sitanilipa", "hawajanilipa", "kiasi", "ndogo", "chini", "malipo", "kodi", "faini", "kes"],
-      "keywords_en": ["wage", "salary", "pay", "paid", "unpaid", "money", "owe", "arrears", "underpaid", "low pay", "minimum wage", "daily wage"],
+      "keywords_sw": [
+        "mshahara",
+        "mishahara",
+        "pesa",
+        "kulipwa",
+        "haunipii",
+        "kidogo",
+        "hawajanilipa",
+        "deni",
+        "madeni",
+        "nalipwa",
+        "wanalipa",
+        "sitanilipa",
+        "hawajanilipa",
+        "kiasi",
+        "ndogo",
+        "chini",
+        "malipo",
+        "kodi",
+        "faini",
+        "kes"
+      ],
+      "keywords_en": [
+        "wage",
+        "salary",
+        "pay",
+        "paid",
+        "unpaid",
+        "money",
+        "owe",
+        "arrears",
+        "underpaid",
+        "low pay",
+        "minimum wage",
+        "daily wage"
+      ],
       "keywords_local": {
-        "kikuyu": ["muhoro", "mbeca", "ndungu", "guoko"],
-        "luo": ["wuoyi", "chiemo", "odiech"],
-        "kalenjin": ["osotwa", "emboret"]
+        "kikuyu": [
+          "muhoro",
+          "mbeca",
+          "ndungu",
+          "guoko"
+        ],
+        "luo": [
+          "wuoyi",
+          "chiemo",
+          "odiech"
+        ],
+        "kalenjin": [
+          "osotwa",
+          "emboret"
+        ]
       },
       "description": "Wage violations including below-minimum wage, delayed payment, non-payment",
       "severity": "high",
@@ -43,7 +89,11 @@
             "Employer will be summoned",
             "Decision issued within 30 days"
           ],
-          "documents_needed": ["National ID", "Any payment records", "Employment contract if available"],
+          "documents_needed": [
+            "National ID",
+            "Any payment records",
+            "Employment contract if available"
+          ],
           "timeline": "30 days for first hearing"
         },
         {
@@ -55,7 +105,11 @@
             "Free legal aid available through NLAS",
             "Court hearing within 90 days"
           ],
-          "documents_needed": ["National ID", "Evidence of employment", "Evidence of wage payment/non-payment"],
+          "documents_needed": [
+            "National ID",
+            "Evidence of employment",
+            "Evidence of wage payment/non-payment"
+          ],
           "timeline": "90 days for hearing"
         }
       ],
@@ -64,12 +118,34 @@
     },
     {
       "id": "NO_CONTRACT",
-      "keywords_sw": ["mkataba", "contract", "hakuna mkataba", "sijafaidiwa", "rasmi", "kandarasi"],
-      "keywords_en": ["contract", "no contract", "written", "agreement", "informal"],
+      "keywords_sw": [
+        "mkataba",
+        "contract",
+        "hakuna mkataba",
+        "sijafaidiwa",
+        "rasmi",
+        "kandarasi"
+      ],
+      "keywords_en": [
+        "contract",
+        "no contract",
+        "written",
+        "agreement",
+        "informal"
+      ],
       "keywords_local": {
-        "kikuyu": ["mkataba", "agreement"],
-        "luo": ["kitabu", "agreement"],
-        "kalenjin": ["kitab", "agreement"]
+        "kikuyu": [
+          "mkataba",
+          "agreement"
+        ],
+        "luo": [
+          "kitabu",
+          "agreement"
+        ],
+        "kalenjin": [
+          "kitab",
+          "agreement"
+        ]
       },
       "description": "Working without a written employment contract",
       "severity": "medium",
@@ -98,7 +174,10 @@
             "Labour officer will require employer to issue contract",
             "Employer fined if they fail to comply"
           ],
-          "documents_needed": ["National ID", "Evidence of employment (M-Pesa statements, photos, witness statements)"],
+          "documents_needed": [
+            "National ID",
+            "Evidence of employment (M-Pesa statements, photos, witness statements)"
+          ],
           "timeline": "14 days for intervention"
         }
       ],
@@ -107,12 +186,49 @@
     },
     {
       "id": "SAFETY_VIOLATION",
-      "keywords_sw": ["usalama", "barakoa", "gloves", "mask", "chemical", "pesticides", "dawa", "hatari", "ajali", "majeruhi"],
-      "keywords_en": ["safety", "PPE", "protective", "equipment", "gloves", "mask", "chemical", "pesticide", "injury", "hazard"],
+      "keywords_sw": [
+        "usalama",
+        "barakoa",
+        "gloves",
+        "mask",
+        "chemical",
+        "pesticides",
+        "dawa",
+        "hatari",
+        "ajali",
+        "majeruhi"
+      ],
+      "keywords_en": [
+        "safety",
+        "PPE",
+        "protective",
+        "equipment",
+        "gloves",
+        "mask",
+        "chemical",
+        "pesticide",
+        "injury",
+        "hazard",
+        "injure",
+        "hurt",
+        "accident"
+      ],
       "keywords_local": {
-        "kikuyu": ["gathii", "barakoa", "hatari"],
-        "luo": ["ngato", "barakoa", "ng'ato"],
-        "kalenjin": ["kemwet", "barakoa", "ng'ato"]
+        "kikuyu": [
+          "gathii",
+          "barakoa",
+          "hatari"
+        ],
+        "luo": [
+          "ngato",
+          "barakoa",
+          "ng'ato"
+        ],
+        "kalenjin": [
+          "kemwet",
+          "barakoa",
+          "ng'ato"
+        ]
       },
       "description": "Lack of personal protective equipment (PPE) and unsafe working conditions",
       "severity": "high",
@@ -148,7 +264,11 @@
             "Improvement notice issued to employer",
             "Follow-up inspection to verify compliance"
           ],
-          "documents_needed": ["National ID", "Photos of conditions if possible", "Names of witnesses"],
+          "documents_needed": [
+            "National ID",
+            "Photos of conditions if possible",
+            "Names of witnesses"
+          ],
           "timeline": "7 days for inspection"
         },
         {
@@ -160,7 +280,10 @@
             "Labour officer investigates",
             "Employer required to provide PPE immediately"
           ],
-          "documents_needed": ["National ID", "Description of conditions"],
+          "documents_needed": [
+            "National ID",
+            "Description of conditions"
+          ],
           "timeline": "14 days"
         }
       ],
@@ -169,12 +292,40 @@
     },
     {
       "id": "CHILD_LABOR",
-      "keywords_sw": ["mtoto", "watoto", "kazi ya mtoto", "shule", "education", "chakula", "kuvalisha"],
-      "keywords_en": ["child", "children", "kid", "young", "school", "education", "underage"],
+      "keywords_sw": [
+        "mtoto",
+        "watoto",
+        "kazi ya mtoto",
+        "shule",
+        "education",
+        "chakula",
+        "kuvalisha"
+      ],
+      "keywords_en": [
+        "child",
+        "children",
+        "kid",
+        "young",
+        "school",
+        "education",
+        "underage"
+      ],
       "keywords_local": {
-        "kikuyu": ["muthuana", "ana", "school"],
-        "luo": ["chwaro", "dhano", "school"],
-        "kalenjin": ["koret", "embeyet", "school"]
+        "kikuyu": [
+          "muthuana",
+          "ana",
+          "school"
+        ],
+        "luo": [
+          "chwaro",
+          "dhano",
+          "school"
+        ],
+        "kalenjin": [
+          "koret",
+          "embeyet",
+          "school"
+        ]
       },
       "description": "Child labor in agribusiness sector",
       "severity": "critical",
@@ -211,7 +362,11 @@
             "Child removed from hazardous work",
             "Employer prosecuted"
           ],
-          "documents_needed": ["Child's name and age", "Location of work", "Names of employer"],
+          "documents_needed": [
+            "Child's name and age",
+            "Location of work",
+            "Names of employer"
+          ],
           "timeline": "48 hours for emergency response"
         },
         {
@@ -223,7 +378,10 @@
             "Police investigate",
             "Employer arrested if evidence found"
           ],
-          "documents_needed": ["Description of the child's situation", "Location details"],
+          "documents_needed": [
+            "Description of the child's situation",
+            "Location details"
+          ],
           "timeline": "24 hours for emergency cases"
         }
       ],
@@ -232,12 +390,43 @@
     },
     {
       "id": "ENVIRONMENTAL_HARM",
-      "keywords_sw": ["mazingira", "maji", "mtoni", "ardhi", "msitu", "ufutaji", "maji machafu", "hewa"],
-      "keywords_en": ["environment", "water", "river", "land", "forest", "deforestation", "pollution", "waste", "air"],
+      "keywords_sw": [
+        "mazingira",
+        "maji",
+        "mtoni",
+        "ardhi",
+        "msitu",
+        "ufutaji",
+        "maji machafu",
+        "hewa"
+      ],
+      "keywords_en": [
+        "environment",
+        "water",
+        "river",
+        "land",
+        "forest",
+        "deforestation",
+        "pollution",
+        "waste",
+        "air"
+      ],
       "keywords_local": {
-        "kikuyu": ["muga", "ruthi", "kihoto"],
-        "luo": ["ngato", "nyathomo", "dhana"],
-        "kalenjin": ["tinet", "amalel", "kiptaiyet"]
+        "kikuyu": [
+          "muga",
+          "ruthi",
+          "kihoto"
+        ],
+        "luo": [
+          "ngato",
+          "nyathomo",
+          "dhana"
+        ],
+        "kalenjin": [
+          "tinet",
+          "amalel",
+          "kiptaiyet"
+        ]
       },
       "description": "Environmental damage from agribusiness operations",
       "severity": "high",
@@ -273,7 +462,12 @@
             "Tribunal hearing within 60 days",
             "Binding decision issued"
           ],
-          "documents_needed": ["Description of environmental harm", "Photos/videos", "Names of responsible parties", "Location details"],
+          "documents_needed": [
+            "Description of environmental harm",
+            "Photos/videos",
+            "Names of responsible parties",
+            "Location details"
+          ],
           "timeline": "60 days for hearing"
         },
         {
@@ -285,7 +479,11 @@
             "Report the environmental harm",
             "NEMA investigates and issues enforcement notices"
           ],
-          "documents_needed": ["Description of violation", "Location", "Evidence if possible"],
+          "documents_needed": [
+            "Description of violation",
+            "Location",
+            "Evidence if possible"
+          ],
           "timeline": "14 days for investigation"
         }
       ],
@@ -294,12 +492,45 @@
     },
     {
       "id": "GENDER_VIOLENCE",
-      "keywords_sw": ["unyanyasaji", "ubakaji", "ushoga", "ubaguzi", "mwanamke", "wasichana", "sexually"],
-      "keywords_en": ["harassment", "assault", "abuse", "discrimination", "sexual", "violence", "women", "girls"],
+      "keywords_sw": [
+        "unyanyasaji",
+        "ubakaji",
+        "ushoga",
+        "ubaguzi",
+        "mwanamke",
+        "wasichana",
+        "sexually"
+      ],
+      "keywords_en": [
+        "harassment",
+        "assault",
+        "abuse",
+        "discrimination",
+        "sexual",
+        "violence",
+        "women",
+        "girls",
+        "touch",
+        "touches",
+        "advances",
+        "proposition"
+      ],
       "keywords_local": {
-        "kikuyu": ["thutha", "harassment", "discrimination"],
-        "luo": ["nyiech", "harassment", "discrimination"],
-        "kalenjin": ["koiywo", "harassment", "discrimination"]
+        "kikuyu": [
+          "thutha",
+          "harassment",
+          "discrimination"
+        ],
+        "luo": [
+          "nyiech",
+          "harassment",
+          "discrimination"
+        ],
+        "kalenjin": [
+          "koiywo",
+          "harassment",
+          "discrimination"
+        ]
       },
       "description": "Gender-based violence and sexual harassment in the workplace",
       "severity": "critical",
@@ -336,7 +567,11 @@
             "PPO certificate issued for medical examination",
             "Suspect arrested and charged"
           ],
-          "documents_needed": ["Your statement", "Any evidence (messages, photos)", "Names of witnesses"],
+          "documents_needed": [
+            "Your statement",
+            "Any evidence (messages, photos)",
+            "Names of witnesses"
+          ],
           "timeline": "24 hours for emergency response"
         },
         {
@@ -349,7 +584,10 @@
             "Mediation or formal hearing",
             "Binding decision"
           ],
-          "documents_needed": ["Written statement", "Evidence of harassment"],
+          "documents_needed": [
+            "Written statement",
+            "Evidence of harassment"
+          ],
           "timeline": "30 days"
         }
       ],
@@ -358,12 +596,44 @@
     },
     {
       "id": "LAND_RIGHTS",
-      "keywords_sw": ["ardhi", "shamba", "eneo", "mmiliki", "ukodisha", "kuondoa", "kuhamishwa"],
-      "keywords_en": ["land", "farm", "property", "owner", "eviction", "displacement", "lease", "tenant"],
+      "keywords_sw": [
+        "ardhi",
+        "shamba",
+        "eneo",
+        "mmiliki",
+        "ukodisha",
+        "kuondoa",
+        "kuhamishwa"
+      ],
+      "keywords_en": [
+        "land",
+        "farm",
+        "property",
+        "owner",
+        "eviction",
+        "displacement",
+        "lease",
+        "tenant",
+        "evict",
+        "kicked out",
+        "thrown out"
+      ],
       "keywords_local": {
-        "kikuyu": ["mathithio", "shamba", "kihoto"],
-        "luo": ["diel", "pwot", "dale"],
-        "kalenjin": ["korosiet", "sosiot", "kiptaiywo"]
+        "kikuyu": [
+          "mathithio",
+          "shamba",
+          "kihoto"
+        ],
+        "luo": [
+          "diel",
+          "pwot",
+          "dale"
+        ],
+        "kalenjin": [
+          "korosiet",
+          "sosiot",
+          "kiptaiywo"
+        ]
       },
       "description": "Land rights violations including forced eviction, land grabbing, and unfair lease terms",
       "severity": "critical",
@@ -399,7 +669,12 @@
             "Full hearing within 90 days",
             "Binding decision"
           ],
-          "documents_needed": ["National ID", "Land ownership documents", "Lease agreement if available", "Evidence of eviction/displacement"],
+          "documents_needed": [
+            "National ID",
+            "Land ownership documents",
+            "Lease agreement if available",
+            "Evidence of eviction/displacement"
+          ],
           "timeline": "90 days"
         },
         {
@@ -411,7 +686,10 @@
             "NLC investigates",
             "Recommendations to government"
           ],
-          "documents_needed": ["Description of land issue", "Ownership documents"],
+          "documents_needed": [
+            "Description of land issue",
+            "Ownership documents"
+          ],
           "timeline": "60 days"
         }
       ],
@@ -420,12 +698,35 @@
     },
     {
       "id": "CERTIFICATION_FRAUD",
-      "keywords_sw": ["certification", "fairtrade", "认证", "kashingo", "hakiki", "ukaguzi"],
-      "keywords_en": ["certification", "fairtrade", "audit", "inspection", "compliance", "standard"],
+      "keywords_sw": [
+        "certification",
+        "fairtrade",
+        "认证",
+        "kashingo",
+        "hakiki",
+        "ukaguzi"
+      ],
+      "keywords_en": [
+        "certification",
+        "fairtrade",
+        "audit",
+        "inspection",
+        "compliance",
+        "standard"
+      ],
       "keywords_local": {
-        "kikuyu": ["certification", "audit"],
-        "luo": ["certification", "audit"],
-        "kalenjin": ["certification", "audit"]
+        "kikuyu": [
+          "certification",
+          "audit"
+        ],
+        "luo": [
+          "certification",
+          "audit"
+        ],
+        "kalenjin": [
+          "certification",
+          "audit"
+        ]
       },
       "description": "Certification fraud, audit manipulation, and non-compliance with standards",
       "severity": "medium",
@@ -454,7 +755,10 @@
             "CAK investigates",
             "Penalties imposed on offender"
           ],
-          "documents_needed": ["Evidence of false certification", "Communication records"],
+          "documents_needed": [
+            "Evidence of false certification",
+            "Communication records"
+          ],
           "timeline": "60 days"
         }
       ],
@@ -464,9 +768,9 @@
   ],
   "minimum_wages": {
     "agricultural": {
-      "unskilled": 282.90,
-      "semi_skilled": 350.00,
-      "skilled": 418.40,
+      "unskilled": 282.9,
+      "semi_skilled": 350,
+      "skilled": 418.4,
       "currency": "KES",
       "period": "per day",
       "source": "Regulation of Wages (Agricultural Industry) Order 2018",
@@ -486,86 +790,147 @@
       {
         "name": "Ministry of Labour and Social Protection",
         "short": "Labour Office",
-        "services": ["Wage disputes", "Contract violations", "Safety complaints", "Unfair dismissal"],
+        "services": [
+          "Wage disputes",
+          "Contract violations",
+          "Safety complaints",
+          "Unfair dismissal"
+        ],
         "contact": "020 222 3344",
         "website": "www.labour.go.ke"
       },
       {
         "name": "Employment and Labour Relations Court",
         "short": "Labour Court",
-        "services": ["Employment disputes", "Labour rights violations", "Unfair termination"],
-        "locations": ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret"],
+        "services": [
+          "Employment disputes",
+          "Labour rights violations",
+          "Unfair termination"
+        ],
+        "locations": [
+          "Nairobi",
+          "Mombasa",
+          "Kisumu",
+          "Nakuru",
+          "Eldoret"
+        ],
         "contact": "020 222 1291"
       },
       {
         "name": "Directorate of Occupational Safety and Health Services (DOSHS)",
         "short": "DOSHS",
-        "services": ["Workplace safety", "PPE complaints", "Hazardous conditions"],
+        "services": [
+          "Workplace safety",
+          "PPE complaints",
+          "Hazardous conditions"
+        ],
         "contact": "020 222 3344"
       },
       {
         "name": "National Legal Aid Service (NLAS)",
         "short": "Legal Aid",
-        "services": ["Free legal representation", "Legal advice", "Mediation"],
+        "services": [
+          "Free legal representation",
+          "Legal advice",
+          "Mediation"
+        ],
         "contact": "0800 723 255 (Toll-free)",
         "website": "www.nlas.go.ke"
       },
       {
         "name": "Kenya National Commission on Human Rights (KNCHR)",
         "short": "KNCHR",
-        "services": ["Human rights violations", "Discrimination", "Constitutional rights"],
+        "services": [
+          "Human rights violations",
+          "Discrimination",
+          "Constitutional rights"
+        ],
         "contact": "0800 720 607 (Toll-free)",
         "website": "www.knchr.org"
       },
       {
         "name": "National Gender and Equality Commission (NGEC)",
         "short": "NGEC",
-        "services": ["Gender-based violence", "Sexual harassment", "Discrimination"],
+        "services": [
+          "Gender-based violence",
+          "Sexual harassment",
+          "Discrimination"
+        ],
         "contact": "0800 721 233 (Toll-free)"
       },
       {
         "name": "National Environment Management Authority (NEMA)",
         "short": "NEMA",
-        "services": ["Environmental pollution", "Deforestation", "Water contamination"],
+        "services": [
+          "Environmental pollution",
+          "Deforestation",
+          "Water contamination"
+        ],
         "contact": "0722 500 777",
         "website": "www.nema.go.ke"
       },
       {
         "name": "National Environment Tribunal (NET)",
         "short": "Environment Tribunal",
-        "services": ["Environmental harm", "Land use disputes", "Pollution cases"],
+        "services": [
+          "Environmental harm",
+          "Land use disputes",
+          "Pollution cases"
+        ],
         "contact": "020 271 3744"
       },
       {
         "name": "National Land Commission (NLC)",
         "short": "NLC",
-        "services": ["Land disputes", "Forced eviction", "Land grabbing"],
+        "services": [
+          "Land disputes",
+          "Forced eviction",
+          "Land grabbing"
+        ],
         "contact": "020 222 8560"
       },
       {
         "name": "Department of Children's Services",
         "short": "Children's Office",
-        "services": ["Child labor", "Child abuse", "Children's rights"],
-        "locations": ["All 47 counties"],
+        "services": [
+          "Child labor",
+          "Child abuse",
+          "Children's rights"
+        ],
+        "locations": [
+          "All 47 counties"
+        ],
         "contact": "Visit nearest Chief's office"
       }
     ],
     "ngo_legal_aid": [
       {
         "name": "Kituo Cha Sheria",
-        "services": ["Free legal aid", "Community paralegals", "Human rights advocacy"],
+        "services": [
+          "Free legal aid",
+          "Community paralegals",
+          "Human rights advocacy"
+        ],
         "contact": "020 271 5212",
         "website": "www.kituochasheria.or.ke"
       },
       {
         "name": "FIDA Kenya",
-        "services": ["Women's rights", "Legal aid for women", "Gender-based violence"],
+        "services": [
+          "Women's rights",
+          "Legal aid for women",
+          "Gender-based violence"
+        ],
         "contact": "020 271 2722",
         "website": "www.fidakenya.org"
       },
       {
         "name": "Kenya Human Rights Commission (KHRC)",
-        "services": ["Human rights advocacy", "Strategic litigation", "Public interest litigation"],
+        "services": [
+          "Human rights advocacy",
+          "Strategic litigation",
+          "Public interest litigation"
+        ],
         "contact": "020 271 5363"
       }
     ]

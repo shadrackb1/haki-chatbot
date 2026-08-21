@@ -64,8 +64,10 @@ class VoiceHandler {
     });
   }
 
-  // Transcribe audio buffer using Whisper API
-  async transcribe(audioBuffer, language = 'en') {
+  // Transcribe audio buffer using Whisper API.
+  // Empty language = let Whisper auto-detect (Kenyan users mix English,
+  // Swahili and Sheng; forcing 'en' garbles non-English notes).
+  async transcribe(audioBuffer, language = '') {
     if (!this.enabled) {
       return { text: '', error: 'Whisper API not configured' };
     }
@@ -87,7 +89,7 @@ class VoiceHandler {
       const formData = new FormData();
       formData.append('file', new Blob([mp3Data], { type: 'audio/mpeg' }), 'audio.mp3');
       formData.append('model', this.model);
-      formData.append('language', language);
+      if (language) formData.append('language', language);
       formData.append('response_format', 'text');
 
       const response = await fetch(this.apiUrl, {

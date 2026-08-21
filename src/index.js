@@ -12,6 +12,7 @@ import ConversationManager from './conversation-manager.js';
 import LLMReasoningEngine from './llm-reasoning.js';
 import VoiceHandler from './voice-handler.js';
 import ImageHandler from './image-handler.js';
+import { toWhatsApp } from './whatsapp-format.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -64,6 +65,27 @@ function tokenizeText(text) {
   return text.toLowerCase().match(/[a-z0-9]+/g) || [];
 }
 
+// Workers write "wages", "injured", "evicted" — the KB stores "wage",
+// "injure", "evict". Generate morphological variants so inflected forms
+// still match instead of scoring zero.
+function tokenVariants(token) {
+  const variants = new Set([token]);
+  if (token.length > 3) {
+    if (token.endsWith('ies')) variants.add(token.slice(0, -3) + 'y');
+    if (token.endsWith('es')) variants.add(token.slice(0, -2));
+    if (token.endsWith('s')) variants.add(token.slice(0, -1));
+    if (token.endsWith('ing')) {
+      variants.add(token.slice(0, -3));
+      variants.add(token.slice(0, -3) + 'e');
+    }
+    if (token.endsWith('ed')) {
+      variants.add(token.slice(0, -2));
+      variants.add(token.slice(0, -1));
+    }
+  }
+  return [...variants];
+}
+
 // Calculate TF-IDF like score for better matching
 function calculateRelevanceScore(query, category) {
   const queryTokens = tokenizeText(query);
@@ -87,7 +109,8 @@ function calculateRelevanceScore(query, category) {
   const matchedKeywords = new Set();
 
   queryTokens.forEach(token => {
-    if (allKeywords.includes(token)) {
+    const matches = tokenVariants(token).some(v => allKeywords.includes(v));
+    if (matches) {
       // Basic match score
       score += 1;
       matchedKeywords.add(token);
@@ -340,7 +363,7 @@ async function startBot() {
         });
 
         // Send the AI-generated response (real intelligence, not static templates)
-        await sock.sendMessage(from, { text: llmResponse });
+        await sock.sendMessage(from, { text: toWhatsApp(llmResponse) });
 
         console.log(`✅ Response sent to ${from} (via ${usedLLM ? 'LLM' : 'fallback'})`);
         console.log(`   Intent: ${reasoning.intent} | Topic: ${reasoning.topic} | Urgency: ${reasoning.urgency}\n`);
