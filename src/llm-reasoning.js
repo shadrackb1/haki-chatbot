@@ -1,16 +1,18 @@
-﻿import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import conversationManager from './conversation-manager.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Load legal knowledge base once (used by the rule-based fallback)
+const legalKB = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'legal-knowledge-base.json'), 'utf8'));
+
 // ============================================
 // LLM PROVIDER CONFIGURATION
-// Priority: NVIDIA â†’ Groq â†’ Google AI Studio
+// Priority: NVIDIA → Groq → Google AI Studio
 // ============================================
 
 const LLM_PROVIDERS = {
@@ -48,13 +50,12 @@ class LLMReasoningEngine {
     // Find the first available provider
     this.activeProvider = PROVIDER_PRIORITY.find(p => LLM_PROVIDERS[p].enabled);
     this.enabled = !!this.activeProvider;
-    this.conversationHistory = new Map();
     
     if (this.enabled) {
       const provider = LLM_PROVIDERS[this.activeProvider];
-      console.log(`ðŸ¤– LLM Engine initialized with: ${provider.name} (${provider.model})`);
+      console.log(`🤖 LLM Engine initialized with: ${provider.name} (${provider.model})`);
     } else {
-      console.log('âš ï¸ No LLM provider configured - using rule-based fallback only');
+      console.log('⚠️ No LLM provider configured - using rule-based fallback only');
     }
   }
 
@@ -83,7 +84,7 @@ class LLMReasoningEngine {
         usedLLM: true
       };
     } catch (error) {
-      console.log('âš ï¸ LLM processing failed, using fallback');
+      console.log('⚠️ LLM processing failed, using fallback');
       return this.fallbackProcess(message, userContext);
     }
   }
@@ -285,70 +286,6 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
   }
 
   // ============================================
-  // LEGAL RESPONSE GENERATOR
-  // For when we need to provide specific legal information
-  // ============================================
-
-  async generateLegalResponse(violationType, message, reasoning, context = {}) {
-    const violationInfo = context.violation;
-    let violationContext = '';
-    
-    if (violationInfo && violationInfo.id === violationType) {
-      violationContext = `
-      
-SPECIFIC VIOLATION DETAILS:
-- Description: ${violationInfo.description}
-- Applicable Laws: ${JSON.stringify(violationInfo.applicable_laws)}
-- Remedy Pathways: ${JSON.stringify(violationInfo.remedy_pathways)}
-      
-Use this specific legal information to provide accurate, detailed guidance.`;
-    }
-
-    const systemPrompt = `You are Haki, a legal rights assistant for Kenyan agribusiness workers.
-
-The user has described a situation that appears to be a: ${violationType}${violationContext}
-
-Your reasoning:
-${JSON.stringify(reasoning, null, 2)}
-
-Generate a response that:
-1. Reacts like a person first ("That's rough. Here's where you stand.")
-2. States plainly that this is illegal under Kenyan law
-3. Cites the specific law and section
-4. Explains what to do in plain numbered steps
-5. Gives the phone number of the relevant office
-6. Encourages them without sounding like a motivational poster
-
-Never use chatbot filler ("Certainly!", "I hope this helps", "Is there anything else?"). No emojis unless the user used them first.
-Always respond in English. Only switch languages if the user explicitly requests it.
-Be firm but supportive.`;
-
-    const response = await this.callLLM(this.buildMessages(systemPrompt, message, context));
-
-    return response.choices[0].message.content;
-  }
-
-  // ============================================
-  // CONVERSATION HISTORY MANAGEMENT
-  // ============================================
-
-  getConversationHistory(userId) {
-    return this.conversationHistory.get(userId) || [];
-  }
-
-  addToHistory(userId, role, content) {
-    const history = this.conversationHistory.get(userId) || [];
-    history.push({ role, content, timestamp: new Date().toISOString() });
-    
-    // Keep only last 10 messages to manage context
-    if (history.length > 10) {
-      history.shift();
-    }
-    
-    this.conversationHistory.set(userId, history);
-  }
-
-  // ============================================
   // MULTI-PROVIDER LLM API CALL WITH FALLBACK
   // ============================================
 
@@ -362,12 +299,12 @@ Be firm but supportive.`;
       }
       
       try {
-        console.log(`ðŸ¤– Trying ${provider.name}: ${provider.model}`);
+        console.log(`🤖 Trying ${provider.name}: ${provider.model}`);
         const result = await this.callProvider(provider, messages);
-        console.log(`âœ… ${provider.name} responded successfully`);
+        console.log(`✅ ${provider.name} responded successfully`);
         return result;
       } catch (error) {
-        console.log(`âŒ ${provider.name} failed: ${error.message}`);
+        console.log(`❌ ${provider.name} failed: ${error.message}`);
         // Continue to next provider
         continue;
       }
@@ -526,13 +463,13 @@ Be firm but supportive.`;
 
     if (reasoning.intent === 'greeting') {
       return lang === 'sw'
-        ? 'Habari! Karibu Haki Chatbot. Nasaidia na masuala ya haki za kazi â€” mshahara, mkataba, usalama. Ni nini kinakusumbua?'
-        : 'Hello! Welcome to Haki Chatbot. I help with workplace rights in Kenya â€” wages, contracts, safety. What\'s going on?';
+        ? 'Habari! Karibu Haki Chatbot. Nasaidia na masuala ya haki za kazi — mshahara, mkataba, usalama. Ni nini kinakusumbua?'
+        : 'Hello! Welcome to Haki Chatbot. I help with workplace rights in Kenya — wages, contracts, safety. What\'s going on?';
     }
 
     if (reasoning.intent === 'thanks') {
       return lang === 'sw'
-        ? 'Asante pia! Haki yako ina thamani â€” ukiahitaji tena uko hapa.'
+        ? 'Asante pia! Haki yako ina thamani — ukiahitaji tena uko hapa.'
         : 'Any time! Your rights are worth following up on. Come back if you need more.';
     }
 
@@ -544,12 +481,10 @@ Be firm but supportive.`;
     // Default response
     return lang === 'sw'
       ? 'Sijaelewa vizuri. Eleza zaidi tatizo lako, kwa mfano malipo au usalama kazini. Au andika "haki zangu".'
-      : 'I didn\'t quite catch that. Tell me a bit more about what happened at work â€” pay, safety, contract, anything. Or type "rights" to see what you\'re entitled to.';
+      : 'I didn\'t quite catch that. Tell me a bit more about what happened at work — pay, safety, contract, anything. Or type "rights" to see what you\'re entitled to.';
   }
 
   getRuleBasedLegalResponse(violationType, lang) {
-    // Import legal KB
-    const legalKB = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'legal-knowledge-base.json'), 'utf8'));
     const category = legalKB.violation_categories.find(v => v.id === violationType);
     
     if (!category) {
@@ -559,26 +494,26 @@ Be firm but supportive.`;
     }
 
     // Build response
-    let response = lang === 'sw' ? 'ðŸš¨ *Haki zako zimebana hapa*\n\n' : 'ðŸš¨ *Your rights are being violated here*\n\n';
+    let response = lang === 'sw' ? '🚨 *Haki zako zimebana hapa*\n\n' : '🚨 *Your rights are being violated here*\n\n';
     response += lang === 'sw' ? `*Tatizo:* ${category.description}\n\n` : `*The problem:* ${category.description}\n\n`;
     response += lang === 'sw' ? '*Sheria Inayofaa:*\n' : '*Applicable Law:*\n';
     
     for (const law of category.applicable_laws) {
-      response += `ðŸ“œ ${law.law} (${law.section})\n`;
+      response += `📜 ${law.law} (${law.section})\n`;
     }
 
     response += '\n' + (lang === 'sw' ? '*Njia za Suluhisho:*\n' : '*Remedy Pathways:*\n');
     
     for (const pathway of category.remedy_pathways) {
-      response += `\nðŸ›ï¸ ${pathway.institution}\n`;
+      response += `\n🏛️ ${pathway.institution}\n`;
       response += lang === 'sw' ? `   Hatua: ${pathway.action}\n` : `   Action: ${pathway.action}\n`;
       for (const step of pathway.process) {
-        response += `   â€¢ ${step}\n`;
+        response += `   • ${step}\n`;
       }
-      response += `   â° ${pathway.timeline}\n`;
+      response += `   ⏰ ${pathway.timeline}\n`;
     }
 
-    response += '\n' + (lang === 'sw' ? 'ðŸ“ž NLAS (Bure): 0800 723 255' : 'ðŸ“ž NLAS (Free): 0800 723 255');
+    response += '\n' + (lang === 'sw' ? '📞 NLAS (Bure): 0800 723 255' : '📞 NLAS (Free): 0800 723 255');
 
     return response;
   }
@@ -589,24 +524,6 @@ Be firm but supportive.`;
 
   isAvailable() {
     return this.enabled;
-  }
-
-  getModelInfo() {
-    if (!this.activeProvider) {
-      return { model: 'none', provider: 'none', available: false };
-    }
-    const provider = LLM_PROVIDERS[this.activeProvider];
-    return {
-      model: provider.model,
-      provider: provider.name,
-      available: this.enabled,
-      allProviders: Object.entries(LLM_PROVIDERS).map(([key, p]) => ({
-        key,
-        name: p.name,
-        model: p.model,
-        enabled: p.enabled
-      }))
-    };
   }
 }
 
