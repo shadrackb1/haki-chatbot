@@ -9,18 +9,53 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ============================================
-// LLM REASONING ENGINE
-// Uses NVIDIA step-3.7-flash for ChatGPT-like reasoning
+// LLM PROVIDER CONFIGURATION
+// Priority: NVIDIA → Groq → Google AI Studio
 // ============================================
 
-const LLM_API_KEY = process.env.LLM_API_KEY || '';
-const LLM_API_URL = process.env.LLM_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions';
-const LLM_MODEL = process.env.LLM_MODEL || 'meta/llama-3.1-8b-instruct';
+const LLM_PROVIDERS = {
+  nvidia: {
+    name: 'NVIDIA NIM',
+    apiKey: process.env.LLM_API_KEY || '',
+    apiUrl: process.env.LLM_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions',
+    model: process.env.LLM_MODEL || 'meta/llama-3.1-8b-instruct',
+    enabled: !!process.env.LLM_API_KEY,
+    format: 'openai'
+  },
+  groq: {
+    name: 'Groq',
+    apiKey: process.env.GROQ_API_KEY || '',
+    apiUrl: process.env.GROQ_API_URL || 'https://api.groq.com/v1/chat/completions',
+    model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+    enabled: !!process.env.GROQ_API_KEY,
+    format: 'openai'
+  },
+  google: {
+    name: 'Google AI Studio',
+    apiKey: process.env.GOOGLE_API_KEY || '',
+    apiUrl: process.env.GOOGLE_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models',
+    model: process.env.GOOGLE_MODEL || 'gemini-1.5-flash',
+    enabled: !!process.env.GOOGLE_API_KEY,
+    format: 'google'
+  }
+};
+
+// Provider priority order (first enabled wins)
+const PROVIDER_PRIORITY = ['nvidia', 'groq', 'google'];
 
 class LLMReasoningEngine {
   constructor() {
-    this.enabled = !!LLM_API_KEY;
+    // Find the first available provider
+    this.activeProvider = PROVIDER_PRIORITY.find(p => LLM_PROVIDERS[p].enabled);
+    this.enabled = !!this.activeProvider;
     this.conversationHistory = new Map();
+    
+    if (this.enabled) {
+      const provider = LLM_PROVIDERS[this.activeProvider];
+      console.log(`🤖 LLM Engine initialized with: ${provider.name} (${provider.model})`);
+    } else {
+      console.log('⚠️ No LLM provider configured - using rule-based fallback only');
+    }
   }
 
   // ============================================
@@ -59,7 +94,6 @@ class LLMReasoningEngine {
   // ============================================
 
   async reason(message, context = {}) {
-    // Extract violation information if available
     const violationInfo = context.violation;
     let violationContext = '';
     
@@ -128,7 +162,6 @@ Return your reasoning as a JSON object:
   // ============================================
 
   async generateResponseFromReasoning(message, reasoning, context = {}) {
-    // Extract violation information if available
     const violationInfo = context.violation;
     let violationContext = '';
     let violationInstructions = '';
@@ -210,7 +243,6 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
   // ============================================
 
   async generateLegalResponse(violationType, message, reasoning, context = {}) {
-    // Extract specific violation information if available in context
     const violationInfo = context.violation;
     let violationContext = '';
     
@@ -271,56 +303,130 @@ Be firm but supportive. Make them feel empowered.`;
     this.conversationHistory.set(userId, history);
   }
 
-// ============================================
-  // LLM API CALL
+  // ============================================
+  // MULTI-PROVIDER LLM API CALL WITH FALLBACK
   // ============================================
 
   async callLLM(messages) {
-    console.log(`🤖 Calling LLM: ${LLM_MODEL} at ${LLM_API_URL}`);
+    // Try providers in priority order
+    for (const providerKey of PROVIDER_PRIORITY) {
+      const provider = LLM_PROVIDERS[providerKey];
+      
+      if (!provider.enabled) {
+        continue;
+      }
+      
+      try {
+        console.log(`🤖 Trying ${provider.name}: ${provider.model}`);
+        const result = await this.callProvider(provider, messages);
+        console.log(`✅ ${provider.name} responded successfully`);
+        return result;
+      } catch (error) {
+        console.log(`❌ ${provider.name} failed: ${error.message}`);
+        // Continue to next provider
+        continue;
+      }
+    }
+    
+    // All providers failed
+    throw new Error('All LLM providers failed');
+  }
+
+  async callProvider(provider, messages) {
+    console.log(`   Calling ${provider.name} at ${provider.apiUrl}`);
     console.log(`   Messages: ${messages.length}`);
     
-    // Add 30 second timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
     
     try {
-      const response = await fetch(LLM_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${LLM_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: LLM_MODEL,
-          messages: messages,
-          max_tokens: 800,
-          temperature: 0.7,
-          top_p: 0.9
-        }),
-        signal: controller.signal
-      });
+      let response;
+      
+      if (provider.format === 'openai') {
+        // NVIDIA & Groq use OpenAI-compatible format
+        response = await fetch(provider.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${provider.apiKey}`
+          },
+          body: JSON.stringify({
+            model: provider.model,
+            messages: messages,
+            max_tokens: 800,
+            temperature: 0.7,
+            top_p: 0.9
+          }),
+          signal: controller.signal
+        });
+      } else if (provider.format === 'google') {
+        // Google AI Studio uses different format
+        const url = `${provider.apiUrl}/${provider.model}:generateContent?key=${provider.apiKey}`;
+        response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: messages.map(m => ({
+              role: m.role === 'system' ? 'user' : m.role,
+              parts: [{ text: m.content }]
+            })),
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.9,
+              maxOutputTokens: 800
+            }
+          }),
+          signal: controller.signal
+        });
+      }
       
       clearTimeout(timeoutId);
       
-      console.log(`🤖 LLM Response status: ${response.status} ${response.statusText}`);
+      console.log(`   ${provider.name} Response status: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.log(`❌ LLM API Error: ${response.status} - ${errorText}`);
-        throw new Error(`LLM API error: ${response.status} ${response.statusText} - ${errorText}`);
+        console.log(`   ${provider.name} Error: ${response.status} - ${errorText}`);
+        throw new Error(`${provider.name} API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
       
       const data = await response.json();
-      console.log(`✅ LLM Response received`);
+      
+      // Normalize response format for Google (different structure)
+      if (provider.format === 'google') {
+        return this.normalizeGoogleResponse(data);
+      }
+      
+      console.log(`   ${provider.name} Response received`);
       return data;
+      
     } catch (error) {
       clearTimeout(timeoutId);
       if (error.name === 'AbortError') {
-        console.log(`❌ LLM Request timed out after 30s`);
-        throw new Error('LLM request timed out');
+        console.log(`   ${provider.name} Request timed out after 30s`);
+        throw new Error(`${provider.name} request timed out`);
       }
       throw error;
     }
+  }
+
+  normalizeGoogleResponse(data) {
+    // Google returns: { candidates: [{ content: { parts: [{ text: "..." }] } }] }
+    // Convert to OpenAI format: { choices: [{ message: { content: "..." } }] }
+    if (data.candidates && data.candidates.length > 0) {
+      const text = data.candidates[0].content?.parts?.[0]?.text || '';
+      return {
+        choices: [{
+          message: {
+            content: text,
+            role: 'assistant'
+          }
+        }]
+      };
+    }
+    throw new Error('Invalid Google response format');
   }
 
   // ============================================
@@ -435,12 +541,20 @@ Be firm but supportive. Make them feel empowered.`;
   }
 
   getModelInfo() {
+    if (!this.activeProvider) {
+      return { model: 'none', provider: 'none', available: false };
+    }
+    const provider = LLM_PROVIDERS[this.activeProvider];
     return {
-      model: LLM_MODEL,
-      provider: LLM_API_URL.includes('nvidia') ? 'NVIDIA NIM' : 
-                LLM_API_URL.includes('openai') ? 'OpenAI' : 
-                LLM_API_URL.includes('openrouter') ? 'OpenRouter' : 'Unknown',
-      available: this.enabled
+      model: provider.model,
+      provider: provider.name,
+      available: this.enabled,
+      allProviders: Object.entries(LLM_PROVIDERS).map(([key, p]) => ({
+        key,
+        name: p.name,
+        model: p.model,
+        enabled: p.enabled
+      }))
     };
   }
 }
