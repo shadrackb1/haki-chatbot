@@ -11,6 +11,7 @@ import QRCode from 'qrcode';
 import ConversationManager from './conversation-manager.js';
 import LLMReasoningEngine from './llm-reasoning.js';
 import VoiceHandler from './voice-handler.js';
+import ImageHandler from './image-handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -44,8 +45,12 @@ const llmEngine = new LLMReasoningEngine();
 // Initialize voice handler (transcribes voice notes via Whisper)
 const voiceHandler = new VoiceHandler();
 
+// Initialize image handler (describes photos via Gemini vision)
+const imageHandler = new ImageHandler();
+
 console.log('🧠 AI Engine: ' + (llmEngine.isAvailable() ? `LLM-powered` : 'Rule-based (fallback)'));
-console.log('🎤 Voice notes: ' + (voiceHandler.enabled ? 'Whisper transcription enabled' : 'disabled (set WHISPER_API_KEY to enable)'));
+console.log('🎤 Voice notes: ' + (voiceHandler.enabled ? voiceHandler.providerName : 'disabled'));
+console.log('🖼️ Photos: ' + (imageHandler.enabled ? `vision via ${imageHandler.model}` : 'not detected (set GOOGLE_API_KEY to analyse)'));
 console.log('💬 Conversation: Human-like with welcome flow');
 
 function detectLanguage(text) {
@@ -226,7 +231,31 @@ async function startBot() {
       if (isGroup && !mentionsMe) continue;
 
       let messageText = msg.message?.conversation ||
-                        msg.message?.extendedTextMessage?.text || '';
+                        msg.message?.extendedTextMessage?.text ||
+                        msg.message?.imageMessage?.caption || '';
+
+      // Photos → describe with vision model, then feed through the normal pipeline
+      if (msg.message?.imageMessage) {
+        if (!imageHandler.enabled) {
+          if (!messageText) {
+            await sock.sendMessage(from, { text: '🖼️ I can\'t analyse photos yet. Could you describe what\'s happening in your own words?' });
+            continue;
+          }
+          // Caption present but no vision key: proceed with caption text alone
+        } else {
+          console.log(`🖼️ Photo from ${from} — analysing...`);
+          const { description, error } = await imageHandler.processImageMessage(msg, sock);
+          if (error || !description) {
+            console.log(`⚠️ Photo analysis failed: ${error}`);
+            await sock.sendMessage(from, { text: '😅 I couldn\'t make out that photo. Try sending it again or describe it in words.' });
+            continue;
+          }
+          messageText = messageText
+            ? `${messageText}\n\n[The user also sent a photo. ${description}]`
+            : `[The user sent a photo. ${description}]`;
+          console.log(`🖼️ Photo analysed: ${description.slice(0, 80)}...`);
+        }
+      }
 
       // Voice notes → transcribe via Whisper (if configured)
       if (!messageText && msg.message?.audioMessage) {
