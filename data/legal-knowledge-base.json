@@ -1,0 +1,573 @@
+{
+  "violation_categories": [
+    {
+      "id": "WAGE_VIOLATION",
+      "keywords_sw": ["mshahara", "mishahara", "pesa", "kulipwa", "haunipii", "kidogo", "hawajanilipa", "deni", "madeni", "nalipwa", "wanalipa", "sitanilipa", "hawajanilipa", "kiasi", "ndogo", "chini", "malipo", "kodi", "faini", "kes"],
+      "keywords_en": ["wage", "salary", "pay", "paid", "unpaid", "money", "owe", "arrears", "underpaid", "low pay", "minimum wage", "daily wage"],
+      "keywords_local": {
+        "kikuyu": ["muhoro", "mbeca", "ndungu", "guoko"],
+        "luo": ["wuoyi", "chiemo", "odiech"],
+        "kalenjin": ["osotwa", "emboret"]
+      },
+      "description": "Wage violations including below-minimum wage, delayed payment, non-payment",
+      "severity": "high",
+      "applicable_laws": [
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 27",
+          "title": "Minimum Wage",
+          "detail": "Every employer shall pay wages not less than the minimum wage prescribed by the Minister",
+          "penalty": "Fine up to KES 100,000 or imprisonment up to 2 years"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 28",
+          "title": "Payment of Wages",
+          "detail": "Wages shall be paid at regular intervals not exceeding one month"
+        },
+        {
+          "law": "Regulation of Wages (Agricultural Industry) Order 2018",
+          "section": "Section 3",
+          "title": "Agricultural Minimum Wage",
+          "detail": "Daily minimum wage for agricultural workers ranges from KES 282.90 (unskilled) to KES 418.40 (drivers)"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "County Labour Office",
+          "action": "File wage complaint",
+          "process": [
+            "Visit the nearest Labour Office with your national ID",
+            "Fill out a complaint form (free)",
+            "Labour officer will investigate",
+            "Employer will be summoned",
+            "Decision issued within 30 days"
+          ],
+          "documents_needed": ["National ID", "Any payment records", "Employment contract if available"],
+          "timeline": "30 days for first hearing"
+        },
+        {
+          "institution": "Employment and Labour Relations Court",
+          "action": "File court case for wage recovery",
+          "process": [
+            "Visit the court with your ID",
+            "File a statement of claim (KES 1,000 filing fee)",
+            "Free legal aid available through NLAS",
+            "Court hearing within 90 days"
+          ],
+          "documents_needed": ["National ID", "Evidence of employment", "Evidence of wage payment/non-payment"],
+          "timeline": "90 days for hearing"
+        }
+      ],
+      "instant_response_sw": "Umepokea mshahara chini ya kiwango cha chini? Hii ni kinyume na sheria. Kiwango cha chini kwa wafanyakazi wa kilimo ni KES 282.90 kwa siku. Unaweza kukataa ofisi ya kazi au mahakama.",
+      "instant_response_en": "You are being paid below minimum wage? This is illegal. The minimum daily wage for agricultural workers is KES 282.90. You can file a complaint at the Labour Office or Court."
+    },
+    {
+      "id": "NO_CONTRACT",
+      "keywords_sw": ["mkataba", "contract", "hakuna mkataba", "sijafaidiwa", "rasmi", "kandarasi"],
+      "keywords_en": ["contract", "no contract", "written", "agreement", "informal"],
+      "keywords_local": {
+        "kikuyu": ["mkataba", "agreement"],
+        "luo": ["kitabu", "agreement"],
+        "kalenjin": ["kitab", "agreement"]
+      },
+      "description": "Working without a written employment contract",
+      "severity": "medium",
+      "applicable_laws": [
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 9",
+          "title": "Written Contract",
+          "detail": "An employer shall issue a written contract to an employee within two months of employment",
+          "penalty": "Fine up to KES 100,000"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 10",
+          "title": "Particulars of Employment",
+          "detail": "Employer must provide written particulars including name, address, job description, wages, hours of work"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "County Labour Office",
+          "action": "Report employer for non-compliance",
+          "process": [
+            "Visit Labour Office with national ID",
+            "Report that employer has not issued a written contract",
+            "Labour officer will require employer to issue contract",
+            "Employer fined if they fail to comply"
+          ],
+          "documents_needed": ["National ID", "Evidence of employment (M-Pesa statements, photos, witness statements)"],
+          "timeline": "14 days for intervention"
+        }
+      ],
+      "instant_response_sw": "Huna mkataba wa maandishi? Sheria inasema mkataba lazima upewe ndani ya miezi 2. Hii ni haki yako.",
+      "instant_response_en": "No written contract? The law requires employers to provide a written contract within 2 months. This is your right."
+    },
+    {
+      "id": "SAFETY_VIOLATION",
+      "keywords_sw": ["usalama", "barakoa", "gloves", "mask", "chemical", "pesticides", "dawa", "hatari", "ajali", "majeruhi"],
+      "keywords_en": ["safety", "PPE", "protective", "equipment", "gloves", "mask", "chemical", "pesticide", "injury", "hazard"],
+      "keywords_local": {
+        "kikuyu": ["gathii", "barakoa", "hatari"],
+        "luo": ["ngato", "barakoa", "ng'ato"],
+        "kalenjin": ["kemwet", "barakoa", "ng'ato"]
+      },
+      "description": "Lack of personal protective equipment (PPE) and unsafe working conditions",
+      "severity": "high",
+      "applicable_laws": [
+        {
+          "law": "Occupational Safety and Health Act 2007",
+          "section": "Section 44",
+          "title": "Provision of PPE",
+          "detail": "Every employer shall provide and maintain suitable PPE at no cost to the employee",
+          "penalty": "Fine up to KES 500,000 or imprisonment up to 2 years"
+        },
+        {
+          "law": "Occupational Safety and Health Act 2007",
+          "section": "Section 66",
+          "title": "Duty to Ensure Safety",
+          "detail": "Every employer shall ensure that the workplace is safe and without risk to health"
+        },
+        {
+          "law": "Agriculture and Food Authority Act 2013",
+          "section": "Section 12",
+          "title": "Safe Handling of Agrochemicals",
+          "detail": "Proper training and protective equipment required for handling pesticides"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "Directorate of Occupational Safety and Health Services (DOSHS)",
+          "action": "Report unsafe working conditions",
+          "process": [
+            "Call DOSHS hotline or visit nearest office",
+            "Report the unsafe conditions",
+            "Inspector will visit the workplace",
+            "Improvement notice issued to employer",
+            "Follow-up inspection to verify compliance"
+          ],
+          "documents_needed": ["National ID", "Photos of conditions if possible", "Names of witnesses"],
+          "timeline": "7 days for inspection"
+        },
+        {
+          "institution": "County Labour Office",
+          "action": "File safety complaint",
+          "process": [
+            "Visit Labour Office",
+            "Report lack of PPE and unsafe conditions",
+            "Labour officer investigates",
+            "Employer required to provide PPE immediately"
+          ],
+          "documents_needed": ["National ID", "Description of conditions"],
+          "timeline": "14 days"
+        }
+      ],
+      "instant_response_sw": "Hawakupi barakoa au vifaa vya usalama? Hii ni kinyume na sheria. Kazi za kilimo hasa kunyunyizia dawa zinahitaji barakoa, glavu, na mavazi maalum. Ofisi ya DOSHS inaweza kuchunguza.",
+      "instant_response_en": "No PPE or safety equipment provided? This is illegal. Agricultural work, especially spraying chemicals, requires masks, gloves, and protective clothing. DOSHS can investigate."
+    },
+    {
+      "id": "CHILD_LABOR",
+      "keywords_sw": ["mtoto", "watoto", "kazi ya mtoto", "shule", "education", "chakula", "kuvalisha"],
+      "keywords_en": ["child", "children", "kid", "young", "school", "education", "underage"],
+      "keywords_local": {
+        "kikuyu": ["muthuana", "ana", "school"],
+        "luo": ["chwaro", "dhano", "school"],
+        "kalenjin": ["koret", "embeyet", "school"]
+      },
+      "description": "Child labor in agribusiness sector",
+      "severity": "critical",
+      "applicable_laws": [
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 56",
+          "title": "Prohibition of Child Labour",
+          "detail": "No person shall employ a child under 16 years for any form of labour",
+          "penalty": "Fine up to KES 500,000 or imprisonment up to 5 years"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 58",
+          "title": "Hazardous Work for Children",
+          "detail": "No person shall employ a child in any hazardous work including agriculture with chemicals",
+          "penalty": "Fine up to KES 1,000,000 or imprisonment up to 10 years"
+        },
+        {
+          "law": "Children Act 2022",
+          "section": "Section 26",
+          "title": "Best Interest of the Child",
+          "detail": "All actions concerning children shall consider the best interest of the child as the primary consideration"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "Department of Children's Services",
+          "action": "Report child labor case",
+          "process": [
+            "Visit the nearest Children's Office or Chief's office",
+            "Report the child labor case",
+            "Children's officer investigates",
+            "Child removed from hazardous work",
+            "Employer prosecuted"
+          ],
+          "documents_needed": ["Child's name and age", "Location of work", "Names of employer"],
+          "timeline": "48 hours for emergency response"
+        },
+        {
+          "institution": "Kenya Police - Gender and Children's Desk",
+          "action": "File police report",
+          "process": [
+            "Visit any police station with Children's Desk",
+            "File a report (free)",
+            "Police investigate",
+            "Employer arrested if evidence found"
+          ],
+          "documents_needed": ["Description of the child's situation", "Location details"],
+          "timeline": "24 hours for emergency cases"
+        }
+      ],
+      "instant_response_sw": "Je, unajua mtoto anafanya kazi hatari? Hii ni uhalifu mkubwa. Watoto chini ya miaka 16 hawaruhusiwi kufanya kazi za kilimo hasa na dawa za kemikali. Wasiliana na Ofisi ya Watoto au Polisi.",
+      "instant_response_en": "Do you know a child doing hazardous work? This is a serious crime. Children under 16 cannot work in agriculture, especially with chemicals. Contact Children's Office or Police."
+    },
+    {
+      "id": "ENVIRONMENTAL_HARM",
+      "keywords_sw": ["mazingira", "maji", "mtoni", "ardhi", "msitu", "ufutaji", "maji machafu", "hewa"],
+      "keywords_en": ["environment", "water", "river", "land", "forest", "deforestation", "pollution", "waste", "air"],
+      "keywords_local": {
+        "kikuyu": ["muga", "ruthi", "kihoto"],
+        "luo": ["ngato", "nyathomo", "dhana"],
+        "kalenjin": ["tinet", "amalel", "kiptaiyet"]
+      },
+      "description": "Environmental damage from agribusiness operations",
+      "severity": "high",
+      "applicable_laws": [
+        {
+          "law": "Environmental Management and Co-ordination Act 1999 (EMCA)",
+          "section": "Section 3",
+          "title": "Right to Clean Environment",
+          "detail": "Every person has the right to a clean and healthy environment",
+          "penalty": "Fine up to KES 10,000,000 or imprisonment up to 5 years"
+        },
+        {
+          "law": "EMCA 1999",
+          "section": "Section 72",
+          "title": "Water Quality Regulations",
+          "detail": "No person shall discharge pollutants into water sources"
+        },
+        {
+          "law": "Forest Conservation and Management Act 2016",
+          "section": "Section 68",
+          "title": "Prohibition of Deforestation",
+          "detail": "No person shall cut, burn, or destroy a forest without authorization"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "National Environment Tribunal (NET)",
+          "action": "File environmental complaint",
+          "process": [
+            "Download or visit NET offices for complaint form",
+            "Pay filing fee (KES 2,000) - fee waiver available for communities",
+            "Submit complaint with evidence",
+            "Tribunal hearing within 60 days",
+            "Binding decision issued"
+          ],
+          "documents_needed": ["Description of environmental harm", "Photos/videos", "Names of responsible parties", "Location details"],
+          "timeline": "60 days for hearing"
+        },
+        {
+          "institution": "National Environment Management Authority (NEMA)",
+          "action": "Report environmental violation",
+          "process": [
+            "Call NEMA hotline: 0722 500 777",
+            "Or visit nearest NEMA office",
+            "Report the environmental harm",
+            "NEMA investigates and issues enforcement notices"
+          ],
+          "documents_needed": ["Description of violation", "Location", "Evidence if possible"],
+          "timeline": "14 days for investigation"
+        }
+      ],
+      "instant_response_sw": "Kampuni inaichafua mazingira? Hii ni kinyume na sheria. Unaweza kulalamika kwa NEMA au Tribunal ya Mazingira. Haki yako ni mazingira safi.",
+      "instant_response_en": "Is a company polluting the environment? This is illegal. You can complain to NEMA or the Environment Tribunal. Your right is a clean environment."
+    },
+    {
+      "id": "GENDER_VIOLENCE",
+      "keywords_sw": ["unyanyasaji", "ubakaji", "ushoga", "ubaguzi", "mwanamke", "wasichana", "sexually"],
+      "keywords_en": ["harassment", "assault", "abuse", "discrimination", "sexual", "violence", "women", "girls"],
+      "keywords_local": {
+        "kikuyu": ["thutha", "harassment", "discrimination"],
+        "luo": ["nyiech", "harassment", "discrimination"],
+        "kalenjin": ["koiywo", "harassment", "discrimination"]
+      },
+      "description": "Gender-based violence and sexual harassment in the workplace",
+      "severity": "critical",
+      "applicable_laws": [
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 81",
+          "title": "Sexual Harassment",
+          "detail": "No employer shall sexually harass an employee. Sexual harassment includes unwelcome advances, requests for sexual favors, and other verbal or physical conduct of a sexual nature",
+          "penalty": "Fine up to KES 100,000 or imprisonment up to 3 years"
+        },
+        {
+          "law": "Sexual Offences Act 2006",
+          "section": "Section 43",
+          "title": "Sexual Harassment",
+          "detail": "Any person who sexually harasses another commits an offence",
+          "penalty": "Imprisonment up to 5 years"
+        },
+        {
+          "law": "Protection Against Domestic Violence Act 2015",
+          "section": "Section 3",
+          "title": "Acts of Domestic Violence",
+          "detail": "Includes physical, sexual, emotional, and economic abuse"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "Kenya Police - Gender Desk",
+          "action": "Report sexual harassment or GBV",
+          "process": [
+            "Visit any police station with a Gender Desk",
+            "File a report (free and confidential)",
+            "Police investigate",
+            "PPO certificate issued for medical examination",
+            "Suspect arrested and charged"
+          ],
+          "documents_needed": ["Your statement", "Any evidence (messages, photos)", "Names of witnesses"],
+          "timeline": "24 hours for emergency response"
+        },
+        {
+          "institution": "National Gender and Equality Commission (NGEC)",
+          "action": "File discrimination/harassment complaint",
+          "process": [
+            "Visit NGEC offices or call hotline",
+            "File complaint (free)",
+            "NGEC investigates",
+            "Mediation or formal hearing",
+            "Binding decision"
+          ],
+          "documents_needed": ["Written statement", "Evidence of harassment"],
+          "timeline": "30 days"
+        }
+      ],
+      "instant_response_sw": "Unanyanyaswa kazi? Hii ni halifu. Unaweza kulalamika kwa Polisi - Kitengo cha Jinsia au NGEC. Usijichelewe. Unastahili kazi salama.",
+      "instant_response_en": "Are you being harassed at work? This is a crime. You can report to Police - Gender Desk or NGEC. Don't wait. You deserve a safe workplace."
+    },
+    {
+      "id": "LAND_RIGHTS",
+      "keywords_sw": ["ardhi", "shamba", "eneo", "mmiliki", "ukodisha", "kuondoa", "kuhamishwa"],
+      "keywords_en": ["land", "farm", "property", "owner", "eviction", "displacement", "lease", "tenant"],
+      "keywords_local": {
+        "kikuyu": ["mathithio", "shamba", "kihoto"],
+        "luo": ["diel", "pwot", "dale"],
+        "kalenjin": ["korosiet", "sosiot", "kiptaiywo"]
+      },
+      "description": "Land rights violations including forced eviction, land grabbing, and unfair lease terms",
+      "severity": "critical",
+      "applicable_laws": [
+        {
+          "law": "Constitution of Kenya 2010",
+          "section": "Article 40",
+          "title": "Protection of Right to Property",
+          "detail": "Every person has the right to own property. No person shall be arbitrarily deprived of property",
+          "penalty": "Constitutional remedy"
+        },
+        {
+          "law": "Land Act 2012",
+          "section": "Section 12",
+          "title": "Land Administration Principles",
+          "detail": "Land shall be managed sustainably and equitably"
+        },
+        {
+          "law": "Land Act 2012",
+          "section": "Section 92",
+          "title": "Forced Eviction Prohibition",
+          "detail": "No person shall be evicted without a court order and adequate notice"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "Environment and Land Court",
+          "action": "File land rights case",
+          "process": [
+            "Visit Environment and Land Court",
+            "File a constitutional petition",
+            "Court issues interim orders if urgent",
+            "Full hearing within 90 days",
+            "Binding decision"
+          ],
+          "documents_needed": ["National ID", "Land ownership documents", "Lease agreement if available", "Evidence of eviction/displacement"],
+          "timeline": "90 days"
+        },
+        {
+          "institution": "National Land Commission (NLC)",
+          "action": "File land complaint",
+          "process": [
+            "Visit NLC offices",
+            "File complaint about land violation",
+            "NLC investigates",
+            "Recommendations to government"
+          ],
+          "documents_needed": ["Description of land issue", "Ownership documents"],
+          "timeline": "60 days"
+        }
+      ],
+      "instant_response_sw": "Shamba lako linachukuliwa? Haki ya ardhi ni haki ya kikatiba. Unaweza kulalamika kwa Mahakama ya Ardhi au Tume ya Kitaifa ya Ardhi.",
+      "instant_response_en": "Your land is being taken? Land rights are constitutional rights. You can complain to the Land Court or National Land Commission."
+    },
+    {
+      "id": "CERTIFICATION_FRAUD",
+      "keywords_sw": ["certification", "fairtrade", "认证", "kashingo", "hakiki", "ukaguzi"],
+      "keywords_en": ["certification", "fairtrade", "audit", "inspection", "compliance", "standard"],
+      "keywords_local": {
+        "kikuyu": ["certification", "audit"],
+        "luo": ["certification", "audit"],
+        "kalenjin": ["certification", "audit"]
+      },
+      "description": "Certification fraud, audit manipulation, and non-compliance with standards",
+      "severity": "medium",
+      "applicable_laws": [
+        {
+          "law": "Consumer Protection Act 2012",
+          "section": "Section 12",
+          "title": "False or Misleading Representations",
+          "detail": "No person shall make false or misleading representations about goods or services",
+          "penalty": "Fine up to KES 300,000"
+        },
+        {
+          "law": "Competition Act 2010",
+          "section": "Section 55",
+          "title": "Prohibition of False Marketing",
+          "detail": "No person shall engage in false or misleading conduct in trade or commerce"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "Competition Authority of Kenya (CAK)",
+          "action": "Report false certification claims",
+          "process": [
+            "Visit CAK offices or file online",
+            "Provide evidence of false claims",
+            "CAK investigates",
+            "Penalties imposed on offender"
+          ],
+          "documents_needed": ["Evidence of false certification", "Communication records"],
+          "timeline": "60 days"
+        }
+      ],
+      "instant_response_sw": "Kampuni inadai certification feki? Hii ni udanganyifu. Unaweza kulalamika kwa CAK.",
+      "instant_response_en": "Is a company claiming fake certification? This is fraud. You can report to CAK."
+    }
+  ],
+  "minimum_wages": {
+    "agricultural": {
+      "unskilled": 282.90,
+      "semi_skilled": 350.00,
+      "skilled": 418.40,
+      "currency": "KES",
+      "period": "per day",
+      "source": "Regulation of Wages (Agricultural Industry) Order 2018",
+      "effective_date": "2018"
+    },
+    "general": {
+      "nairobi": 653,
+      "municipalities": 500,
+      "rural": 367,
+      "currency": "KES",
+      "period": "per day",
+      "source": "Regulation of Wages (General) (Amendment) Order 2018"
+    }
+  },
+  "remedy_institutions": {
+    "national": [
+      {
+        "name": "Ministry of Labour and Social Protection",
+        "short": "Labour Office",
+        "services": ["Wage disputes", "Contract violations", "Safety complaints", "Unfair dismissal"],
+        "contact": "020 222 3344",
+        "website": "www.labour.go.ke"
+      },
+      {
+        "name": "Employment and Labour Relations Court",
+        "short": "Labour Court",
+        "services": ["Employment disputes", "Labour rights violations", "Unfair termination"],
+        "locations": ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret"],
+        "contact": "020 222 1291"
+      },
+      {
+        "name": "Directorate of Occupational Safety and Health Services (DOSHS)",
+        "short": "DOSHS",
+        "services": ["Workplace safety", "PPE complaints", "Hazardous conditions"],
+        "contact": "020 222 3344"
+      },
+      {
+        "name": "National Legal Aid Service (NLAS)",
+        "short": "Legal Aid",
+        "services": ["Free legal representation", "Legal advice", "Mediation"],
+        "contact": "0800 723 255 (Toll-free)",
+        "website": "www.nlas.go.ke"
+      },
+      {
+        "name": "Kenya National Commission on Human Rights (KNCHR)",
+        "short": "KNCHR",
+        "services": ["Human rights violations", "Discrimination", "Constitutional rights"],
+        "contact": "0800 720 607 (Toll-free)",
+        "website": "www.knchr.org"
+      },
+      {
+        "name": "National Gender and Equality Commission (NGEC)",
+        "short": "NGEC",
+        "services": ["Gender-based violence", "Sexual harassment", "Discrimination"],
+        "contact": "0800 721 233 (Toll-free)"
+      },
+      {
+        "name": "National Environment Management Authority (NEMA)",
+        "short": "NEMA",
+        "services": ["Environmental pollution", "Deforestation", "Water contamination"],
+        "contact": "0722 500 777",
+        "website": "www.nema.go.ke"
+      },
+      {
+        "name": "National Environment Tribunal (NET)",
+        "short": "Environment Tribunal",
+        "services": ["Environmental harm", "Land use disputes", "Pollution cases"],
+        "contact": "020 271 3744"
+      },
+      {
+        "name": "National Land Commission (NLC)",
+        "short": "NLC",
+        "services": ["Land disputes", "Forced eviction", "Land grabbing"],
+        "contact": "020 222 8560"
+      },
+      {
+        "name": "Department of Children's Services",
+        "short": "Children's Office",
+        "services": ["Child labor", "Child abuse", "Children's rights"],
+        "locations": ["All 47 counties"],
+        "contact": "Visit nearest Chief's office"
+      }
+    ],
+    "ngo_legal_aid": [
+      {
+        "name": "Kituo Cha Sheria",
+        "services": ["Free legal aid", "Community paralegals", "Human rights advocacy"],
+        "contact": "020 271 5212",
+        "website": "www.kituochasheria.or.ke"
+      },
+      {
+        "name": "FIDA Kenya",
+        "services": ["Women's rights", "Legal aid for women", "Gender-based violence"],
+        "contact": "020 271 2722",
+        "website": "www.fidakenya.org"
+      },
+      {
+        "name": "Kenya Human Rights Commission (KHRC)",
+        "services": ["Human rights advocacy", "Strategic litigation", "Public interest litigation"],
+        "contact": "020 271 5363"
+      }
+    ]
+  }
+}

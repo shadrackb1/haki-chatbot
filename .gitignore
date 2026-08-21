@@ -14,10 +14,10 @@ app-state-sync-*.json
 session-*.json
 sender-key-*.json
 
-# Data (persisted via Docker volumes)
-data/
+# Data (persisted via Docker volumes) — but keep the legal knowledge base in git
+data/*
+!data/legal-knowledge-base.json
 users.json
-legal-knowledge-base.json
 
 # Logs
 *.log
@@ -40,3 +40,10 @@ Thumbs.db
 .cron-lock
 qr-code.png
 test-humanizer.js
+.opencode
+graphify-out/
+temp/
+
+# Python (PixelAI-Instagram)
+__pycache__/
+*.pyc
