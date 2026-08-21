@@ -239,6 +239,9 @@ async function startBot() {
         // Pass conversation history for context-aware multi-turn reasoning
         const history = conversationManager.getConversationHistory(from);
 
+        // Retrieve grounded legal passages from the corpus (RAG)
+        const knowledge = retriever.search(messageText, 3);
+
         // processMessage returns { reasoning, response, usedLLM }
         // USE THE LLM-GENERATED RESPONSE - this is the real AI output
         const { reasoning, response: llmResponse, usedLLM } = await llmEngine.processMessage(messageText, {
@@ -253,7 +256,8 @@ async function startBot() {
             applicable_laws: violation.data.applicable_laws,
             remedy_pathways: violation.data.remedy_pathways
           } : null,
-          history: history
+          history: history,
+          knowledge: knowledge
         });
 
         // Store this exchange in conversation history for context

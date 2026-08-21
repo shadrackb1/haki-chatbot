@@ -152,6 +152,12 @@ CLASSIFIED VIOLATION INFORMATION:
 Use this specific legal information to inform your reasoning about the user's message.`;
     }
 
+    const knowledgePassages = Array.isArray(context.knowledge) && context.knowledge.length > 0
+      ? context.knowledge
+          .map((k) => `- [${k.id || k.title}] ${k.text}`)
+          .join('\n')
+      : 'None retrieved.';
+
     const userProfile = JSON.stringify({
       language: context.language,
       location: context.location,
@@ -167,6 +173,9 @@ REASONING PROCESS:
 3. **Analyze**: If it's about a problem, what type of problem? (wage, safety, contract, child labor, environment, gender, land)
 4. **Contextualize**: Consider the user's profile: ${userProfile}. Earlier conversation turns are included above — use them for follow-ups, pronouns like "it/that", and references to past messages.${violationContext}
 5. **Determine**: What is the best way to help?
+
+RECALLED LEGAL PASSAGES (ground your analysis in these):
+${knowledgePassages}
 
 THINKING RULES:
 - Always reason first, then answer
@@ -238,7 +247,13 @@ Since a specific violation has been classified, your response should:
 5. Use the specific legal information provided above to ensure accuracy`;
     }
 
-    const systemPrompt = `You are Haki, a helpful assistant for Kenyan agribusiness workers' rights.
+    const knowledgePassages = Array.isArray(context.knowledge) && context.knowledge.length > 0
+       ? context.knowledge
+           .map((k) => `- [${k.id || k.title}] ${k.text}`)
+           .join('\n')
+       : 'None retrieved.';
+
+     const systemPrompt = `You are Haki, a helpful assistant for Kenyan agribusiness workers' rights.
 
 Based on your reasoning, generate a response:
 
@@ -249,6 +264,9 @@ REASONING SUMMARY:
 - Sentiment: ${reasoning.sentiment}
 - Urgency: ${reasoning.urgency}
 - Strategy: ${reasoning.response_strategy}${violationContext}
+
+SUPPORTING LEGAL PASSAGES (cite these when relevant — use exact wording so the worker knows their rights):
+${knowledgePassages}
 
 RESPONSE RULES:
 1. **Write like a WhatsApp text from a knowledgeable friend** - not like an essay or a customer service bot

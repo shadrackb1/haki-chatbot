@@ -1,0 +1,308 @@
+[
+  {
+    "id": "constitution-art41-labour",
+    "title": "Labour relations — Constitution of Kenya 2010",
+    "category": "WAGE_VIOLATION",
+    "text": "Every person has the right to fair labour practices. Every worker has the right to fair remuneration, to reasonable working conditions, to form or join a trade union, and to go on strike. Every employer has the right to form and join an employers organisation, and to engage in collective bargaining.",
+    "source": "Constitution of Kenya 2010, Art. 41",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2010/constitution",
+    "verified": true
+  },
+  {
+    "id": "wiba-section10-right-to-compensation",
+    "title": "Right to compensation for workplace injury — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "An employee who is injured in an accident arising out of and in the course of employment is entitled to compensation under this Act. An employer is liable to pay compensation. An employee is NOT entitled if the accident was caused by deliberate and wilful misconduct of the employee.",
+    "source": "Work Injury Benefits Act 2007, s. 10",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section7-employer-insurance",
+    "title": "Employer must insure workers — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "Every employer shall obtain and maintain an insurance policy approved by the Cabinet Secretary for liability under this Act. An employer who fails to insure commits an offence and is liable to a fine of up to KES 100,000 or 3 months imprisonment, or both. Continuing failure carries a further fine of up to KES 10,000 per day.",
+    "source": "Work Injury Benefits Act 2007, s. 7",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section22-report-accident-7-days",
+    "title": "Employer must report accidents within 7 days — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "An employer shall report an accident to the Director of Work Injury Benefits in the prescribed manner within 7 days after receiving notice of the accident. Failure to report is an offence. The employee can report directly to the Director at any stage.",
+    "source": "Work Injury Benefits Act 2007, s. 22",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section26-claim-12-months",
+    "title": "Claim for compensation must be lodged within 12 months — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "A claim for compensation must be lodged within 12 months after the date of the accident (or 12 months after date of death). If not lodged in time, the claim may not be considered — unless the accident was reported per section 21. The employer or insurer must settle within 90 days of lodgement.",
+    "source": "Work Injury Benefits Act 2007, s. 26",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section28-temporary-disablement",
+    "title": "Compensation for temporary disablement — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "An employee incapacitated for 3 days or more due to a workplace accident is entitled to periodical payments equivalent to their earnings, up to minimum and maximum amounts fixed by the Cabinet Secretary. Payments last as long as disablement continues, maximum 12 months. Not paid while on full pay from the employer.",
+    "source": "Work Injury Benefits Act 2007, s. 28",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section30-permanent-disablement",
+    "title": "Compensation for permanent disablement — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "Permanent disablement compensation is calculated on 96 months of earnings, subject to Cabinet Secretary minimum/maximum. Scheduled injuries (listed in the First Schedule) have fixed disability percentages. Other injuries assessed by a medical doctor. Director may award higher percentage for unusually serious consequences.",
+    "source": "Work Injury Benefits Act 2007, s. 30",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section18-threats-offence",
+    "title": "Threatening a worker to drop compensation claim is a crime — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "Any person who threatens an employee or compels them to give up their rights under this Act commits an offence. Report to the police and the Director of Work Injury Benefits.",
+    "source": "Work Injury Benefits Act 2007, s. 18",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section19-compensation-protected",
+    "title": "Compensation cannot be taken away — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "Compensation under this Act cannot be assigned, pledged, attached by court order, or set off against any debt. Any agreement to give up compensation rights is VOID.",
+    "source": "Work Injury Benefits Act 2007, s. 19",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section47-medical-expenses",
+    "title": "Employer must pay all medical expenses for workplace injury — WIBA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "The employer must pay all reasonable medical expenses arising from a workplace injury, including treatment, medicine, nursing, travel to treatment, and artificial limbs. Employee cannot be required to contribute towards these costs.",
+    "source": "Work Injury Benefits Act 2007, s. 47",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-section9-employer-records",
+    "title": "Employer must keep earnings records for 6 years — WIBA 2007",
+    "category": "WAGE_VIOLATION",
+    "text": "Every employer shall keep a register of earnings and prescribed particulars of all employees, and retain it for at least 6 years. Must produce it on demand to the Director. Failure is an offence.",
+    "source": "Work Injury Benefits Act 2007, s. 9",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "employment-act-contract-requirements",
+    "title": "Written contract required within reasonable time — Employment Act 2007",
+    "category": "NO_CONTRACT",
+    "text": "Every employer shall provide a written contract of service to the employee. The employer must give the employee a statement of particulars including name, job description, place of work, remuneration, hours, leave entitlement, and any collective agreement. Failure to provide a written contract is against the law.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section number",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-wage-payment-time",
+    "title": "Wages must be paid on time — Employment Act 2007",
+    "category": "WAGE_VIOLATION",
+    "text": "Wages must be paid on the agreed pay day and at least once a month. Payment must be in legal Kenyan currency (not goods, vouchers, or tokens). Wages include basic salary, allowances, and overtime. Deductions from wages are only permitted if they are for the employee's benefit or required by law.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-payslip-right",
+    "title": "Worker entitled to itemised pay statement — Employment Act 2007",
+    "category": "WAGE_VIOLATION",
+    "text": "Every employee has the right to receive an itemised pay statement showing gross pay, deductions, and net pay. The employer must provide this on or with each pay day. If your employer refuses to show you your payslip or hides deductions, that is against the law.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-termination-notice",
+    "title": "Termination requires notice or pay in lieu — Employment Act 2007",
+    "category": "CONTRACT_VIOLATION",
+    "text": "An employer wishing to terminate a contract must give the employee written notice (or pay in lieu of notice) based on length of service — minimum 28 days. Summary dismissal (instant firing without notice) is only allowed for gross misconduct defined by law, such as theft, violence, or gross insubordination. Wrongful dismissal entitles the employee to compensation.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-leave-entitlement",
+    "title": "Annual leave: at least 21 working days per year — Employment Act 2007",
+    "category": "CONTRACT_VIOLATION",
+    "text": "Every employee who has completed 12 months of continuous service is entitled to at least 21 working days of annual leave with full pay, in addition to public holidays. Leave must be taken within the leave cycle or as agreed. An employer who prevents an employee from taking earned leave is violating the Act.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-maternity-leave",
+    "title": "Maternity leave: 3 months fully paid — Employment Act 2007",
+    "category": "GENDER_VIOLATION",
+    "text": "A female employee is entitled to 3 months (90 calendar days) of maternity leave with full pay, in addition to any annual leave. The employer cannot terminate a woman during maternity leave. fathers: paternity leave of 2 weeks with full pay was added by later amendment.",
+    "source": "Employment Act 2007 (Cap. 226) as amended — verify current provisions",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-overtime",
+    "title": "Overtime must be paid at higher rates — Employment Act 2007",
+    "category": "WAGE_VIOLATION",
+    "text": "Normal working hours are up to 8 hours per day or 45 hours per week. Hours beyond that are overtime. Overtime pay rate is at least 1.5 times the normal rate. Work on a rest day or public holiday: at least 2 times the normal rate. Sunday work: at least 2 times. If your employer pays normal rate for overtime or forces unpaid extra hours, that is illegal.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-records-employee-access",
+    "title": "Employee can inspect their own employment records — Employment Act 2007",
+    "category": "WAGE_VIOLATION",
+    "text": "An employee has the right to inspect the records the employer keeps about them, including earnings records. The employer must produce these records on demand. If your employer refuses to show you your records or gives you false figures, that is against the Act.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-sexual-harassment",
+    "title": "Sexual harassment is illegal at work — Employment Act 2007",
+    "category": "GENDER_VIOLENCE",
+    "text": "Sexual harassment by an employer, supervisor, or co-worker is prohibited. Employers with 20 or more employees must have a written sexual harassment policy and procedure. A worker who is sexually harassed at work can sue the employer. The employer must investigate complaints promptly and confidentially.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-child-labour-minimum",
+    "title": "Minimum working age is 16, hazardous work is 18 — Employment Act 2007",
+    "category": "CHILD_LABOR",
+    "text": "No child under 16 years may be employed. Children aged 13-15 may do light work that is not harmful, only outside school hours. No child under 18 may be employed in hazardous work (including agricultural work with chemicals, operating machinery, night work). A child aged 16-17 may work limited hours and not in hazardous conditions.",
+    "source": "Employment Act 2007 (Cap. 226) as amended by Employment (Amendment) Act 2022 — verify current provisions; also see Children Act 2022",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "employment-act-deductions",
+    "title": "Unauthorised deductions from wages are illegal — Employment Act 2007",
+    "category": "WAGE_VIOLATION",
+    "text": "An employer cannot deduct money from an employee's wages without the employee's written consent, unless the deduction is required by law (e.g., tax, NHIF, NSSF). Deductions for damage to property, mistakes, or as punishment are illegal. Deductions must not reduce pay below the minimum wage.",
+    "source": "Employment Act 2007 (Cap. 226) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "osha-employer-general-duty",
+    "title": "Employer's general duty of care — OSHA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "Every employer shall ensure the health and safety of all employees while at work. This includes providing safe systems of work, safe plant and equipment, proper training, protective equipment where needed, and a safe working environment. Failure is an offence.",
+    "source": "Occupational Safety and Health Act 2007 (Cap. 236A) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "osha-employee-right-refuse-dangerous-work",
+    "title": "Worker's right to refuse dangerous work — OSHA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "An employee who has reasonable justification to believe there is an imminent and serious danger to their safety has the right to remove themselves from the danger. The employer cannot force the employee to continue. The employee must report the danger to the employer and to the Director of Occupational Safety and Health Services.",
+    "source": "Occupational Safety and Health Act 2007 (Cap. 236A) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "osha-intimidation-offence",
+    "title": "Intimidating a worker who raises safety concerns is a crime — OSHA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "No employer shall dismiss or threaten to dismiss, or otherwise penalise, an employee for refusing to work in unsafe conditions or for reporting a safety concern. Doing so is an offence.",
+    "source": "Occupational Safety and Health Act 2007 (Cap. 236A) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "osha-director-powers",
+    "title": "The OSH Director can inspect workplaces and order improvements — OSHA 2007",
+    "category": "SAFETY_VIOLATION",
+    "text": "The Director of Occupational Safety and Health Services can enter any workplace, inspect it, order improvements, and stop work if conditions are dangerous. Employers who obstruct the Director or ignore orders commit offences.",
+    "source": "Occupational Safety and Health Act 2007 (Cap. 236A) — well-established provision; verify exact section",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "minimum-wage-order",
+    "title": "Kenya has minimum wage orders by sector — Wages Councils",
+    "category": "WAGE_VIOLATION",
+    "text": "The Cabinet Secretary sets minimum wages through Wages Council Orders for different sectors including agriculture, security, domestic work, manufacturing, and more. Employers must pay at least the applicable minimum wage. Paying below minimum wage is a criminal offence. Current agricultural minimum wage must be checked against the latest Wages Council Order.",
+    "source": "Employment Act 2007 (Cap. 226) + Wages Council Orders — verify current rates against latest gazette notice",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "nssf-nssf-act",
+    "title": "NSSF contributions mandatory for employers and employees — NSSF Act 2013",
+    "category": "WAGE_VIOLATION",
+    "text": "Both employer and employee must contribute to the National Social Security Fund. The employer must deduct the employee's share from wages and pay both shares to NSSF. Failure to deduct or remit is an offence. Employees should receive payslips showing NSSF deduction.",
+    "source": "NSSF Act 2013 (Cap. 258) — verify current rates and provisions",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2013/17",
+    "verified": false
+  },
+  {
+    "id": "nhif-contributions",
+    "title": "NHIF contributions mandatory for employees — NHIF Act 1998",
+    "category": "WAGE_VIOLATION",
+    "text": "Every employer must deduct NHIF contributions from an employee's wages and remit them to the National Hospital Insurance Fund, plus pay the employer's own contribution. Failure to deduct or remit is an offence. Employees should see NHIF deductions on their payslips.",
+    "source": "NHIF Act 1998 (Cap. 254) as amended — verify current rates",
+    "source_url": "https://kenyalaw.org/akn/ke/act/1998/19",
+    "verified": false
+  },
+  {
+    "id": "kheo-report-work-injury",
+    "title": "How to report a workplace injury to KHEO (Director of WIBA)",
+    "category": "SAFETY_VIOLATION",
+    "text": "If you are injured at work: (1) Tell your employer immediately (verbally or in writing). (2) Your employer must report to the Director of Work Injury Benefits within 7 days. (3) You can also report yourself directly at any time. (4) See a doctor and keep all medical reports. (5) File your compensation claim within 12 months of the accident or death. Free hotline: NLAS 0800 723 255.",
+    "source": "Work Injury Benefits Act 2007, ss. 21-26",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "violation-gender-harassment-workplace",
+    "title": "Sexual harassment at work — your rights",
+    "category": "GENDER_VIOLENCE",
+    "text": "Sexual harassment includes unwanted sexual advances, comments, touching, requests for sexual favours, or any conduct of a sexual nature that creates a hostile work environment. It is illegal under Kenyan law. You have the right to report it internally (employer must have a policy), and externally to the police or the Kenya National Commission on Human Rights. Do not suffer in silence.",
+    "source": "Employment Act 2007 (Cap. 226) + Sexual Offences Act 2006",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "violation-child-labour-warning-signs",
+    "title": "Warning signs of child labour — what the law says",
+    "category": "CHILD_LABOR",
+    "text": "A child under 16 cannot be legally employed. A child under 18 cannot do hazardous work including handling pesticides, operating farm machinery, night work, or heavy lifting. If you see a child under 16 working on a farm instead of attending school, report it to the local children's officer or the Department of Children Services.",
+    "source": "Employment Act 2007 (Cap. 226) as amended + Children Act 2022",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "violation-land-farmworkers-eviction",
+    "title": "Farmworker land and housing rights — Land Act 2012",
+    "category": "LAND_RIGHTS",
+    "text": "If you live on farm employer-provided housing, you cannot simply be evicted without notice. The Land Act and the Constitution protect against arbitrary eviction. An employer who evicts workers from employer-provided housing without proper notice, or forces them to leave without their belongings or pay, may be violating your rights. Seek assistance from the nearest labour office or NLAS.",
+    "source": "Land Act 2012 (Cap. 306) + Constitution Art. 40 — general principle; verify specific provisions",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2012/6",
+    "verified": false
+  },
+  {
+    "id": "fair-labour-practices-constitution",
+    "title": "Constitutional right to fair labour practices — Art. 41",
+    "category": "GENERAL",
+    "text": "The Constitution of Kenya guarantees every person the right to fair labour practices, fair remuneration, reasonable working conditions, and the right to form or join a trade union. Any employer action that violates these rights is unconstitutional and can be challenged in court.",
+    "source": "Constitution of Kenya 2010, Art. 41",
+    "source_url": "https://kenyalaw.org/akn/ke/act/2010/constitution",
+    "verified": true
+  }
+]
