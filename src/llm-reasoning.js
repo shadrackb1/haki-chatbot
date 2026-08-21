@@ -199,13 +199,13 @@ REASONING SUMMARY:
 - Strategy: ${reasoning.response_strategy}${violationContext}
 
 RESPONSE RULES:
-1. **Be conversational** - talk like a real person, not a robot
-2. **Be empathetic** - acknowledge their situation emotionally
-3. **Be clear** - use simple language, avoid legal jargon
-4. **Be actionable** - always provide next steps
-5. **Be encouraging** - remind them they have rights and options
+1. **Write like a WhatsApp text from a knowledgeable friend** - not like an essay or a customer service bot
+2. **Be empathetic** - acknowledge their situation in your own words
+3. **Be clear** - use simple language, no legal jargon
+4. **Be actionable** - always give a concrete next step
+5. **Never use chatbot filler** - banned phrases: "Certainly!", "Of course!", "Great question!", "I hope this helps", "Is there anything else I can help you with?", "As an AI", "I'm here to help"
 6. **Always English** - respond in English by default. Only switch languages if the user explicitly requests it (e.g. "reply in Swahili")
-7. **Keep it natural** - use contractions, casual tone, emojis sparingly${violationInstructions}
+7. **Sound human** - contractions, uneven sentence lengths, don't start every message the same way, don't end every message with an offer of more help${violationInstructions}
 
 If the user describes a violation:
 - Acknowledge it's serious and illegal
@@ -265,15 +265,16 @@ Your reasoning:
 ${JSON.stringify(reasoning, null, 2)}
 
 Generate a response that:
-1. Shows empathy first ("I understand this is difficult")
-2. Clearly states this is illegal under Kenyan law
+1. Reacts like a person first ("That's rough. Here's where you stand.")
+2. States plainly that this is illegal under Kenyan law
 3. Cites the specific law and section
-4. Explains what the user can do in simple steps
-5. Provides contact numbers for relevant offices
-6. Encourages them to take action
+4. Explains what to do in plain numbered steps
+5. Gives the phone number of the relevant office
+6. Encourages them without sounding like a motivational poster
 
+Never use chatbot filler ("Certainly!", "I hope this helps", "Is there anything else?"). No emojis unless the user used them first.
 Always respond in English. Only switch languages if the user explicitly requests it.
-Be firm but supportive. Make them feel empowered.`;
+Be firm but supportive.`;
 
     const response = await this.callLLM([
       { role: 'system', content: systemPrompt },
@@ -474,15 +475,15 @@ Be firm but supportive. Make them feel empowered.`;
     const violations = reasoning.key_points;
 
     if (reasoning.intent === 'greeting') {
-      return lang === 'sw' 
-        ? 'Habari! Karibu Haki Chatbot. Mimi ni msaidizi wako wa haki za kazi. Ni gani unahitaji kujua au unapata shida gani?'
-        : 'Hello! Welcome to Haki Chatbot. I\'m your workplace rights assistant. What do you need help with?';
+      return lang === 'sw'
+        ? 'Habari! Karibu Haki Chatbot. Nasaidia na masuala ya haki za kazi — mshahara, mkataba, usalama. Ni nini kinakusumbua?'
+        : 'Hello! Welcome to Haki Chatbot. I help with workplace rights in Kenya — wages, contracts, safety. What\'s going on?';
     }
 
     if (reasoning.intent === 'thanks') {
       return lang === 'sw'
-        ? 'Asante sana! Kumbuka haki zako ni muhimu. Usisite kuwasiliana nasi tena ikiwa unahitaji msaada.'
-        : 'Thank you! Remember your rights matter. Don\'t hesitate to contact us again if you need help.';
+        ? 'Asante pia! Haki yako ina thamani — ukiahitaji tena uko hapa.'
+        : 'Any time! Your rights are worth following up on. Come back if you need more.';
     }
 
     if (violations.length > 0) {
@@ -492,8 +493,8 @@ Be firm but supportive. Make them feel empowered.`;
 
     // Default response
     return lang === 'sw'
-      ? 'Naelewa. Tafadhali eleza zaidi kuhusu tatizo lako ili niweze kukusaidia vizuri. Unaweza andika "haki zangu" kujua haki zako zote.'
-      : 'I understand. Please tell me more about your situation so I can help you better. You can type "rights" to know all your rights.';
+      ? 'Sijaelewa vizuri. Eleza zaidi tatizo lako, kwa mfano malipo au usalama kazini. Au andika "haki zangu".'
+      : 'I didn\'t quite catch that. Tell me a bit more about what happened at work — pay, safety, contract, anything. Or type "rights" to see what you\'re entitled to.';
   }
 
   getRuleBasedLegalResponse(violationType, lang) {
@@ -508,8 +509,8 @@ Be firm but supportive. Make them feel empowered.`;
     }
 
     // Build response
-    let response = lang === 'sw' ? '🚨 *ULALAMIKA*\n\n' : '🚨 *COMPLAINT RECEIVED*\n\n';
-    response += lang === 'sw' ? `*Tatizo:* ${category.description}\n\n` : `*Issue:* ${category.description}\n\n`;
+    let response = lang === 'sw' ? '🚨 *Haki zako zimebana hapa*\n\n' : '🚨 *Your rights are being violated here*\n\n';
+    response += lang === 'sw' ? `*Tatizo:* ${category.description}\n\n` : `*The problem:* ${category.description}\n\n`;
     response += lang === 'sw' ? '*Sheria Inayofaa:*\n' : '*Applicable Law:*\n';
     
     for (const law of category.applicable_laws) {

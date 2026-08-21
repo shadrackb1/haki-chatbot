@@ -231,14 +231,14 @@ async function startBot() {
       // Voice notes → transcribe via Whisper (if configured)
       if (!messageText && msg.message?.audioMessage) {
         if (!voiceHandler.enabled) {
-          await sock.sendMessage(from, { text: '🎤 I cannot listen to voice notes yet. Please type your message.' });
+          await sock.sendMessage(from, { text: '🎤 I can\'t process voice notes yet — mind typing it instead?' });
           continue;
         }
         console.log(`🎤 Voice note from ${from} — transcribing...`);
         const { text: transcript, error } = await voiceHandler.processVoiceMessage(msg, sock);
         if (error || !transcript) {
           console.log(`⚠️ Transcription failed: ${error}`);
-          await sock.sendMessage(from, { text: '😅 Sorry, I could not hear that clearly. Please try again or type your message.' });
+          await sock.sendMessage(from, { text: '😅 Sorry, that audio didn\'t come through clearly on my side. Try once more, or just type it.' });
           continue;
         }
         messageText = transcript;
