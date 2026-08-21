@@ -26,7 +26,7 @@ const LLM_PROVIDERS = {
     name: 'Groq',
     apiKey: process.env.GROQ_API_KEY || '',
     apiUrl: process.env.GROQ_API_URL || 'https://api.groq.com/openai/v1/chat/completions',
-    model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+    model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
     enabled: !!process.env.GROQ_API_KEY,
     format: 'openai'
   },
@@ -34,7 +34,7 @@ const LLM_PROVIDERS = {
     name: 'Google AI Studio',
     apiKey: process.env.GOOGLE_API_KEY || '',
     apiUrl: process.env.GOOGLE_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models',
-    model: process.env.GOOGLE_MODEL || 'gemini-1.5-flash',
+    model: process.env.GOOGLE_MODEL || 'gemini-flash-latest',
     enabled: !!process.env.GOOGLE_API_KEY,
     format: 'google'
   }
@@ -119,21 +119,43 @@ class LLMReasoningEngine {
     };
   }
 
+  // Build the LLM message array: system prompt, recent conversation turns,
+  // then the new user message. Keeps multi-turn context without unbounded tokens.
+  buildMessages(systemPrompt, message, context = {}) {
+    const history = Array.isArray(context.history) ? context.history.slice(-6) : [];
+    const turns = history
+      .filter((h) => h && (h.role === 'user' || h.role === 'assistant') && typeof h.content === 'string' && h.content.trim())
+      .map((h) => ({ role: h.role, content: h.content }));
+    return [
+      { role: 'system', content: systemPrompt },
+      ...turns,
+      { role: 'user', content: message }
+    ];
+  }
+
   async reason(message, context = {}) {
     const violationInfo = context.violation;
     let violationContext = '';
-    
+
     if (violationInfo) {
       violationContext = `
-      
+
+
 CLASSIFIED VIOLATION INFORMATION:
 - ID: ${violationInfo.id}
 - Description: ${violationInfo.description}
 - Applicable Laws: ${JSON.stringify(violationInfo.applicable_laws)}
 - Remedy Pathways: ${JSON.stringify(violationInfo.remedy_pathways)}
-      
+
 Use this specific legal information to inform your reasoning about the user's message.`;
     }
+
+    const userProfile = JSON.stringify({
+      language: context.language,
+      location: context.location,
+      workType: context.workType,
+      conversationCount: context.conversationCount
+    });
 
     const systemPrompt = `You are Haki, an AI assistant for Kenyan agribusiness workers' rights. You must think step by step before responding.
 
@@ -141,7 +163,7 @@ REASONING PROCESS:
 1. **Understand**: What is the user really asking or saying?
 2. **Classify**: Is this a question, a request for help, a greeting, or something else?
 3. **Analyze**: If it's about a problem, what type of problem? (wage, safety, contract, child labor, environment, gender, land)
-4. **Contextualize**: Consider the user's context: ${JSON.stringify(context)}${violationContext}
+4. **Contextualize**: Consider the user's profile: ${userProfile}. Earlier conversation turns are included above — use them for follow-ups, pronouns like "it/that", and references to past messages.${violationContext}
 5. **Determine**: What is the best way to help?
 
 THINKING RULES:
@@ -164,10 +186,7 @@ Return your reasoning as a JSON object:
   "language": "en"
 }`;
 
-    const response = await this.callLLM([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: message }
-    ]);
+    const response = await this.callLLM(this.buildMessages(systemPrompt, message, context));
 
     const content = response.choices[0].message.content;
 
@@ -260,10 +279,7 @@ If it's unclear:
 
 Keep responses under 200 words unless detailed legal steps are needed.`;
 
-    const response = await this.callLLM([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: message }
-    ]);
+    const response = await this.callLLM(this.buildMessages(systemPrompt, message, context));
 
     return response.choices[0].message.content;
   }
@@ -307,10 +323,7 @@ Never use chatbot filler ("Certainly!", "I hope this helps", "Is there anything 
 Always respond in English. Only switch languages if the user explicitly requests it.
 Be firm but supportive.`;
 
-    const response = await this.callLLM([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: message }
-    ]);
+    const response = await this.callLLM(this.buildMessages(systemPrompt, message, context));
 
     return response.choices[0].message.content;
   }
@@ -401,13 +414,14 @@ Be firm but supportive.`;
           },
           body: JSON.stringify({
             contents: messages.map(m => ({
-              role: m.role === 'system' ? 'user' : m.role,
+              role: m.role === 'assistant' ? 'model' : 'user',
               parts: [{ text: m.content }]
             })),
             generationConfig: {
               temperature: 0.7,
               topP: 0.9,
-              maxOutputTokens: 800
+              maxOutputTokens: 800,
+              thinkingConfig: { thinkingBudget: 0 }
             }
           }),
           signal: controller.signal
@@ -448,7 +462,12 @@ Be firm but supportive.`;
     // Google returns: { candidates: [{ content: { parts: [{ text: "..." }] } }] }
     // Convert to OpenAI format: { choices: [{ message: { content: "..." } }] }
     if (data.candidates && data.candidates.length > 0) {
-      const text = data.candidates[0].content?.parts?.[0]?.text || '';
+      const text = (data.candidates[0].content?.parts || [])
+        .filter((p) => p.text && !p.thought)
+        .map((p) => p.text)
+        .join(' ')
+        .trim();
+      if (!text) throw new Error('Google returned empty response');
       return {
         choices: [{
           message: {
