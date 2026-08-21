@@ -28,33 +28,61 @@ class ImageHandler {
     try {
       const instruction = `You are Haki, a workplace rights assistant for workers in Kenya's agribusiness sector. The user sent this photo in a WhatsApp chat.${caption ? ` Their message with it: "${caption}".` : ''} Describe factually what the photo shows that could matter to a workplace rights issue — people, conditions, injuries, documents, pay records, locations. Be concise and concrete.`;
 
-      const response = await fetch(`${this.apiUrl}/${this.model}:generateContent?key=${this.apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [
-                { text: instruction },
-                { inline_data: { mime_type: mimeType, data: imageBuffer.toString('base64') } }
-              ]
-            }
-          ],
-          generationConfig: { maxOutputTokens: 400, temperature: 0.3 }
-        })
+      const requestBody = JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: instruction },
+              { inline_data: { mime_type: mimeType, data: imageBuffer.toString('base64') } }
+            ]
+          }
+        ],
+        generationConfig: {
+          maxOutputTokens: 1024,
+          temperature: 0.3,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
       });
 
+      let response = null;
+      let lastErrorBody = '';
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        response = await fetch(`${this.apiUrl}/${this.model}:generateContent?key=${this.apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: requestBody
+        });
+        if (response.ok || ![429, 500, 503].includes(response.status)) break;
+        lastErrorBody = await response.text().catch(() => '');
+        if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 4000));
+      }
+
       if (!response.ok) {
-        const errorBody = await response.text().catch(() => 'Unknown error');
+        const errorBody = lastErrorBody || await response.text().catch(() => 'Unknown error');
         throw new Error(`Gemini API error ${response.status}: ${errorBody.slice(0, 200)}`);
       }
 
       const data = await response.json();
-      const description = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!description) throw new Error('Gemini returned no description');
+      const candidate = data.candidates?.[0];
+      const description = (candidate?.content?.parts || [])
+        .filter((p) => p.text && !p.thought)
+        .map((p) => p.text)
+        .join(' ')
+        .trim();
 
-      return { description: description.trim(), error: null };
+      if (!description) {
+        const blocked = data.promptFeedback?.blockReason;
+        const why = blocked
+          ? `blocked: ${blocked}`
+          : candidate
+            ? `finishReason=${candidate.finishReason || 'unknown'}, parts=${JSON.stringify(candidate.content?.parts ?? null)}`
+            : `no candidates, raw=${JSON.stringify(data).slice(0, 300)}`;
+        console.error(`[image-handler] Gemini gave no description — ${why}`);
+        throw new Error(`Gemini returned no description (${why.slice(0, 150)})`);
+      }
+
+      return { description, error: null };
     } catch (error) {
       return { description: '', error: error.message };
     }

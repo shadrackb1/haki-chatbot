@@ -16,10 +16,18 @@ class VoiceHandler {
   constructor() {
     // Transcription providers, in priority order.
     // Groq Whisper uses the same key as the LLM but its own URL + model name.
-    if (process.env.WHISPER_API_KEY || process.env.OPENAI_API_KEY) {
+    let key = process.env.WHISPER_API_KEY || process.env.OPENAI_API_KEY || '';
+    const customUrl = !!process.env.WHISPER_API_URL;
+
+    if (key && !customUrl && /^(nvapi-|gsk_)/.test(key)) {
+      console.warn(`[voice] WHISPER_API_KEY is a ${key.startsWith('nvapi-') ? 'NVIDIA' : 'Groq'} key, not valid for api.openai.com — using Groq Whisper instead`);
+      key = '';
+    }
+
+    if (key) {
       this.providerName = 'OpenAI Whisper';
       this.apiUrl = process.env.WHISPER_API_URL || 'https://api.openai.com/v1/audio/transcriptions';
-      this.apiKey = process.env.WHISPER_API_KEY || process.env.OPENAI_API_KEY;
+      this.apiKey = key;
       this.model = 'whisper-1';
     } else if (process.env.GROQ_API_KEY) {
       this.providerName = 'Groq Whisper';
