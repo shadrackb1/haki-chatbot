@@ -26,7 +26,12 @@ class ImageHandler {
     }
 
     try {
-      const instruction = `You are Haki, a workplace rights assistant for workers in Kenya's agribusiness sector. The user sent this photo in a WhatsApp chat.${caption ? ` Their message with it: "${caption}".` : ''} Describe factually what the photo shows that could matter to a workplace rights issue — people, conditions, injuries, documents, pay records, locations. Be concise and concrete.`;
+      const instruction = `You are the eyes of Haki, a workplace rights assistant for workers in Kenya's agribusiness sector. A worker sent this photo on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Look closely and report:
+- Scene: setting, location clues, lighting or time-of-day hints.
+- People: how many, what they are doing, visible injuries, protective equipment or its absence.
+- Text: transcribe ALL legible text verbatim — payslips, contracts, notices, signs, labels. Copy every number, date, name and amount exactly as written. Mark barely-legible parts with [?].
+- Hazards: unsafe conditions, chemicals, machinery, weather exposure.
+Be precise and complete. Never invent details you cannot see.`;
 
       const requestBody = JSON.stringify({
         contents: [
@@ -39,8 +44,8 @@ class ImageHandler {
           }
         ],
         generationConfig: {
-          maxOutputTokens: 1024,
-          temperature: 0.3,
+          maxOutputTokens: 2048,
+          temperature: 0.2,
           thinkingConfig: { thinkingBudget: 0 }
         }
       });
