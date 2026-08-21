@@ -98,6 +98,7 @@ class LLMReasoningEngine {
   // pipe-chained values ("wages|contract") or answer in prose. Normalize
   // everything into the shape the rest of the pipeline expects.
   normalizeReasoning(raw = {}, fallbackUnderstanding = '') {
+    if (!raw || typeof raw !== 'object') raw = {};
     const firstValue = (v, fallback) => {
       if (typeof v !== 'string' || !v.trim()) return fallback;
       return v.split('|')[0].trim().toLowerCase();

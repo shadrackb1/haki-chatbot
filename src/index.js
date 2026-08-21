@@ -12,7 +12,9 @@ import ConversationManager from './conversation-manager.js';
 import LLMReasoningEngine from './llm-reasoning.js';
 import VoiceHandler from './voice-handler.js';
 import ImageHandler from './image-handler.js';
+import { classifyViolation } from './violation-classifier.js';
 import { toWhatsApp } from './whatsapp-format.js';
+import { buildRetriever } from './knowledge-retriever.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,9 +36,6 @@ healthServer.listen(HEALTH_PORT, () => console.log(`💓 Health check: http://lo
 // HAKI CHATBOT - AI Engine
 // ============================================
 
-// Load legal knowledge base
-const legalKB = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'legal-knowledge-base.json'), 'utf8'));
-
 // Initialize conversation manager (makes bot feel human)
 const conversationManager = new ConversationManager();
 
@@ -49,6 +48,11 @@ const voiceHandler = new VoiceHandler();
 // Initialize image handler (describes photos via Gemini vision)
 const imageHandler = new ImageHandler();
 
+// Initialize legal corpus retriever (BM25 over grounded statutory passages)
+const retriever = buildRetriever(path.join(__dirname, '..', 'data', 'legal-corpus.json'));
+
+console.log('🗂️  Legal corpus: ' + retriever.corpus.length + ' passages indexed');
+
 console.log('🧠 AI Engine: ' + (llmEngine.isAvailable() ? `LLM-powered` : 'Rule-based (fallback)'));
 console.log('🎤 Voice notes: ' + (voiceHandler.enabled ? voiceHandler.providerName : 'disabled'));
 console.log('🖼️ Photos: ' + (imageHandler.enabled ? `vision via ${imageHandler.model}` : 'not detected (set GOOGLE_API_KEY to analyse)'));
@@ -57,105 +61,6 @@ console.log('💬 Conversation: Human-like with welcome flow');
 function detectLanguage(text) {
    // Always return English for now - working with English first
    return 'en';
-}
-
-// Enhanced text processing for better matching
-function tokenizeText(text) {
-  // Convert to lowercase and split by non-alphanumeric characters
-  return text.toLowerCase().match(/[a-z0-9]+/g) || [];
-}
-
-// Workers write "wages", "injured", "evicted" — the KB stores "wage",
-// "injure", "evict". Generate morphological variants so inflected forms
-// still match instead of scoring zero.
-function tokenVariants(token) {
-  const variants = new Set([token]);
-  if (token.length > 3) {
-    if (token.endsWith('ies')) variants.add(token.slice(0, -3) + 'y');
-    if (token.endsWith('es')) variants.add(token.slice(0, -2));
-    if (token.endsWith('s')) variants.add(token.slice(0, -1));
-    if (token.endsWith('ing')) {
-      variants.add(token.slice(0, -3));
-      variants.add(token.slice(0, -3) + 'e');
-    }
-    if (token.endsWith('ed')) {
-      variants.add(token.slice(0, -2));
-      variants.add(token.slice(0, -1));
-    }
-  }
-  return [...variants];
-}
-
-// Calculate TF-IDF like score for better matching
-function calculateRelevanceScore(query, category) {
-  const queryTokens = tokenizeText(query);
-  if (queryTokens.length === 0) return 0;
-
-  // Get all keywords for this category
-  const allKeywords = [
-    ...category.keywords_sw,
-    ...category.keywords_en,
-    ...Object.values(category.keywords_local || {}).flat()
-  ].map(keyword => keyword.toLowerCase());
-
-  // Calculate term frequency
-  const tf = {};
-  queryTokens.forEach(token => {
-    tf[token] = (tf[token] || 0) + 1;
-  });
-
-  // Calculate score based on keyword matches
-  let score = 0;
-  const matchedKeywords = new Set();
-
-  queryTokens.forEach(token => {
-    const matches = tokenVariants(token).some(v => allKeywords.includes(v));
-    if (matches) {
-      // Basic match score
-      score += 1;
-      matchedKeywords.add(token);
-
-      // Bonus for exact phrase matches (if query has multiple words)
-      if (queryTokens.length > 1) {
-        // Check for bigrams
-        for (let i = 0; i < queryTokens.length - 1; i++) {
-          const bigram = queryTokens.slice(i, i + 2).join(' ');
-          if (allKeywords.includes(bigram)) {
-            score += 0.5; // Bonus for phrase match
-          }
-        }
-      }
-    }
-  });
-
-  // Normalize by query length to prevent longer queries from always scoring higher
-  return score / Math.sqrt(queryTokens.length);
-}
-
-// Enhanced violation classification with RAG-like capabilities
-function classifyViolation(text) {
-  const lower = text.toLowerCase();
-  const violations = [];
-
-  for (const category of legalKB.violation_categories) {
-    // Calculate enhanced relevance score
-    const score = calculateRelevanceScore(lower, category);
-
-    if (score > 0) {
-      violations.push({
-        id: category.id,
-        score: score,
-        data: category
-      });
-    }
-  }
-
-  // Sort by score descending
-  violations.sort((a, b) => b.score - a.score);
-
-  // Return the best match if score is above threshold
-  const bestMatch = violations.length > 0 ? violations[0] : null;
-  return bestMatch && bestMatch.score > 0.3 ? bestMatch : null; // Threshold for relevance
 }
 
 // ============================================
