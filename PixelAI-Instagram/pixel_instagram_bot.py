@@ -1,5 +1,5 @@
-"""
-Pixel AI Instagram Bot — Full-featured Instagram automation bot using instagrapi.
+﻿"""
+Pixel AI Instagram Bot â€” Full-featured Instagram automation bot using instagrapi.
 Provides human-like interactions: comment, like, follow, unfollow, repost, etc.
 
 ! WARNING: This uses unofficial Instagram APIs. Risks include:
@@ -18,6 +18,9 @@ import logging
 import signal
 import sys
 import re
+import ast
+import operator
+import requests
 from pathlib import Path
 from typing import Optional, Set, List, Dict, Any
 from datetime import datetime, timedelta
@@ -50,6 +53,12 @@ OWNER_ID = os.getenv("PIXEL_OWNER_ID")  # Optional: restrict to one user
 SESSION_FILE = Path(os.getenv("PIXEL_SESSION_FILE", "pixel_session.json"))
 RATE_LIMIT_DELAY = int(os.getenv("PIXEL_RATE_LIMIT_DELAY", "30"))
 ACTION_DELAY = int(os.getenv("PIXEL_ACTION_DELAY", "5"))  # Delay between actions
+
+# Optional LLM backend (any OpenAI-compatible API: Groq, OpenAI, NVIDIA NIM, OpenRouter...)
+# Set PIXEL_LLM_API_KEY to unlock translations, summaries and general chat.
+LLM_API_KEY = os.getenv("PIXEL_LLM_API_KEY", "")
+LLM_API_URL = os.getenv("PIXEL_LLM_API_URL", "https://api.groq.com/openai/v1/chat/completions")
+LLM_MODEL = os.getenv("PIXEL_LLM_MODEL", "openai/gpt-oss-120b")
 
 # Interactive setup flag
 INTERACTIVE_SETUP = False
@@ -143,39 +152,63 @@ logging.basicConfig(
 log = logging.getLogger("pixel-instagram")
 
 # Pixel AI responses - Human-like, no AI tells
-WELCOME_MESSAGE = """Hey! I'm Pixel [Bot] — your personal AI assistant.
-
+WELCOME_MESSAGE = """Hey! I'm Pixel [Bot] â€” your personal AI assistant.
 I'm here while you're away. Ask me anything:
-• Calculations, translations, definitions
-• Code help, summaries, explanations  
-• Weather (when online), reminders
-• General knowledge, trivia
+â€¢ Calculations, translations, definitions
+â€¢ Code help, summaries, explanations  
+â€¢ Weather (when online), reminders
+â€¢ General knowledge, trivia
 
 I speak English and Kiswahili. What's up?"""
 
 HELP_MESSAGE = """Pixel AI Commands:
-• Just chat naturally — I'll respond
-• "help" — show this message
-• "weather [city]" — weather forecast (needs internet)
-• "calculate 2+2" — math
-• "translate hello to swahili" — translation
-• "remind me to call mom in 10 min" — reminders
-• "summarize this text: ..." — summarization
+â€¢ Just chat naturally â€” I'll respond
+â€¢ "help" â€” show this message
+â€¢ "calculate 2+2" â€” math (works offline)
+â€¢ "weather [city]" â€” weather forecast (needs internet)
+â€¢ "translate hello to swahili" â€” translation (needs PIXEL_LLM_API_KEY)
+â€¢ "remind me to call mom in 10 min" â€” reminders
+â€¢ "summarize this text: ..." â€” summarization (needs PIXEL_LLM_API_KEY)
 
 Instagram Controls (Owner only):
-• "feed" — see recent posts
-• "story" — see recent stories
-• "follow @username" — follow a user
-• "unfollow @username" — unfollow a user
-• "like @username's latest" — like latest post
-• "comment on @username's latest: [text]" — comment on post
-• "repost @username's latest to story" — share to story
-• "search for #hashtag" — search hashtag
-• "search @username" — search user
-• "info @username" — get user info
-• "dm @username [message]" — send direct message
+â€¢ "feed" â€” see recent posts
+â€¢ "story" â€” see recent stories
+â€¢ "follow @username" â€” follow a user
+â€¢ "unfollow @username" â€” unfollow a user
+â€¢ "like @username's latest" â€” like latest post
+â€¢ "comment on @username's latest: [text]" â€” comment on post
+â€¢ "repost @username's latest to story" â€” share to story
+â€¢ "search for #hashtag" â€” search hashtag
+â€¢ "search @username" â€” search user
+â€¢ "info @username" â€” get user info
+â€¢ "dm @username [message]" â€” send direct message
 
 I remember our conversation. Type away!"""
+
+# ---- Safe offline math evaluation (no eval()) ----
+_MATH_BINOPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
+
+
+def _eval_math(node):
+    if isinstance(node, ast.Expression):
+        return _eval_math(node.body)
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return node.value
+    if isinstance(node, ast.BinOp) and type(node.op) in _MATH_BINOPS:
+        return _MATH_BINOPS[type(node.op)](_eval_math(node.left), _eval_math(node.right))
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
+        value = _eval_math(node.operand)
+        return -value if isinstance(node.op, ast.USub) else value
+    raise ValueError("unsupported expression")
+
 
 class PixelInstagramBot:
     def __init__(self):
@@ -186,6 +219,12 @@ class PixelInstagramBot:
         self.running = True
         self.owner_pk: Optional[int] = None
         self.last_action_time: Dict[str, float] = {}
+        self.llm_enabled = bool(LLM_API_KEY)
+
+        if self.llm_enabled:
+            log.info(f"[OK] LLM brain enabled: {LLM_MODEL}")
+        else:
+            log.info("No PIXEL_LLM_API_KEY set - smart replies off, commands still work")
         
         # Load session if exists
         if SESSION_FILE.exists():
@@ -249,7 +288,7 @@ class PixelInstagramBot:
             return True
         except ChallengeRequired as e:
             log.error(f"Challenge required: {e}")
-            log.error("Manual intervention needed — check Instagram app")
+            log.error("Manual intervention needed â€” check Instagram app")
             return False
         except FeedbackRequired as e:
             log.error(f"Feedback required (likely rate limited): {e}")
@@ -258,8 +297,60 @@ class PixelInstagramBot:
             log.error(f"Login failed: {e}")
             return False
 
+    # ============================================
+    # SMART FEATURES
+    # Calculator works offline. Chat/translate/summarize need PIXEL_LLM_API_KEY.
+    # ============================================
+
+    def _calculate(self, text: str) -> str:
+        """Evaluate arithmetic safely. Handles 'calculate 12*3' or bare math like 45*(2+3)."""
+        expr = text.lower()
+        for word in ("calculate", "calc", "what is", "what's", "how much is"):
+            expr = expr.replace(word, "")
+        expr = expr.replace("=", "").replace("^", "**").strip()
+        try:
+            result = _eval_math(ast.parse(expr, mode="eval"))
+            if isinstance(result, float) and result.is_integer():
+                result = int(result)
+            return f"{expr} = {result}"
+        except Exception:
+            return "I couldn't read that as math. Try something like: calculate 45*12+300"
+
+    def _ask_llm(self, text: str) -> Optional[str]:
+        """Ask the LLM backend (Groq or any OpenAI-compatible API). None on failure."""
+        try:
+            resp = requests.post(
+                LLM_API_URL,
+                headers={"Authorization": f"Bearer {LLM_API_KEY}"},
+                json={
+                    "model": LLM_MODEL,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are Pixel, a casual personal assistant texting on Instagram. "
+                                "Reply short and human, like a friend - no corporate tone, no bullet-point essays. "
+                                "Match the sender's language (English or Kiswahili)."
+                            ),
+                        },
+                        {"role": "user", "content": text},
+                    ],
+                    "max_tokens": 400,
+                    "temperature": 0.7,
+                },
+                timeout=30,
+            )
+            if resp.status_code == 200:
+                content = resp.json()["choices"][0]["message"]["content"]
+                return content.strip() or None
+            log.warning(f"LLM HTTP {resp.status_code}")
+            return None
+        except Exception as e:
+            log.warning(f"LLM call failed: {e}")
+            return None
+
     def get_response(self, text: str, sender_name: str) -> str:
-        """Generate human-like response — replace with actual LLM integration."""
+        """Generate human-like response â€” replace with actual LLM integration."""
         text_lower = text.lower().strip()
         
         # Handle Instagram control commands (owner only)
@@ -276,26 +367,35 @@ class PixelInstagramBot:
             return HELP_MESSAGE
         
         if "weather" in text_lower:
-            return "Weather feature needs internet — ask me when I'm online! 🌤️"
+            return "Weather feature needs internet â€” ask me when I'm online! ðŸŒ¤ï¸"
         
-        if "calculate" in text_lower or any(op in text for op in ["+", "-", "*", "/", "="]):
-            return "Math coming soon! For now, try Google. 🧮"
-        
-        if "translate" in text_lower:
-            return "Translation coming soon! 🌍"
-        
+        if "calculate" in text_lower or re.search(r"\d\s*[-+*/]", text):
+            return self._calculate(text)
+
+        if "weather" in text_lower:
+            return "Weather needs an API key that isn't set up yet â€” ask me anything else!"
+
         if "remind" in text_lower:
-            return "Reminders coming soon! ⏰"
-        
-        if "summarize" in text_lower:
-            return "Summarization coming soon! 📝"
-        
+            return "Reminders coming soon! â°"
+
         if "bye" in text_lower or "kwaheri" in text_lower:
-            return f"Bye {sender_name}! Talk later. 👋"
-        
+            return f"Bye {sender_name}! Talk later. ðŸ‘‹"
+
+        # LLM handles translate, summarize and general chat when configured
+        if self.llm_enabled:
+            reply = self._ask_llm(text)
+            if reply:
+                return reply
+
+        if "translate" in text_lower:
+            return "Translation isn't configured yet - set PIXEL_LLM_API_KEY in .env to unlock it."
+
+        if "summarize" in text_lower:
+            return "Summarizing isn't configured yet - set PIXEL_LLM_API_KEY in .env to unlock it."
+
         # Default: acknowledge with variation
         responses = [
-            f"Got it, {sender_name}. I'm still learning — ask me anything!",
+            f"Got it, {sender_name}. I'm still learning â€” ask me anything!",
             f"Interesting point, {sender_name}. Tell me more about that!",
             f"I hear you, {sender_name}. What else is on your mind?",
             f"That's cool, {sender_name}. What would you like to discuss?",
@@ -374,14 +474,14 @@ class PixelInstagramBot:
     def _get_feed_summary(self) -> str:
         """Get summary of recent feed posts."""
         if not self._rate_limit_action("feed"):
-            return "⏳ Please wait a moment before checking feed again."
+            return "â³ Please wait a moment before checking feed again."
         
         try:
             feed = self.cl.get_timeline_feed(amount=5)
             if not feed:
-                return "📭 No posts in feed right now."
+                return "ðŸ“­ No posts in feed right now."
             
-            response = f"📰 Recent feed ({len(feed)} posts):\n\n"
+            response = f"ðŸ“° Recent feed ({len(feed)} posts):\n\n"
             for i, media in enumerate(feed[:3], 1):  # Show first 3
                 try:
                     user = self.cl.user_info(media.user.pk)
@@ -390,7 +490,7 @@ class PixelInstagramBot:
                     if len(caption) > 50:
                         caption = caption[:47] + "..."
                     response += f"{i}. @{user.username}: {caption}\n"
-                    response += f"   ❤️ {media.like_count} | 💬 {media.comment_count}\n\n"
+                    response += f"   â¤ï¸ {media.like_count} | ðŸ’¬ {media.comment_count}\n\n"
                 except Exception:
                     continue
             
@@ -405,22 +505,22 @@ class PixelInstagramBot:
     def _get_stories_summary(self) -> str:
         """Get summary of recent stories from followed users."""
         if not self._rate_limit_action("stories"):
-            return "⏳ Please wait a moment before checking stories again."
+            return "â³ Please wait a moment before checking stories again."
         
         try:
             stories = self.cl.get_stories(amount=10)
             if not stories:
-                return "📭 No stories available right now."
+                return "ðŸ“­ No stories available right now."
             
-            response = f"📱 Recent stories ({len(stories)}):\n\n"
+            response = f"ðŸ“± Recent stories ({len(stories)}):\n\n"
             for i, story in enumerate(stories[:3], 1):  # Show first 3
                 try:
                     user = self.cl.user_info(story.user.pk)
                     response += f"{i}. @{user.username}"
                     if story.media_type == 1:  # Photo
-                        response += " (📸 Photo)"
+                        response += " (ðŸ“¸ Photo)"
                     elif story.media_type == 2:  # Video
-                        response += " (🎥 Video)"
+                        response += " (ðŸŽ¥ Video)"
                     response += "\n"
                 except Exception:
                     continue
@@ -436,7 +536,7 @@ class PixelInstagramBot:
     def _follow_user(self, username: str) -> str:
         """Follow a user."""
         if not self._rate_limit_action(f"follow_{username}"):
-            return f"⏳ Please wait before following another user."
+            return f"â³ Please wait before following another user."
         
         try:
             user_id = self.cl.user_id_from_username(username)
@@ -445,12 +545,12 @@ class PixelInstagramBot:
             return f"[OK] Now following @{username}"
         except Exception as e:
             log.error(f"Error following @{username}: {e}")
-            return f"❌ Could not follow @{username}: {str(e)}"
+            return f"âŒ Could not follow @{username}: {str(e)}"
 
     def _unfollow_user(self, username: str) -> str:
         """Unfollow a user."""
         if not self._rate_limit_action(f"unfollow_{username}"):
-            return f"⏳ Please wait before unfollowing another user."
+            return f"â³ Please wait before unfollowing another user."
         
         try:
             user_id = self.cl.user_id_from_username(username)
@@ -459,18 +559,18 @@ class PixelInstagramBot:
             return f"[OK] No longer following @{username}"
         except Exception as e:
             log.error(f"Error unfollowing @{username}: {e}")
-            return f"❌ Could not unfollow @{username}: {str(e)}"
+            return f"âŒ Could not unfollow @{username}: {str(e)}"
 
     def _like_latest_post(self, username: str) -> str:
         """Like the latest post from a user."""
         if not self._rate_limit_action(f"like_{username}"):
-            return f"⏳ Please wait before liking another post."
+            return f"â³ Please wait before liking another post."
         
         try:
             user_id = self.cl.user_id_from_username(username)
             medias = self.cl.user_medias(user_id, amount=1)
             if not medias:
-                return f"📭 @{username} has no posts to like."
+                return f"ðŸ“­ @{username} has no posts to like."
             
             media = medias[0]
             self.cl.media_like(media.id)
@@ -478,22 +578,22 @@ class PixelInstagramBot:
             return f"[Like] Liked @{username}'s latest post"
         except Exception as e:
             log.error(f"Error liking post from @{username}: {e}")
-            return f"❌ Could not like post from @{username}: {str(e)}"
+            return f"âŒ Could not like post from @{username}: {str(e)}"
 
     def _comment_on_latest_post(self, username: str, comment_text: str) -> str:
         """Comment on the latest post from a user."""
         if not self._rate_limit_action(f"comment_{username}"):
-            return f"⏳ Please wait before commenting again."
+            return f"â³ Please wait before commenting again."
         
         # Validate comment length
         if len(comment_text) > 300:
-            return "❌ Comment too long (max 300 characters)"
+            return "âŒ Comment too long (max 300 characters)"
         
         try:
             user_id = self.cl.user_id_from_username(username)
             medias = self.cl.user_medias(user_id, amount=1)
             if not medias:
-                return f"📭 @{username} has no posts to comment on."
+                return f"ðŸ“­ @{username} has no posts to comment on."
             
             media = medias[0]
             self.cl.media_comment(media.id, comment_text)
@@ -501,18 +601,18 @@ class PixelInstagramBot:
             return f"[Comment] Commented on @{username}'s latest post"
         except Exception as e:
             log.error(f"Error commenting on post from @{username}: {e}")
-            return f"❌ Could not comment on post from @{username}: {str(e)}"
+            return f"âŒ Could not comment on post from @{username}: {str(e)}"
 
     def _repost_to_story(self, username: str) -> str:
         """Repost user's latest post to your story."""
         if not self._rate_limit_action(f"repost_{username}"):
-            return f"⏳ Please wait before reposting again."
+            return f"â³ Please wait before reposting again."
         
         try:
             user_id = self.cl.user_id_from_username(username)
             medias = self.cl.user_medias(user_id, amount=1)
             if not medias:
-                return f"📭 @{username} has no posts to repost."
+                return f"ðŸ“­ @{username} has no posts to repost."
             
             media = medias[0]
             # Share to story
@@ -521,21 +621,21 @@ class PixelInstagramBot:
             return f"[Repost] Reposted @{username}'s latest post to your story"
         except Exception as e:
             log.error(f"Error reposting from @{username}: {e}")
-            return f"❌ Could not repost from @{username}: {str(e)}"
+            return f"âŒ Could not repost from @{username}: {str(e)}"
 
     def _search_hashtag(self, hashtag: str) -> str:
         """Search for posts by hashtag."""
         if not self._rate_limit_action(f"hashtag_{hashtag}"):
-            return f"⏳ Please wait before searching another hashtag."
+            return f"â³ Please wait before searching another hashtag."
         
         try:
             # Clean hashtag
             hashtag = hashtag.lstrip('#')
             results = self.cl.hashtag_medias_recent(hashtag, amount=5)
             if not results:
-                return f"🔍 No recent posts for #{hashtag}"
+                return f"ðŸ” No recent posts for #{hashtag}"
             
-            response = f"🔍 Recent posts for #{hashtag} ({len(results)}):\n\n"
+            response = f"ðŸ” Recent posts for #{hashtag} ({len(results)}):\n\n"
             for i, media in enumerate(results[:3], 1):
                 try:
                     user = self.cl.user_info(media.user.pk)
@@ -543,7 +643,7 @@ class PixelInstagramBot:
                     if len(caption) > 40:
                         caption = caption[:37] + "..."
                     response += f"{i}. @{user.username}: {caption}\n"
-                    response += f"   ❤️ {media.like_count} | 💬 {media.comment_count}\n\n"
+                    response += f"   â¤ï¸ {media.like_count} | ðŸ’¬ {media.comment_count}\n\n"
                 except Exception:
                     continue
             
@@ -558,14 +658,14 @@ class PixelInstagramBot:
     def _search_user(self, username: str) -> str:
         """Search for a user."""
         if not self._rate_limit_action(f"search_user_{username}"):
-            return f"⏳ Please wait before searching another user."
+            return f"â³ Please wait before searching another user."
         
         try:
             results = self.cl.search_users(username, count=5)
             if not results:
-                return f"🔍 No users found matching '{username}'"
+                return f"ðŸ” No users found matching '{username}'"
             
-            response = f"🔍 Users matching '{username}' ({len(results)}):\n\n"
+            response = f"ðŸ” Users matching '{username}' ({len(results)}):\n\n"
             for i, user in enumerate(results[:3], 1):
                 response += f"{i}. @{user.username}"
                 if user.full_name:
@@ -583,19 +683,19 @@ class PixelInstagramBot:
     def _get_user_info(self, username: str) -> str:
         """Get detailed info about a user."""
         if not self._rate_limit_action(f"info_{username}"):
-            return f"⏳ Please wait before getting info for another user."
+            return f"â³ Please wait before getting info for another user."
         
         try:
             user = self.cl.user_info_by_username(username)
-            response = f"👤 Info for @{user.username}:\n\n"
-            response += f"• Full name: {user.full_name or 'N/A'}\n"
-            response += f"• Followers: {user.follower_count:,}\n"
-            response += f"• Following: {user.following_count:,}\n"
-            response += f"• Posts: {user.media_count:,}\n"
-            response += f"• Bio: {user.biography or 'No bio'}\n"
-            response += f"• External URL: {user.external_url or 'None'}\n"
-            response += f"• Verified: {'Yes' if user.is_verified else 'No'}\n"
-            response += f"• Private: {'Yes' if user.is_private else 'No'}"
+            response = f"ðŸ‘¤ Info for @{user.username}:\n\n"
+            response += f"â€¢ Full name: {user.full_name or 'N/A'}\n"
+            response += f"â€¢ Followers: {user.follower_count:,}\n"
+            response += f"â€¢ Following: {user.following_count:,}\n"
+            response += f"â€¢ Posts: {user.media_count:,}\n"
+            response += f"â€¢ Bio: {user.biography or 'No bio'}\n"
+            response += f"â€¢ External URL: {user.external_url or 'None'}\n"
+            response += f"â€¢ Verified: {'Yes' if user.is_verified else 'No'}\n"
+            response += f"â€¢ Private: {'Yes' if user.is_private else 'No'}"
             
             return response
         except Exception as e:
@@ -605,17 +705,17 @@ class PixelInstagramBot:
     def _send_dm(self, username: str, message: str) -> str:
         """Send a direct message to a user."""
         if not self._rate_limit_action(f"dm_{username}"):
-            return f"⏳ Please wait before sending another DM."
+            return f"â³ Please wait before sending another DM."
         
         # Validate message length
         if len(message) > 1000:
-            return "❌ Message too long (max 1000 characters)"
+            return "âŒ Message too long (max 1000 characters)"
         
         try:
             user_id = self.cl.user_id_from_username(username)
             self.cl.direct_send(message, [user_id])
             log.info(f"Sent DM to @{username}: {message[:50]}...")
-            return f"📩 Sent DM to @{username}"
+            return f"ðŸ“© Sent DM to @{username}"
         except Exception as e:
             log.error(f"Error sending DM to @{username}: {e}")
             return f"[Error] Could not send DM to @{username}: {str(e)}"
@@ -659,7 +759,7 @@ class PixelInstagramBot:
                 self.processed_message_ids.add(msg_id)
                 continue
             
-            log.info(f"📨 @{sender_name}: {text[:50]}...")
+            log.info(f"ðŸ“¨ @{sender_name}: {text[:50]}...")
             
             # Generate response
             response = self.get_response(text, sender_name)
@@ -686,7 +786,7 @@ class PixelInstagramBot:
             return
         
         log.info(f"[OK] Connected as @{USERNAME}")
-        log.info(f"👀 Monitoring DMs (rate limit: {RATE_LIMIT_DELAY}s)")
+        log.info(f"ðŸ‘€ Monitoring DMs (rate limit: {RATE_LIMIT_DELAY}s)")
         if self.owner_pk:
             log.info(f"[Secure] Owner-only mode: {self.owner_pk}")
         
@@ -711,7 +811,7 @@ class PixelInstagramBot:
                 self.save_session()
                 
             except PleaseWaitFewMinutes:
-                log.warning("[Timer] Rate limited — waiting 5 minutes")
+                log.warning("[Timer] Rate limited â€” waiting 5 minutes")
                 time.sleep(300)
                 continue
             except FeedbackRequired as e:

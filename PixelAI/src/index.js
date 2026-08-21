@@ -156,8 +156,10 @@ function saveGroupSettings(settings) {
 }
 
 function isGroupEnabled(chatId) {
+    // Groups are opt-in: the bot only replies when @mentioned until an admin
+    // or the owner runs "pixel on" in that group.
     const settings = loadGroupSettings();
-    return settings[chatId]?.enabled !== false;
+    return settings[chatId]?.enabled === true;
 }
 
 function setGroupEnabled(chatId, enabled) {
@@ -444,10 +446,7 @@ async function startBot() {
 
             const chatId = msg.key.remoteJid;
             const isGroup = chatId.endsWith('@g.us');
-            
-            // Skip group messages for now
-            if (isGroup) continue;
-            
+
             const senderName = msg.pushName || 'friend';
 
             // Parse message body (text, image, voice, location, etc.)
@@ -556,7 +555,7 @@ async function startBot() {
                                 const result = await imageSkill.execute(messageText || 'describe this image', ctx);
                                 responseText = result?.response || result?.text || null;
                             } else {
-                                responseText = "Image analysis isn't available yet. Add OPENAI_API_KEY to enable it.";
+                                responseText = "Image analysis isn't available yet. Add OPENAI_API_KEY or GEMINI_API_KEY to enable it.";
                             }
                         } else {
                             responseText = "I couldn't download that image. Mind sending it again?";

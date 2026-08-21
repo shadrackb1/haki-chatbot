@@ -37,6 +37,39 @@ async function analyzeWithOpenAI(imageBuffer, question) {
   return data.choices?.[0]?.message?.content ?? 'No description returned.';
 }
 
+async function analyzeWithGemini(imageBuffer, question) {
+  const base64 = imageBuffer.toString('base64');
+  const model = process.env.GEMINI_VISION_MODEL || 'gemini-2.5-flash';
+  const apiUrl = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models';
+
+  const response = await fetch(`${apiUrl}/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: question },
+            { inline_data: { mime_type: 'image/jpeg', data: base64 } },
+          ],
+        },
+      ],
+      generationConfig: { maxOutputTokens: 500 },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => 'Unknown error');
+    throw new Error(`Gemini API error ${response.status}: ${errorBody}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Gemini returned no description.');
+  return text;
+}
+
 export default {
   name: 'image-analysis',
   description: 'Analyze and describe images sent by users',
@@ -61,9 +94,14 @@ export default {
         return { response: `🖼️ *Image Analysis:*\n\n${analysis}` };
       }
 
+      if (process.env.GEMINI_API_KEY) {
+        const analysis = await analyzeWithGemini(imageBuffer, question);
+        return { response: `🖼️ *Image Analysis:*\n\n${analysis}` };
+      }
+
       return {
         response:
-          'Image analysis requires an OpenAI API key. Please add OPENAI_API_KEY to your .env file.',
+          "Image analysis isn't configured yet — add OPENAI_API_KEY or GEMINI_API_KEY to the .env file.",
       };
     } catch (error) {
       console.error('[image-analysis] Error:', error.message);

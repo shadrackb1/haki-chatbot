@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+﻿import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 // ============================================
 // LLM PROVIDER CONFIGURATION
-// Priority: NVIDIA → Groq → Google AI Studio
+// Priority: NVIDIA â†’ Groq â†’ Google AI Studio
 // ============================================
 
 const LLM_PROVIDERS = {
@@ -25,7 +25,7 @@ const LLM_PROVIDERS = {
   groq: {
     name: 'Groq',
     apiKey: process.env.GROQ_API_KEY || '',
-    apiUrl: process.env.GROQ_API_URL || 'https://api.groq.com/v1/chat/completions',
+    apiUrl: process.env.GROQ_API_URL || 'https://api.groq.com/openai/v1/chat/completions',
     model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
     enabled: !!process.env.GROQ_API_KEY,
     format: 'openai'
@@ -52,9 +52,9 @@ class LLMReasoningEngine {
     
     if (this.enabled) {
       const provider = LLM_PROVIDERS[this.activeProvider];
-      console.log(`🤖 LLM Engine initialized with: ${provider.name} (${provider.model})`);
+      console.log(`ðŸ¤– LLM Engine initialized with: ${provider.name} (${provider.model})`);
     } else {
-      console.log('⚠️ No LLM provider configured - using rule-based fallback only');
+      console.log('âš ï¸ No LLM provider configured - using rule-based fallback only');
     }
   }
 
@@ -83,7 +83,7 @@ class LLMReasoningEngine {
         usedLLM: true
       };
     } catch (error) {
-      console.log('⚠️ LLM processing failed, using fallback');
+      console.log('âš ï¸ LLM processing failed, using fallback');
       return this.fallbackProcess(message, userContext);
     }
   }
@@ -318,12 +318,12 @@ Be firm but supportive.`;
       }
       
       try {
-        console.log(`🤖 Trying ${provider.name}: ${provider.model}`);
+        console.log(`ðŸ¤– Trying ${provider.name}: ${provider.model}`);
         const result = await this.callProvider(provider, messages);
-        console.log(`✅ ${provider.name} responded successfully`);
+        console.log(`âœ… ${provider.name} responded successfully`);
         return result;
       } catch (error) {
-        console.log(`❌ ${provider.name} failed: ${error.message}`);
+        console.log(`âŒ ${provider.name} failed: ${error.message}`);
         // Continue to next provider
         continue;
       }
@@ -476,13 +476,13 @@ Be firm but supportive.`;
 
     if (reasoning.intent === 'greeting') {
       return lang === 'sw'
-        ? 'Habari! Karibu Haki Chatbot. Nasaidia na masuala ya haki za kazi — mshahara, mkataba, usalama. Ni nini kinakusumbua?'
-        : 'Hello! Welcome to Haki Chatbot. I help with workplace rights in Kenya — wages, contracts, safety. What\'s going on?';
+        ? 'Habari! Karibu Haki Chatbot. Nasaidia na masuala ya haki za kazi â€” mshahara, mkataba, usalama. Ni nini kinakusumbua?'
+        : 'Hello! Welcome to Haki Chatbot. I help with workplace rights in Kenya â€” wages, contracts, safety. What\'s going on?';
     }
 
     if (reasoning.intent === 'thanks') {
       return lang === 'sw'
-        ? 'Asante pia! Haki yako ina thamani — ukiahitaji tena uko hapa.'
+        ? 'Asante pia! Haki yako ina thamani â€” ukiahitaji tena uko hapa.'
         : 'Any time! Your rights are worth following up on. Come back if you need more.';
     }
 
@@ -494,7 +494,7 @@ Be firm but supportive.`;
     // Default response
     return lang === 'sw'
       ? 'Sijaelewa vizuri. Eleza zaidi tatizo lako, kwa mfano malipo au usalama kazini. Au andika "haki zangu".'
-      : 'I didn\'t quite catch that. Tell me a bit more about what happened at work — pay, safety, contract, anything. Or type "rights" to see what you\'re entitled to.';
+      : 'I didn\'t quite catch that. Tell me a bit more about what happened at work â€” pay, safety, contract, anything. Or type "rights" to see what you\'re entitled to.';
   }
 
   getRuleBasedLegalResponse(violationType, lang) {
@@ -509,26 +509,26 @@ Be firm but supportive.`;
     }
 
     // Build response
-    let response = lang === 'sw' ? '🚨 *Haki zako zimebana hapa*\n\n' : '🚨 *Your rights are being violated here*\n\n';
+    let response = lang === 'sw' ? 'ðŸš¨ *Haki zako zimebana hapa*\n\n' : 'ðŸš¨ *Your rights are being violated here*\n\n';
     response += lang === 'sw' ? `*Tatizo:* ${category.description}\n\n` : `*The problem:* ${category.description}\n\n`;
     response += lang === 'sw' ? '*Sheria Inayofaa:*\n' : '*Applicable Law:*\n';
     
     for (const law of category.applicable_laws) {
-      response += `📜 ${law.law} (${law.section})\n`;
+      response += `ðŸ“œ ${law.law} (${law.section})\n`;
     }
 
     response += '\n' + (lang === 'sw' ? '*Njia za Suluhisho:*\n' : '*Remedy Pathways:*\n');
     
     for (const pathway of category.remedy_pathways) {
-      response += `\n🏛️ ${pathway.institution}\n`;
+      response += `\nðŸ›ï¸ ${pathway.institution}\n`;
       response += lang === 'sw' ? `   Hatua: ${pathway.action}\n` : `   Action: ${pathway.action}\n`;
       for (const step of pathway.process) {
-        response += `   • ${step}\n`;
+        response += `   â€¢ ${step}\n`;
       }
-      response += `   ⏰ ${pathway.timeline}\n`;
+      response += `   â° ${pathway.timeline}\n`;
     }
 
-    response += '\n' + (lang === 'sw' ? '📞 NLAS (Bure): 0800 723 255' : '📞 NLAS (Free): 0800 723 255');
+    response += '\n' + (lang === 'sw' ? 'ðŸ“ž NLAS (Bure): 0800 723 255' : 'ðŸ“ž NLAS (Free): 0800 723 255');
 
     return response;
   }
