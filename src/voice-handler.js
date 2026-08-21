@@ -38,19 +38,28 @@ class VoiceHandler {
     });
   }
 
-  // Transcribe audio using Whisper API
-  async transcribe(audioPath, language = 'en') {
+  // Transcribe audio buffer using Whisper API
+  async transcribe(audioBuffer, language = 'en') {
     if (!this.enabled) {
       return { text: '', error: 'Whisper API not configured' };
     }
 
+    let mp3Path = null;
+
     try {
-      // Convert to MP3 if needed
-      const mp3Path = audioPath.replace(/\.(ogg|opus)$/i, '.mp3');
-      await this.convertAudio(audioPath, mp3Path);
+      // Convert to MP3 via ffmpeg (expects a file on disk)
+      const tempDir = path.join(__dirname, '..', 'temp');
+      if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+      const inputPath = path.join(tempDir, `in_${Date.now()}.ogg`);
+      mp3Path = path.join(tempDir, `out_${Date.now()}.mp3`);
+      fs.writeFileSync(inputPath, audioBuffer);
+      await this.convertAudio(inputPath, mp3Path);
+      try { fs.unlinkSync(inputPath); } catch {}
+
+      const mp3Data = fs.readFileSync(mp3Path);
 
       const formData = new FormData();
-      formData.append('file', fs.createReadStream(mp3Path));
+      formData.append('file', new Blob([mp3Data], { type: 'audio/mpeg' }), 'audio.mp3');
       formData.append('model', 'whisper-1');
       formData.append('language', language);
       formData.append('response_format', 'text');
@@ -69,12 +78,11 @@ class VoiceHandler {
 
       const text = await response.text();
 
-      // Clean up temp files
-      try { fs.unlinkSync(mp3Path); } catch {}
-
       return { text: text.trim(), error: null };
     } catch (error) {
       return { text: '', error: error.message };
+    } finally {
+      if (mp3Path) { try { fs.unlinkSync(mp3Path); } catch {} }
     }
   }
 
@@ -83,20 +91,10 @@ class VoiceHandler {
     try {
       // Download the audio
       const buffer = await sock.downloadMediaMessage(msg);
-      const tempDir = path.join(__dirname, '..', 'temp');
-      if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-
-      const audioPath = path.join(tempDir, `voice_${Date.now()}.ogg`);
-      fs.writeFileSync(audioPath, buffer);
-
-      // Detect language from user
-      const userLang = 'en'; // Default to English
+      if (!buffer) return { text: '', error: 'Could not download audio' };
 
       // Transcribe
-      const result = await this.transcribe(audioPath, userLang);
-
-      // Clean up
-      try { fs.unlinkSync(audioPath); } catch {}
+      const result = await this.transcribe(buffer);
 
       return result;
     } catch (error) {
