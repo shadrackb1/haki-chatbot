@@ -93,6 +93,32 @@ class LLMReasoningEngine {
   // Deep understanding of the user's message
   // ============================================
 
+  // Models treat the reasoning schema loosely: they drop keys, return
+  // pipe-chained values ("wages|contract") or answer in prose. Normalize
+  // everything into the shape the rest of the pipeline expects.
+  normalizeReasoning(raw = {}, fallbackUnderstanding = '') {
+    const firstValue = (v, fallback) => {
+      if (typeof v !== 'string' || !v.trim()) return fallback;
+      return v.split('|')[0].trim().toLowerCase();
+    };
+    return {
+      understanding: typeof raw.understanding === 'string' && raw.understanding.trim()
+        ? raw.understanding
+        : fallbackUnderstanding,
+      intent: firstValue(raw.intent, 'question'),
+      topic: firstValue(raw.topic, 'other'),
+      sentiment: firstValue(raw.sentiment, 'neutral'),
+      urgency: firstValue(raw.urgency, 'routine'),
+      key_points: Array.isArray(raw.key_points)
+        ? raw.key_points.filter(p => typeof p === 'string')
+        : [],
+      response_strategy: typeof raw.response_strategy === 'string' && raw.response_strategy.trim()
+        ? raw.response_strategy
+        : 'answer directly',
+      language: firstValue(raw.language, 'en')
+    };
+  }
+
   async reason(message, context = {}) {
     const violationInfo = context.violation;
     let violationContext = '';
@@ -144,17 +170,22 @@ Return your reasoning as a JSON object:
     ]);
 
     const content = response.choices[0].message.content;
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    
+
+    // Strip markdown fences before hunting for the JSON object
+    const cleaned = content.replace(/```(?:json)?/gi, '');
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+
     if (jsonMatch) {
       try {
-        return JSON.parse(jsonMatch[0]);
-      } catch {
-        return { understanding: message, intent: 'question', response_strategy: 'answer directly' };
+        return this.normalizeReasoning(JSON.parse(jsonMatch[0]), message);
+      } catch (err) {
+        console.log(`⚠️ Reasoning JSON unparseable (${err.message}). Raw: ${content.slice(0, 300)}`);
       }
+    } else {
+      console.log(`⚠️ Reasoning returned no JSON. Raw: ${content.slice(0, 300)}`);
     }
 
-    return { understanding: message, intent: 'question', response_strategy: 'answer directly' };
+    return this.normalizeReasoning({}, message);
   }
 
   // ============================================

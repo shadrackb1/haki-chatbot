@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
+import pino from 'pino';
+import { downloadMediaMessage } from '@whiskeysockets/baileys';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -89,8 +91,13 @@ class VoiceHandler {
   // Process voice message from WhatsApp
   async processVoiceMessage(msg, sock) {
     try {
-      // Download the audio
-      const buffer = await sock.downloadMediaMessage(msg);
+      // Download the audio (Baileys 6.x: standalone export, not a socket method)
+      const buffer = await downloadMediaMessage(
+        msg,
+        'buffer',
+        {},
+        { reuploadRequest: sock.updateMediaMessage, logger: pino({ level: 'silent' }) }
+      );
       if (!buffer) return { text: '', error: 'Could not download audio' };
 
       // Transcribe
