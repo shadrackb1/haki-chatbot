@@ -174,26 +174,26 @@ class ConversationManager {
     if (lang === 'sw') {
       return `🇰🇪 *Karibu AgriShield!*
 
-Mimi ni msaidizi wako — ninasaidia na haki za kazi: mshahara, mkataba, usalama kazini, ajira ya watoto, unyanyasaji na ardhi.
+Niko hapa kwa haki zako za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji, na ardhi.
 
-Unaweza kuniuliza chochote sasa hivi — hakuna usajili unaohitajika. Kwa mfano:
+Uliza chochote, hakuna usajili wa lazima. Kwa mfano:
 • "Ninalipwa KES 200 bila mkataba"
 • "Sijapata mapumziko kwa siku nyingi"
 • "Mwenye shamba hatoi mkataba"
 
-Kwa usaidizi bora zaidi, sema "register" kuweka jina na eneo lako. Lakini si lazima — niulize tu!`;
+Kwa msaada unaolingana na wewe, andika "register" uweke jina na kaunti yako. Lakini si lazima — tuulize tu!`;
     }
 
     return `🇰🇪 *Welcome to AgriShield!*
 
-I'm your assistant — I help with workplace rights: wages, contracts, safety on the job, child labour, harassment and land.
+I'm here for your rights at work — wages, contracts, safety, child labour, harassment, and land.
 
-You can ask me anything right now — no registration needed. For example:
+Ask me anything, no registration needed. For example:
 • "I'm paid KES 200 with no contract"
 • "I've worked for days without a break"
 • "My employer won't give me a contract"
 
-For better, personalized help, say "register" to share your name and location. But it's totally optional — just ask!`;
+For help that fits you, say "register" to share your name and county. Totally optional — just ask!`;
   }
 
   getConversationalGreeting(user, lang = 'en') {
@@ -217,16 +217,16 @@ For better, personalized help, say "register" to share your name and location. B
     if (lang === 'sw') {
       return `${timeGreeting}, ${user.firstName || 'rafiki'}! 👋
 
-Karibu tena. Kuna jambo jipya kuhusu kazi? Niambie kilichotokea.
+Karibu tena. Kuna lolote jipya kazini? Niambie nini kilitokea.
 
-Ukihitaji mwanzo, unaweza kuuliza kuhusu haki zako au kuandika "numbers" kupata nambari za msaada.`;
+Kama hujui pa kuanzia, uliza kuhusu haki zako au andika "numbers" kwa nambari za msaada.`;
     }
 
     return `${timeGreeting}, ${user.firstName || 'friend'}! 👋
 
-Welcome back. Anything new at work? Tell me what happened.
+Good to see you again. Anything new at work? Tell me what happened.
 
-If you're not sure where to start, ask about your rights or type "numbers" for helpdesk contacts.`;
+Not sure where to start? Ask about your rights, or type "numbers" for helpdesk contacts.`;
   }
 
   getConversationalResponse(intent, violation, user, lang = 'en') {
@@ -328,12 +328,12 @@ If you're not sure where to start, ask about your rights or type "numbers" for h
 
   getClarificationMessage(lang = 'en') {
     if (lang === 'sw') {
-      return `🤔 Nataka kuhakikisha nimeelewa. Tafadhali nieleze zaidi: unafanya kazi gani, na tatizo ni nini? Kujua county yako pia inasaidia.
+      return `🤔 Nataka kuelewa vizuri. Niambie zaidi: unafanya kazi gani, na tatizo ni lipi? Kaunti yako pia inasaidia.
 
 Mfano: "Nafanya kazi ya kuvuna kahawa Nyeri, nalipwa KES 200 tu kwa siku, na sina mkataba."`;
     }
 
-    return `🤔 I want to make sure I understand correctly. Please tell me more: what kind of work do you do, and what exactly is the problem? Knowing your county also helps.
+    return `🤔 Give me a bit more to go on. What kind of work do you do, and what exactly is the problem? Your county helps too.
 
 Example: "I pick coffee in Nyeri, earn only KES 200/day, and have no contract."`;
   }
@@ -358,24 +358,24 @@ Any updates? If you had a previous issue, tell me where things stand — we can 
     if (lang === 'sw') {
       return `😅 Pole, kuna tatizo upande wangu. Tafadhali tuma tena ujumbe wako.
 
-Endelea kutokea, piga NLAS kwa nambari hii: 0800 723 255.`;
+Endelea kutokea, piga NLAS kwa nambari hii: 0800 720 640.`;
     }
 
     return `😅 Sorry, something went wrong on my end. Could you try sending your message again?
 
-If this keeps happening, call NLAS toll-free: 0800 723 255.`;
+If this keeps happening, call NLAS toll-free: 0800 720 640.`;
   }
 
   getClosingMessage(user, lang = 'en') {
     if (lang === 'sw') {
       return `🙏 Asante sana, ${user.firstName || 'rafiki'}! Haki yako inastahili kupigania — usiache kufuatilia.
 
-NLAS wanatoa msaada wa kisheria bila malipo: 0800 723 255. Rejea wakati wowote. 🇰🇪`;
+NLAS wanatoa msaada wa kisheria bila malipo: 0800 720 640. Rejea wakati wowote. 🇰🇪`;
     }
 
     return `🙏 Thank you so much, ${user.firstName || 'friend'}! Your rights are worth fighting for — don't let this drop.
 
-If you want to talk to a real person, NLAS offers free legal aid: 0800 723 255. Come back anytime. 🇰🇪`;
+If you want to talk to a real person, NLAS offers free legal aid: 0800 720 640. Come back anytime. 🇰🇪`;
   }
 }
 

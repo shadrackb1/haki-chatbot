@@ -27,6 +27,7 @@ import EmpathyEngine from './empathy-engine.js';
 import IQEngine from './iq-engine.js';
 import CrisisSupport from './crisis-support.js';
 import LanguageLibrary from './language-library.js';
+import AntiAIFlows from './anti-ai.js';
 import { createSmsGateway } from './sms-gateway.js';
 import SmsHandler from './sms-handler.js';
 import CaseStore from './case-store.js';
@@ -129,6 +130,7 @@ const empathy = new EmpathyEngine();
 const iq = new IQEngine();
 const crisisSupport = new CrisisSupport();
 const langLib = new LanguageLibrary();
+const antiAI = new AntiAIFlows();
 
 // ── 资源最大化：语义检索向量引擎 + Gemini 翻译引擎 ──
 const embedder = new EmbeddingEngine();
@@ -535,7 +537,14 @@ async function startBot() {
         });
 
         // 发送 AI 生成的回复（真实智能，而非静态模板）
-        await sock.sendMessage(from, { text: toWhatsApp(result.reply) });
+        // 会话型消息（问候/道谢）再过一遍 Anti-AI layer，让口吻更像真人；
+        // 法律建议类回复保持精准，不做随机改写。
+        let outReply = result.reply;
+        const conversationalIntents = ['greeting', 'thanks', 'confused'];
+        if (result.kind === 'normal' && conversationalIntents.includes(result.reasoning?.intent) && outReply) {
+          outReply = antiAI.processResponse(outReply, from, result.lang) || outReply;
+        }
+        await sock.sendMessage(from, { text: toWhatsApp(outReply) });
 
         // 会话版本化：将本次交互保存为不可变的版本化事务
         const tx = sessions.recordTransaction(from, {
