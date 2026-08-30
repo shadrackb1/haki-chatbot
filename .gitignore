@@ -17,6 +17,7 @@ sender-key-*.json
 # Data (persisted via Docker volumes) — but keep the legal knowledge base in git
 data/*
 !data/legal-knowledge-base.json
+!data/support-organizations.json
 users.json
 
 # Logs

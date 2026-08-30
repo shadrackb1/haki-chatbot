@@ -1,0 +1,76 @@
+{
+  "organizations": [
+    {
+      "id": "national-emergency",
+      "name": "National Emergency (Police/Fire)",
+      "phone": "999 / 112",
+      "hours": "24/7",
+      "description": "For life-threatening emergencies.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "kenya-red-cross",
+      "name": "Kenya Red Cross",
+      "phone": "1199",
+      "hours": "24/7",
+      "description": "Emergency psychosocial support — free SMS or call 1199.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "national-mental-health-helpline",
+      "name": "National Mental Health Helpline (KNH)",
+      "phone": "1190",
+      "hours": "24/7",
+      "description": "Kenya's toll-free mental health and suicide prevention helpline.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "knh-counselling",
+      "name": "Kenyatta National Hospital Counselling Desk",
+      "phone": "0800 720 122",
+      "hours": "24/7",
+      "description": "Toll-free counselling line run by the national hospital.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "befrienders-kenya",
+      "name": "Befrienders Kenya",
+      "phone": "+254 722 178 177",
+      "hours": "Daily, 10am–10pm",
+      "description": "Free, friendly emotional support — for anyone feeling distressed or alone. In person at Nairobi & Githurai or by phone.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "gbv-hotline",
+      "name": "GBV Hotline",
+      "phone": "1195",
+      "hours": "24/7",
+      "description": "Support for gender-based and sexual violence — free call.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    }
+  ],
+  "templates": {
+    "en": {
+      "severe_intro": "I'm really worried about you right now, and I need you to talk to a person who can keep you safe. You do not have to go through this alone.\n\nFree Kenya helplines that answer now:",
+      "severe_outro": "Please call or text one of these now. And I'll stay here with you — say anything, I'm not going anywhere.",
+      "moderate_intro": "You're carrying a heavy load, and it matters that you said it out loud. You don't have to carry it alone.",
+      "moderate_outro": "If things ever feel too much, reach out — these are free and open:",
+      "support_label": "📞 {name}: {phone} ({hours})",
+      "footer": "\n\n💬 Keep talking to me as long as you need. When you're ready, I can still help with your workplace rights."
+    },
+    "sw": {
+      "severe_intro": "Nina wasiwasi mkubwa kwako sasa hivi, na ninataka useme na mtu anayeweza kukulinda. Sio lazima upitie hili peke yako.\n\nHizi ni namba za bure za Kenya zinazojibu sasa:",
+      "severe_outro": "Tafadhali piga au tuma SMS kwa moja kati ya hizo sasa. Nami nitabaki hapa nawe — sema chochote, sitaenda popote.",
+      "moderate_intro": "Unabeba mzigo mkubwa, na ni muhimu kwamba umesema kwa sauti. Sio lazima ubebe peke yako.",
+      "moderate_outro": "Kama mambo yakiwa magumu sana, wasiliana — ziko bure na ziko wazi:",
+      "support_label": "📞 {name}: {phone} ({hours})",
+      "footer": "\n\n💬 Endelea kuongea nami kadri utakavyohitaji. Utakapokuwa tayari, bado ninaweza kusaidia na haki zako za kazini."
+    }
+  }
+}
