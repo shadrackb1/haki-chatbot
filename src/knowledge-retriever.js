@@ -54,7 +54,8 @@ export class KnowledgeRetriever {
     }
   }
 
-  search(query, topK = 3) {
+  // Rank all documents by BM25, returning [{ docIdx, score }] sorted desc.
+  _rankBM25(query) {
     const terms = tokenise(query);
     if (!terms.length || !this.nDocs) return [];
 
@@ -75,15 +76,93 @@ export class KnowledgeRetriever {
       }
     }
 
-    const results = [];
-    for (let i = 0; i < this.nDocs; i++) {
-      if (scores[i] > 0) {
-        results.push({ ...this.corpus[i], score: scores[i] });
-      }
+    return scores
+      .map((score, docIdx) => ({ docIdx, score }))
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score);
+  }
+
+  search(query, topK = 3) {
+    return this._rankBM25(query)
+      .slice(0, topK)
+      .map((r) => ({ ...this.corpus[r.docIdx], score: r.score }));
+  }
+
+  _docText(doc) {
+    return [
+      doc.title || '',
+      doc.text || '',
+      doc.category || '',
+      (doc.tags || []).join(' '),
+    ].join(' ');
+  }
+
+  // Hybrid retrieval: BM25 + dense-vector cosine fused with Reciprocal Rank
+  // Fusion. Deals gracefully with language drift (a worker describing
+  // "unpaid wages" hits passages about "remuneration") that pure BM25 misses.
+  // Drops to BM25-only whenever the embedder is absent or errors.
+  async hybridSearch(query, opts = {}) {
+    const topK = opts.topK ?? 3;
+    const embedder = opts.embedder || null;
+    const bm25Hits = this._rankBM25(query).slice(0, Math.max(topK * 4, 12));
+
+    if (!embedder || !embedder.isAvailable || !embedder.isAvailable()) {
+      return bm25Hits.slice(0, topK).map((r) => ({ ...this.corpus[r.docIdx], score: r.score }));
     }
 
-    results.sort((a, b) => b.score - a.score);
-    return results.slice(0, topK);
+    try {
+      const vectors = await this._ensureDocEmbeddings(embedder);
+      const q = await embedder.embed([query]);
+      const qv = q.vectors?.[0];
+      if (!qv) return this.search(query, topK);
+
+      const cosRanks = [];
+      for (let i = 0; i < this.nDocs; i++) {
+        cosRanks.push({ docIdx: i, score: embedder.cosine(qv, vectors[i] || null) });
+      }
+      const cosineHits = cosRanks.sort((a, b) => b.score - a.score).slice(0, Math.max(topK * 4, 12));
+
+      const RRF_K = 60;
+      const fused = new Map(); // docIdx -> { rrf, bm25, cosine }
+      const addRankList = (list) => {
+        list.forEach((r, rank) => {
+          const key = r.docIdx;
+          const cur = fused.get(key) || { rrf: 0, bm25: 0, cosine: 0 };
+          cur.rrf += 1 / (RRF_K + rank + 1);
+          cur.bm25 = Math.max(cur.bm25, r.score || 0);
+          cur.cosine = Math.max(cur.cosine, r.score || 0);
+          fused.set(key, cur);
+        });
+      };
+      addRankList(bm25Hits);
+      addRankList(cosineHits);
+
+      const ranked = Array.from(fused.entries())
+        .sort((a, b) => b[1].rrf - a[1].rrf)
+        .slice(0, topK);
+
+      return ranked.map(([docIdx, s]) => ({
+        ...this.corpus[docIdx],
+        score: s.rrf,
+        bm25Score: s.bm25,
+        semanticScore: s.cosine
+      }));
+    } catch (error) {
+      console.warn(`[retriever] hybrid search fell back to BM25: ${error.message}`);
+      return this.search(query, topK);
+    }
+  }
+
+  async _ensureDocEmbeddings(embedder) {
+    const texts = this.corpus.map((d) => this._docText(d));
+    if (!this._docEmbeddingCache || this._docEmbeddingCache.textsHash !== texts.join('~~')) {
+      const res = await embedder.embed(texts);
+      if (!res.vectors || res.vectors.length !== texts.length) {
+        throw new Error('embedder returned incomplete vectors');
+      }
+      this._docEmbeddingCache = { textsHash: texts.join('~~'), vectors: res.vectors };
+    }
+    return this._docEmbeddingCache.vectors;
   }
 }
 

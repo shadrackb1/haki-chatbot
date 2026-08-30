@@ -13,34 +13,97 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // ============================================
 
 class VoiceHandler {
-  constructor() {
-    // Transcription providers, in priority order.
-    // Groq Whisper uses the same key as the LLM but its own URL + model name.
-    let key = process.env.WHISPER_API_KEY || process.env.OPENAI_API_KEY || '';
+  constructor(options = {}) {
+    this.fetchFn = options.fetchFn || globalThis.fetch;
+    const whisperKey = options.whisperKey ?? process.env.WHISPER_API_KEY ?? process.env.OPENAI_API_KEY ?? '';
+    const groqKey = options.groqKey ?? process.env.GROQ_API_KEY ?? '';
+    const googleKey = options.googleKey ?? process.env.GOOGLE_API_KEY ?? '';
     const customUrl = !!process.env.WHISPER_API_URL;
 
-    if (key && !customUrl && /^(nvapi-|gsk_)/.test(key)) {
-      console.warn(`[voice] WHISPER_API_KEY is a ${key.startsWith('nvapi-') ? 'NVIDIA' : 'Groq'} key, not valid for api.openai.com — using Groq Whisper instead`);
-      key = '';
+    // Provider priority:
+    //   1. OpenAI Whisper (only with a real OpenAI key)
+    //   2. Google Gemini audio understanding (free, multilingual — no extra key)
+    //   3. Groq Whisper (same key as the LLM)
+    if (whisperKey && !customUrl && /^(nvapi-|gsk_)/.test(whisperKey)) {
+      console.warn(`[voice] WHISPER_API_KEY is a ${whisperKey.startsWith('nvapi-') ? 'NVIDIA' : 'Groq'} key, not valid for api.openai.com — skipping OpenAI Whisper`);
+      this.openaiKey = '';
+    } else {
+      this.openaiKey = whisperKey;
     }
 
-    if (key) {
+    if (this.openaiKey) {
       this.providerName = 'OpenAI Whisper';
       this.apiUrl = process.env.WHISPER_API_URL || 'https://api.openai.com/v1/audio/transcriptions';
-      this.apiKey = key;
+      this.apiKey = this.openaiKey;
       this.model = 'whisper-1';
-    } else if (process.env.GROQ_API_KEY) {
+    } else if (googleKey) {
+      this.providerName = 'Google Gemini (audio)';
+      this.geminiKey = googleKey;
+      this.geminiApiUrl = process.env.GOOGLE_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models';
+      this.model = options.audioModel || process.env.GOOGLE_AUDIO_MODEL || 'gemini-2.0-flash';
+      this.groqFallbackKey = groqKey;
+      this.groqModel = process.env.GROQ_WHISPER_MODEL || 'whisper-large-v3';
+      this.apiKey = '';
+      this.apiUrl = '';
+    } else if (groqKey) {
       this.providerName = 'Groq Whisper';
       this.apiUrl = 'https://api.groq.com/openai/v1/audio/transcriptions';
-      this.apiKey = process.env.GROQ_API_KEY;
+      this.apiKey = groqKey;
       this.model = 'whisper-large-v3';
+      this.groqFallbackKey = '';
     } else {
       this.providerName = '';
       this.apiUrl = '';
       this.apiKey = '';
       this.model = '';
+      this.geminiKey = '';
+      this.groqFallbackKey = '';
     }
-    this.enabled = !!this.apiKey;
+    this.enabled = !!this.apiKey || !!this.geminiKey;
+  }
+
+  // Gemini understands audio inline (OGG from WhatsApp works — no ffmpeg step).
+  async transcribeWithGemini(audioBuffer, mimeType = 'audio/ogg', language = '') {
+    if (audioBuffer.length > 18 * 1024 * 1024) {
+      return { text: '', error: 'Audio too large for inline Gemini transcription (max ~18MB). Please send a shorter voice note.' };
+    }
+    const hint = language && language !== 'en' ? ` The audio is in ${language}.` : '';
+    const instruction = `You are the ears of Haki, a workers' rights chatbot for Kenya. Transcribe this voice note EXACTLY, word for word — do not summarize, correct, or translate. Include Swahili, Sheng and local words as spoken.${hint} Reply with only the verbatim transcription.`;
+
+    try {
+      const body = JSON.stringify({
+        systemInstruction: { parts: [{ text: instruction }] },
+        contents: [
+          {
+            role: 'user',
+            parts: [{ inline_data: { mime_type: mimeType, data: audioBuffer.toString('base64') } }]
+          }
+        ],
+        generationConfig: { temperature: 0, maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } }
+      });
+
+      const res = await this.fetchFn(`${this.geminiApiUrl}/${this.model}:generateContent?key=${this.geminiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+
+      if (!res.ok) {
+        throw new Error(`Gemini audio ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`);
+      }
+
+      const data = await res.json();
+      const text = (data.candidates?.[0]?.content?.parts || [])
+        .filter(p => p.text && !p.thought)
+        .map(p => p.text)
+        .join(' ')
+        .trim();
+
+      if (!text) throw new Error('Gemini returned an empty transcript');
+      return { text, error: null };
+    } catch (error) {
+      return { text: '', error: error.message };
+    }
   }
 
   // Convert WhatsApp audio (OGG/OPUS) to MP3 for Whisper
@@ -64,14 +127,32 @@ class VoiceHandler {
     });
   }
 
-  // Transcribe audio buffer using Whisper API.
-  // Empty language = let Whisper auto-detect (Kenyan users mix English,
+  // Transcribe audio buffer using the selected provider.
+  // Gemini path: native OGG/OPUS support, no ffmpeg conversion.
+  // Empty language = let the provider auto-detect (Kenyan users mix English,
   // Swahili and Sheng; forcing 'en' garbles non-English notes).
   async transcribe(audioBuffer, language = '') {
     if (!this.enabled) {
-      return { text: '', error: 'Whisper API not configured' };
+      return { text: '', error: 'No transcription provider configured' };
     }
 
+    if (this.providerName === 'Google Gemini (audio)') {
+      const result = await this.transcribeWithGemini(audioBuffer, 'audio/ogg', language);
+      if (result.text) return result;
+      console.warn(`[voice] Gemini audio failed (${result.error}) — falling back to Groq Whisper if available`);
+      if (!this.groqFallbackKey) return result;
+      return this._transcribeWhisper(audioBuffer, language, {
+        name: 'Groq Whisper',
+        apiUrl: 'https://api.groq.com/openai/v1/audio/transcriptions',
+        apiKey: this.groqFallbackKey,
+        model: this.groqModel || 'whisper-large-v3'
+      });
+    }
+
+    return this._transcribeWhisper(audioBuffer, language, this);
+  }
+
+  async _transcribeWhisper(audioBuffer, language, provider) {
     let mp3Path = null;
 
     try {
@@ -88,20 +169,20 @@ class VoiceHandler {
 
       const formData = new FormData();
       formData.append('file', new Blob([mp3Data], { type: 'audio/mpeg' }), 'audio.mp3');
-      formData.append('model', this.model);
+      formData.append('model', provider.model);
       if (language) formData.append('language', language);
       formData.append('response_format', 'text');
 
-      const response = await fetch(this.apiUrl, {
+      const response = await this.fetchFn(provider.apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`
+          'Authorization': `Bearer ${provider.apiKey}`
         },
         body: formData
       });
 
       if (!response.ok) {
-        throw new Error(`${this.providerName} error ${response.status}: ${(await response.text().catch(() => '')).slice(0, 200)}`);
+        throw new Error(`${provider.name} error ${response.status}: ${(await response.text().catch(() => '')).slice(0, 200)}`);
       }
 
       const text = await response.text();

@@ -59,6 +59,39 @@ class LLMReasoningEngine {
     this.enabled = this.router.any();
     this._lastProvider = null;
 
+    // Tier plans multiply what the keys can do:
+    //   research → deeper Gemini reasoning for hard/critical cases
+    //   analysis → a reasoning model (DeepSeek-R1 family) for legal dig-downs
+    //   fast     → cheapest/fastest provider for high-volume lightweight calls
+    const groqFirst = !!(process.env.GROQ_API_KEY);
+    this.tiers = {
+      research: {
+        provider: 'google',
+        model: process.env.GOOGLE_REASONING_MODEL || process.env.GOOGLE_MODEL || 'gemini-flash-latest',
+        temperature: 0.3,
+        maxTokens: 1200,
+        structured: true
+      },
+      analysis: {
+        provider: groqFirst ? 'groq' : 'nvidia',
+        model: groqFirst
+          ? (process.env.GROQ_REASONING_MODEL || 'deepseek-r1-distill-llama-70b')
+          : (process.env.LLM_REASONING_MODEL || 'deepseek-ai/deepseek-r1'),
+        temperature: 0.5,
+        maxTokens: 1500,
+        structured: false
+      },
+      fast: {
+        provider: groqFirst ? 'groq' : 'nvidia',
+        model: groqFirst
+          ? (process.env.GROQ_FAST_MODEL || 'openai/gpt-oss-120b')
+          : (process.env.LLM_FAST_MODEL || 'meta/llama-3.1-8b-instruct'),
+        temperature: 0.6,
+        maxTokens: 600,
+        structured: false
+      }
+    };
+
     if (this.enabled) {
       const active = this.router.enabled();
       console.log(`🤖 LLM Engine unlocked (${this.router.mode}): ${active.map(p => `${p.name} [${p.model}]`).join(' · ')}`);
@@ -75,6 +108,32 @@ class LLMReasoningEngine {
     return this.router.snapshot();
   }
 
+  resolveTier(tier) {
+    if (!tier) return null;
+    const plan = this.tiers[tier];
+    if (!plan) return null;
+    // If the plan's provider is not configured, fall back to plain routing.
+    if (!this.router.has(plan.provider)) return null;
+    return plan;
+  }
+
+  // Resolve the routing order (and call options) for a single message.
+  // userContext.llm = { provider, mode, tier, structured } overrides defaults.
+  _resolveCallOptions(userContext) {
+    const llmOpts = userContext.llm && typeof userContext.llm === 'object' ? userContext.llm : {};
+    const plan = llmOpts.tier ? this.resolveTier(llmOpts.tier) : null;
+    const preferKey = plan ? plan.provider : llmOpts.provider;
+    const order = this.router.order(preferKey, llmOpts.mode);
+    return {
+      order,
+      tierName: llmOpts.tier || null,
+      model: plan ? plan.model : null,
+      temperature: plan ? plan.temperature : null,
+      maxTokens: plan ? plan.maxTokens : null,
+      structured: plan ? (plan.structured || !!llmOpts.structured) : !!llmOpts.structured
+    };
+  }
+
   // ============================================
   // MAIN REASONING PIPELINE
   // 1. Reason about the message
@@ -89,17 +148,16 @@ class LLMReasoningEngine {
     }
 
     // Resolve the routing order ONCE per message so "reason" and "generate
-    // response" use the same provider. context.llm = { provider, mode } lets a
-    // caller force a specific provider or mode for any single message.
-    const llmOpts = userContext.llm && typeof userContext.llm === 'object' ? userContext.llm : {};
-    const order = this.router.order(llmOpts.provider, llmOpts.mode);
+    // response" use the same provider. context.llm = { provider, mode, tier }
+    // lets a caller force a specific provider/mode/tier for any single message.
+    const callOpts = this._resolveCallOptions(userContext);
 
     try {
-      const reasoning = await this.reason(message, userContext, order);
-      const response = await this.generateResponseFromReasoning(message, reasoning, userContext, order);
+      const reasoning = await this.reason(message, userContext, callOpts);
+      const response = await this.generateResponseFromReasoning(message, reasoning, userContext, callOpts);
       const provider = this._lastProvider;
       this._lastProvider = null;
-      return { reasoning, response, usedLLM: true, provider };
+      return { reasoning, response, usedLLM: true, provider, tier: callOpts.tierName };
     } catch (error) {
       this._lastProvider = null;
       console.log(`⚠️ LLM pipeline failed (${error.message}) — falling back to rules`);
@@ -153,7 +211,7 @@ class LLMReasoningEngine {
     ];
   }
 
-  async reason(message, context = {}, order = null) {
+  async reason(message, context = {}, callOpts = null) {
     const violationInfo = context.violation;
     let violationContext = '';
 
@@ -215,7 +273,7 @@ Return your reasoning as a JSON object:
   "language": "en"
 }`;
 
-    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), { order });
+    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), callOpts || {});
     this._lastProvider = provider;
 
     const content = response.choices[0].message.content;
@@ -265,7 +323,7 @@ Return your reasoning as a JSON object:
   // STEP 2: GENERATE RESPONSE FROM REASONING
   // ============================================
 
-  async generateResponseFromReasoning(message, reasoning, context = {}, order = null) {
+  async generateResponseFromReasoning(message, reasoning, context = {}, callOpts = null) {
     const violationInfo = context.violation;
     let violationContext = '';
     let violationInstructions = '';
@@ -342,7 +400,11 @@ If it's unclear:
 
 Keep responses under 200 words unless detailed legal steps are needed.`;
 
-    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), { order });
+    // The final answer must stay prose — never JSON. Strip any structured flag.
+    const genOpts = callOpts
+      ? { order: callOpts.order, model: callOpts.model, temperature: callOpts.temperature, maxTokens: callOpts.maxTokens }
+      : null;
+    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), genOpts || {});
     this._lastProvider = provider;
 
     return response.choices[0].message.content;
@@ -371,7 +433,7 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
       for (let attempt = 1; attempt <= 2; attempt++) {
         try {
           console.log(`🤖 ${provider.name} attempt ${attempt}`);
-          const result = await this.callProvider(provider, messages);
+          const result = await this.callProvider(provider, messages, options);
           console.log(`✅ ${provider.name} OK`);
           this.router.record(key, true);
           return { response: result, provider: key };
@@ -392,36 +454,53 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
     throw lastError || new Error('All LLM providers failed');
   }
 
-  async callProvider(provider, messages) {
+  async callProvider(provider, messages, options = {}) {
     console.log(`   Calling ${provider.name} at ${provider.apiUrl}`);
     console.log(`   Messages: ${messages.length}`);
-    
+
+    const model = options.model || provider.model;
+    const maxTokens = options.maxTokens || 800;
+    const temperature = options.temperature ?? 0.7;
+    const structured = !!options.structured;
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
-    
+
     try {
       let response;
-      
+
       if (provider.format === 'openai') {
-        // NVIDIA & Groq use OpenAI-compatible format
+        // NVIDIA & Groq use OpenAI-compatible format. `json_object` mode makes
+        // the reasoning step return valid JSON instead of prose (which the
+        // pipeline previously had to regex out of free text).
+        const body = {
+          model,
+          messages: messages,
+          max_tokens: maxTokens,
+          temperature,
+          top_p: 0.9
+        };
+        if (structured) body.response_format = { type: 'json_object' };
         response = await fetch(provider.apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${provider.apiKey}`
           },
-          body: JSON.stringify({
-            model: provider.model,
-            messages: messages,
-            max_tokens: 800,
-            temperature: 0.7,
-            top_p: 0.9
-          }),
+          body: JSON.stringify(body),
           signal: controller.signal
         });
       } else if (provider.format === 'google') {
-        // Google AI Studio uses different format
-        const url = `${provider.apiUrl}/${provider.model}:generateContent?key=${provider.apiKey}`;
+        // Google AI Studio uses a different format; responseMimeType enforces
+        // a JSON response when structured output is requested.
+        const url = `${provider.apiUrl}/${model}:generateContent?key=${provider.apiKey}`;
+        const generationConfig = {
+          temperature,
+          topP: 0.9,
+          maxOutputTokens: maxTokens,
+          thinkingConfig: { thinkingBudget: 0 }
+        };
+        if (structured) generationConfig.responseMimeType = 'application/json';
         response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -432,12 +511,7 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
               role: m.role === 'assistant' ? 'model' : 'user',
               parts: [{ text: m.content }]
             })),
-            generationConfig: {
-              temperature: 0.7,
-              topP: 0.9,
-              maxOutputTokens: 800,
-              thinkingConfig: { thinkingBudget: 0 }
-            }
+            generationConfig
           }),
           signal: controller.signal
         });

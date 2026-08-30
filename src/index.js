@@ -12,9 +12,11 @@ import ConversationManager from './conversation-manager.js';
 import LLMReasoningEngine from './llm-reasoning.js';
 import VoiceHandler from './voice-handler.js';
 import ImageHandler from './image-handler.js';
-import { classifyViolation } from './violation-classifier.js';
 import { toWhatsApp } from './whatsapp-format.js';
 import { buildRetriever } from './knowledge-retriever.js';
+import EmbeddingEngine from './embedding-engine.js';
+import TranslationEngine from './translation-engine.js';
+import GrievancePipeline from './grievance-pipeline.js';
 import UserDatabase from './user-db.js';
 import RegistrationFlow from './registration-flow.js';
 import SessionManager from './session-manager.js';
@@ -25,19 +27,55 @@ import EmpathyEngine from './empathy-engine.js';
 import IQEngine from './iq-engine.js';
 import CrisisSupport from './crisis-support.js';
 import LanguageLibrary from './language-library.js';
+import { createSmsGateway } from './sms-gateway.js';
+import SmsHandler from './sms-handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ── 健康检查服务器（用于运行状态监控）──
+// ── 健康检查服务器（用于运行状态监控 + SMS 模拟器控制台）──
 let botLive = false;
+let smsGateway = null;
 const HEALTH_PORT = process.env.HEALTH_PORT || 3001;
 const healthServer = http.createServer((req, res) => {
+  const respond = (code, body) => {
+    res.writeHead(code, { 'Content-Type': 'application/json' });
+    res.end(body);
+  };
+
   if (req.url === '/health') {
-    res.writeHead(botLive ? 200 : 503, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: botLive ? 'ok' : 'starting', bot: 'Haki-Agri-Shield', uptime: process.uptime() }));
+    respond(botLive ? 200 : 503, JSON.stringify({ status: botLive ? 'ok' : 'starting', bot: 'Haki-Agri-Shield', uptime: process.uptime() }));
+  } else if (req.url === '/sms' || req.url === '/sms/') {
+    const gateway = smsGateway;
+    // POST → inject an inbound SMS from any number into the simulator.
+    if (req.method === 'POST') {
+      let raw = '';
+      req.on('data', (c) => { raw += c; if (raw.length > 4096) req.destroy(); });
+      req.on('end', () => {
+        try {
+          const input = JSON.parse(raw);
+          if (!gateway || gateway.kind !== 'simulator') {
+            respond(400, JSON.stringify({ ok: false, error: `no simulator gateway (active: ${gateway ? gateway.kind : 'none'})` }));
+            return;
+          }
+          const message = gateway.inject({ from: input.from, text: input.text });
+          respond(200, JSON.stringify({ ok: true, message }));
+        } catch (e) {
+          respond(400, JSON.stringify({ ok: false, error: e.message }));
+        }
+      });
+      return;
+    }
+    // GET → lightweight in-memory SMS console (full dashboard arrives in Phase 4).
+    const outbox = gateway && gateway.outbox ? [...gateway.outbox].reverse().slice(0, 20).map(m => `<li><b>→ ${m.to}</b>: ${m.text}</li>`).join('') : '<li>(none)</li>';
+    const inbox = gateway && gateway.inbound ? [...gateway.inbound].reverse().slice(0, 20).map(m => `<li><b>← ${m.from}</b>: ${m.text}</li>`).join('') : '<li>(none)</li>';
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(`<!doctype html><html><head><meta charset="utf-8"><title>SMS Simulator — Haki</title></head>
+<body style="font-family:monospace"><h1>📱 SMS Simulator (${gateway ? gateway.kind : 'unstarted'})</h1>
+<form method="POST" action="/sms"><label>From:</label><input name="from" value="+254700000001"><br>
+<label>Text:</label><textarea name="text" rows="3" cols="60"></textarea><br><button>Send SMS</button></form>
+<h2>Inbound</h2><ul>${inbox}</ul><h2>Outbox</h2><ul>${outbox}</ul></body></html>`);
   } else {
-    res.writeHead(404);
-    res.end('未找到');
+    respond(404, '未找到');
   }
 });
 healthServer.on('error', (err) => {
@@ -89,6 +127,19 @@ const iq = new IQEngine();
 const crisisSupport = new CrisisSupport();
 const langLib = new LanguageLibrary();
 
+// ── 资源最大化：语义检索向量引擎 + Gemini 翻译引擎 ──
+const embedder = new EmbeddingEngine();
+const translation = new TranslationEngine();
+
+// ── 共享受理管线（WhatsApp + SMS 同一套核心）──
+const pipeline = new GrievancePipeline({ llmEngine, retriever, embedder, empathy, iq, crisisSupport, langLib, translation });
+
+// ── SMS 入口：复用共享管线，按 MSISDN 建档（模拟器 / TextBee / Gammu）──
+smsGateway = createSmsGateway();
+const smsHandler = new SmsHandler({ pipeline, gateway: smsGateway, conversationManager, monitor });
+smsHandler.start();
+console.log(`📱 SMS channel: ${smsGateway.kind} (${smsGateway.kind === 'simulator' ? 'https://localhost:' + HEALTH_PORT + '/sms console' : 'shortcode 22141'})`);
+
 // 自主分发 → 无需用户触发，直接通过 WhatsApp 发出
 autonomy.onDispatch((phone, text, origin) => {
   if (sockRef) {
@@ -105,6 +156,9 @@ console.log('🗂️ 法律语料库: ' + retriever.corpus.length + ' 条条文�
 console.log('🧠 AI Engine: ' + (llmEngine.isAvailable() ? `unlocked (${llmEngine.getActiveProviders().map(p => p.key).join(', ')}) — routing: ${llmEngine.getRouterSnapshot().mode}` : '规则引擎（兜底）'));
 console.log('🎤 Voice notes: ' + (voiceHandler.enabled ? voiceHandler.providerName : '未启用'));
 console.log('🖼️ Photos: ' + (imageHandler.enabled ? `视觉模型: ${imageHandler.model}` : '未检测到（设置 GOOGLE_API_KEY 后可分析图片）'));
+console.log('🎬 Video clips: ' + (imageHandler.enabled ? `分析引擎: ${imageHandler.model}` : 'disabled'));
+console.log('🌍 Translation: ' + (translation.enabled ? `Gemini bidirectional (${translation.languageName('sw')} · ${translation.languageName('fr')} · ${translation.languageName('ki')} + 20 more)` : 'disabled (set GOOGLE_API_KEY)'));
+console.log('🧲 Semantic RAG: ' + (embedder.isAvailable() ? embedder.enabled().map(p => `${p.name} [${p.model}]`).join(' + ') : 'BM25 only'));
 console.log('💬 对话风格：拟人化并带欢迎流程');
 console.log('💛 Emotional support: ' + (crisisSupport.crisisOrganizations().length > 0 ? `${crisisSupport.crisisOrganizations().length} support lines loaded` : 'disabled'));
 
@@ -263,7 +317,24 @@ async function startBot() {
         }
       }
 
-      // 语音留言 → 通过 Whisper 转录（如已配置）
+      // 视频 → Gemini 观看事故/违规片段（支持 ffmpeg 帧抽帧兜底）
+      if (!messageText && msg.message?.videoMessage) {
+        if (!imageHandler.enabled) {
+          await sock.sendMessage(from, { text: '🎬 I can\'t watch videos yet. Could you describe what happened in your own words?' });
+          continue;
+        }
+        console.log(`🎬 来自 ${from} 的视频 — 分析中…`);
+        const { description, error } = await imageHandler.processVideoMessage(msg, sock);
+        if (error || !description) {
+          console.log(`⚠️ 视频分析失败: ${error}`);
+          await sock.sendMessage(from, { text: '😅 I couldn\'t make out that clip. Try again, or describe it in text.' });
+          continue;
+        }
+        messageText = `[The user sent a video clip. ${description}]`;
+        console.log(`🎬 视频分析完成: ${description.slice(0, 80)}…`);
+      }
+
+      // 语音留言 → 通过 Whisper/Gemini 转录（如已配置）
       if (!messageText && msg.message?.audioMessage) {
         if (!voiceHandler.enabled) {
           await sock.sendMessage(from, { text: '🎤 I can\'t process voice messages yet — could you type instead?' });
@@ -333,43 +404,51 @@ async function startBot() {
         }
 
         // ============================================
-        // 情感支持：危机检测在任何法律分析之前
+        // 共享受理管线：语言检测 → Gemini 翻译 → 情绪 → 危机门 → 分类 →
+        // 混合语义 RAG → 分层多模型 LLM → 回复回译（WhatsApp 与 SMS 共用）
         // ============================================
-        empathy.setCulturalContext(from, lang);
-        const sentimentState = empathy.processSentiment(from, messageText, null);
         const history = conversationManager.getConversationHistory(from);
-        const iqResult = iq.processMessage(from, messageText, lang, history);
 
-        const crisisResult = crisisSupport.triage(messageText, lang);
+        const result = await pipeline.process({
+          text: messageText,
+          callerId: from,
+          history,
+          user: {
+            location: user.location,
+            workType: user.workType,
+            isNewUser: user.isNewUser,
+            conversationCount: user.conversationCount
+          }
+        });
 
         // 危机介入：优先于法律回复 — 免费支持线路 + 暖转介，绝不让机器人独自应付
-        if (crisisResult.needsCare) {
-          const crisisReply = crisisResult.response;
+        if (result.kind === 'crisis') {
+          const crisisReply = result.reply;
           await sock.sendMessage(from, { text: toWhatsApp(crisisReply) });
           conversationManager.addToHistory(from, 'user', messageText);
           conversationManager.addToHistory(from, 'assistant', crisisReply);
-          conversationManager.updateContext(from, { lastIntent: 'crisis', lastTopic: `crisis:${crisisResult.level}` });
+          conversationManager.updateContext(from, { lastIntent: 'crisis', lastTopic: `crisis:${result.crisisResult.level}` });
           sessions.recordTransaction(from, {
             direction: 'exchange',
             userMessage: messageText.slice(0, 500),
             botResponse: crisisReply.slice(0, 500),
             intent: 'crisis',
             topic: 'emotional-support',
-            language: lang,
-            crisisLevel: crisisResult.level,
+            language: result.lang,
+            crisisLevel: result.crisisResult.level,
             usedLLM: false,
             provider: null
           });
           monitor.push('crisis', {
             sessionId: session.sessionId,
             phone: from,
-            level: crisisResult.level,
-            escalate: crisisResult.escalate,
-            triggers: crisisResult.triggers.slice(0, 3).map(t => t.phrase)
+            level: result.crisisResult.level,
+            escalate: result.crisisResult.escalate,
+            triggers: (result.crisisResult.triggers || []).slice(0, 3).map(t => t.phrase)
           }, ORIGINS.KNOWN_TRIGGER);
 
           // 严重危机 → 24 小时后暖回访 + 标记转介人工/CSO 跟进
-          if (crisisResult.escalate) {
+          if (result.crisisResult.escalate) {
             autonomy.scheduleFollowUp(from, 'checking in on you after your last message', 24);
             monitor.push('crisis-escalation', {
               sessionId: session.sessionId,
@@ -377,83 +456,58 @@ async function startBot() {
               action: 'warm-handoff'
             }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
           }
-          console.log(`💛 Crisis intervention (${crisisResult.level}) >> ${from}`);
+          console.log(`💛 Crisis intervention (${result.crisisResult.level}) >> ${from}`);
           continue;
         }
 
-        // ============================================
-        // 先推理，后回答（ChatGPT 式）
-        // ============================================
-        // 违规分类以增强法律推理（RAG）
-        const violation = classifyViolation(messageText);
-
-        // 从语料库检索有依据的法律条文（RAG）
-        const knowledge = retriever.search(messageText, 3);
-
-        // processMessage 返回 { reasoning, response, usedLLM, provider }
-        // 使用 LLM 生成的回复 — 这是真实的 AI 输出
-        const { reasoning, response: llmResponse, usedLLM, provider } = await llmEngine.processMessage(messageText, {
-          language: lang,
-          location: user.location,
-          workType: user.workType,
-          isNewUser: user.isNewUser,
-          conversationCount: user.conversationCount,
-          violation: violation ? {
-            id: violation.id,
-            description: violation.data.description,
-            applicable_laws: violation.data.applicable_laws,
-            remedy_pathways: violation.data.remedy_pathways
-          } : null,
-          history: history,
-          knowledge: knowledge
-        });
-
         // 将本轮对话存入历史记录以保留上下文
         conversationManager.addToHistory(from, 'user', messageText);
-        conversationManager.addToHistory(from, 'assistant', llmResponse);
+        conversationManager.addToHistory(from, 'assistant', result.reply);
 
         // 用最新意图更新用户上下文（多轮感知）
         conversationManager.updateContext(from, {
-          lastIntent: reasoning.intent,
-          lastTopic: reasoning.topic,
-          lastViolation: violation ? violation.id : null
+          lastIntent: result.reasoning.intent,
+          lastTopic: result.reasoning.topic,
+          lastViolation: result.violation ? result.violation.id : null
         });
 
         // 发送 AI 生成的回复（真实智能，而非静态模板）
-        await sock.sendMessage(from, { text: toWhatsApp(llmResponse) });
+        await sock.sendMessage(from, { text: toWhatsApp(result.reply) });
 
         // 会话版本化：将本次交互保存为不可变的版本化事务
         const tx = sessions.recordTransaction(from, {
           direction: 'exchange',
           userMessage: messageText.slice(0, 500),
-          botResponse: llmResponse.slice(0, 500),
-          intent: reasoning.intent,
-          topic: reasoning.topic,
-          violation: violation ? violation.id : null,
-          language: lang,
-          usedLLM,
-          provider: provider || null,
-          sentiment: sentimentState.sentiment,
-          iqIntents: iqResult.intents,
-          crisisLevel: crisisResult.level
+          botResponse: result.reply.slice(0, 500),
+          intent: result.reasoning.intent,
+          topic: result.reasoning.topic,
+          violation: result.violation ? result.violation.id : null,
+          language: result.lang,
+          usedLLM: result.usedLLM,
+          provider: result.provider || null,
+          tier: result.tier || null,
+          sentiment: result.sentiment.sentiment,
+          iqIntents: result.iqResult.intents,
+          crisisLevel: result.crisisResult.level
         });
 
         // 仪表盘：自动推送机器人活动（来源：已知触发 — 用户先发消息）
         monitor.push('activity', {
           sessionId: session.sessionId,
           txId: tx.txId,
-          intent: reasoning.intent,
-          violation: violation ? violation.id : null
+          intent: result.reasoning.intent,
+          violation: result.violation ? result.violation.id : null,
+          tier: result.tier || null
         }, ORIGINS.KNOWN_TRIGGER);
 
         // 为严重违规安排自主跟进回访
-        if (violation && ['WAGE_VIOLATION', 'SAFETY_VIOLATION', 'HARASSMENT'].includes(violation.id)) {
-          autonomy.scheduleFollowUp(from, `The ${violation.id.toLowerCase().replace('_', ' ')} issue you reported`);
-          monitor.push('follow-up-scheduled', { sessionId: session.sessionId, violation: violation.id }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
+        if (result.violation && ['WAGE_VIOLATION', 'SAFETY_VIOLATION', 'HARASSMENT'].includes(result.violation.id)) {
+          autonomy.scheduleFollowUp(from, `The ${result.violation.id.toLowerCase().replace('_', ' ')} issue you reported`);
+          monitor.push('follow-up-scheduled', { sessionId: session.sessionId, violation: result.violation.id }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
         }
 
-        console.log(`✅ 已回复 ${from}（通过 ${usedLLM ? (provider ? `LLM [${provider}]` : 'LLM') : '兜底规则'})`);
-        console.log(`   意图: ${reasoning.intent} | 主题: ${reasoning.topic} | 紧急度: ${reasoning.urgency} | 情绪: ${sentimentState.sentiment}\n`);
+        console.log(`✅ 已回复 ${from}（通过 ${result.usedLLM ? (result.provider ? `LLM [${result.provider}${result.tier ? ':' + result.tier : ''}]` : 'LLM') : '兜底规则'}${result.analysisTranslated ? ' · 已回译' : ''}）`);
+        console.log(`   意图: ${result.reasoning.intent} | 主题: ${result.reasoning.topic} | 紧急度: ${result.reasoning.urgency || '-'} | 情绪: ${result.sentiment.sentiment}\n`);
       } catch (error) {
         console.error('❌ 处理消息出错:', error);
 
