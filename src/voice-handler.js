@@ -68,7 +68,7 @@ class VoiceHandler {
       return { text: '', error: 'Audio too large for inline Gemini transcription (max ~18MB). Please send a shorter voice note.' };
     }
     const hint = language && language !== 'en' ? ` The audio is in ${language}.` : '';
-    const instruction = `You are the ears of Haki, a workers' rights chatbot for Kenya. Transcribe this voice note EXACTLY, word for word — do not summarize, correct, or translate. Include Swahili, Sheng and local words as spoken.${hint} Reply with only the verbatim transcription.`;
+    const instruction = `You are the ears of AgriShield, a workers' rights chatbot for Kenya. Transcribe this voice note EXACTLY, word for word — do not summarize, correct, or translate. Include Swahili, Sheng and local words as spoken.${hint} Reply with only the verbatim transcription.`;
 
     try {
       const body = JSON.stringify({

@@ -7,7 +7,7 @@ import CaseStore, { maskPhone } from '../src/case-store.js';
 import SLAEngine, { severityFor, WINDOW_HOURS, CRITICAL_VIOLATIONS, STANDARD_VIOLATIONS } from '../src/sla-engine.js';
 
 function tempStore() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-cases-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-cases-'));
   return new CaseStore({ path: path.join(dir, 'cases.json') });
 }
 
@@ -20,7 +20,7 @@ test('maskPhone keeps only country prefix and last 4 digits', () => {
 test('creates a case with anonymous phone, IN_REVIEW status and audit events', () => {
   const store = tempStore();
   const c = store.create({ channel: 'whatsapp', phone: '+254700000001', county: 'Kericho', category: 'wages', violation: 'WAGE_VIOLATION' });
-  assert.match(c.caseId, /^HAKI-\d{4}-\d{4}$/);
+  assert.match(c.caseId, /^AGRI-\d{4}-\d{4}$/);
   assert.equal(c.phone, '+2547••••0001');
   assert.equal(c.status, 'IN_REVIEW');
   assert.equal(c.category, 'wages');
@@ -29,7 +29,7 @@ test('creates a case with anonymous phone, IN_REVIEW status and audit events', (
 });
 
 test('survives a persist→reload roundtrip and keeps id sequence', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-cases-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-cases-'));
   const p = path.join(dir, 'cases.json');
   const a = new CaseStore({ path: p });
   a.create({ channel: 'sms', phone: '+254722222222', county: 'Nakuru', category: 'safety', violation: 'SAFETY_VIOLATION' });

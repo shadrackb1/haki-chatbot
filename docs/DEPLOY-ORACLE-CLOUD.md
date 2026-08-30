@@ -123,7 +123,7 @@ Paste this (replace the API key):
 LLM_API_KEY=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
 LLM_API_URL=https://integrate.api.nvidia.com/v1/chat/completions
 LLM_MODEL=meta/llama-3.1-8b-instruct
-BOT_NAME=Haki
+BOT_NAME=AgriShield
 BOT_VERSION=1.0.0
 DEFAULT_LANGUAGE=sw
 SUPPORTED_LANGUAGES=sw,en
@@ -158,7 +158,7 @@ docker compose up -d
 The bots will print QR codes to connect to WhatsApp. To see them:
 
 ```bash
-# See Haki's QR code
+# See AgriShield's QR code
 docker compose logs -f haki
 
 # See PixelAI's QR code (open another terminal)
@@ -182,7 +182,7 @@ Once both show `✅ LIVE!`, press `Ctrl+C` to stop watching logs.
 docker compose ps
 
 # Check health
-curl localhost:3001/health    # Haki
+curl localhost:3001/health    # AgriShield
 curl localhost:3002/health    # PixelAI
 
 # View recent logs
@@ -200,7 +200,7 @@ docker compose down
 # Restart both bots
 docker compose restart
 
-# Restart only Haki
+# Restart only AgriShield
 docker compose restart haki
 
 # View live logs

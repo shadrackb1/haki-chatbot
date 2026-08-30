@@ -1,11 +1,12 @@
-# HakiAgri Full Upgrade — Design Spec
+# AgriShield Full Upgrade — Design Spec
 
 **Date:** 2026-08-30
 **Status:** Approved (user: "UPGRADE EVERYTHING … SMS INSTEAD", simulator-first, free/OSS SMS provider)
 
 ## Goal
 
-Upgrade the Haki chatbot from a rights-only WhatsApp assistant into "HakiAgri":
+Upgrade the AgriShield chatbot from a rights-only WhatsApp assistant into
+"AgriShield":
 a two-sided grievance system with (1) advanced emotional-support / crisis routing,
 (2) an SMS intake channel, (3) an auditable case store with SLA escalation and CSO
 routing, (4) a corporate human-rights due-diligence (HRDD) dashboard, and

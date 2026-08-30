@@ -1,7 +1,7 @@
 {
-  "name": "haki-chatbot",
+  "name": "agrishield",
   "version": "1.0.0",
-  "description": "Haki Chatbot - AI-Powered WhatsApp Bot for Business & Human Rights in Kenya's Agribusiness",
+  "description": "AgriShield - AI-Powered WhatsApp Bot for Business & Human Rights in Kenya's Agribusiness",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

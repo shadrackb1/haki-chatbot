@@ -1,6 +1,6 @@
 # ============================================
-# HAKI CHATBOT — Docker Compose
-# Runs Haki + PixelAI bots side by side (fully separated)
+# AGRISHIELD — Docker Compose
+# Runs AgriShield + PixelAI bots side by side (fully separated)
 # ============================================
 # Usage:
 #   1. Copy .env.production to .env and fill in keys
@@ -10,7 +10,7 @@
 # ============================================
 
 services:
-  # ── HAKI: Human Rights & Agribusiness Bot ──
+  # ── AGRISHIELD: Human Rights & Agribusiness Bot ──
   haki:
     build:
       context: .
@@ -22,7 +22,7 @@ services:
       - haki-auth:/app/auth_info
       - haki-data:/app/data
     environment:
-      - BOT_NAME=Haki
+      - BOT_NAME=AgriShield
       - HEALTH_PORT=3001
     ports:
       - "3001:3001"

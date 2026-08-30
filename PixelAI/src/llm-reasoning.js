@@ -1,15 +1,154 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const LLM_API_KEY = process.env.LLM_API_KEY || '';
-const LLM_API_URL = process.env.LLM_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions';
-const LLM_MODEL = process.env.LLM_MODEL || 'meta/llama-3.1-8b-instruct';
+// ── Multi-provider chain ─────────────────────────────────────────────
+// Connection configs only. Which MODELS each key can serve is discovered
+// live at runtime (/models endpoints) — providers rotate catalogs, so we
+// never hardcode assumptions about availability.
+
+const PROVIDERS = [
+    {
+        name: 'NVIDIA NIM',
+        apiKey: process.env.LLM_API_KEY || '',
+        apiUrl: process.env.LLM_API_URL || 'https://integrate.api.nvidia.com/v1/chat/completions',
+        format: 'openai',
+        // Preference order = smartest first; intersected with what the key can serve
+        candidates: [
+            'openai/gpt-oss-120b',
+            'deepseek-ai/deepseek-r1',
+            'qwen/qwen3-235b-a22b',
+            'meta/llama-3.3-70b-instruct',
+            'meta/llama-3.1-8b-instruct',
+        ],
+        envModel: process.env.LLM_MODEL || '',
+    },
+    {
+        name: 'Groq',
+        apiKey: process.env.GROQ_API_KEY || '',
+        apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
+        format: 'openai',
+        candidates: [
+            'openai/gpt-oss-120b',
+            'moonshotai/kimi-k2-instruct',
+            'llama-3.3-70b-versatile',
+            'llama-3.1-8b-instant',
+        ],
+        envModel: process.env.GROQ_MODEL || '',
+    },
+    {
+        name: 'Google Gemini',
+        apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
+        format: 'google',
+        candidates: [
+            'models/gemini-2.5-pro',
+            'models/gemini-flash-latest',
+            'models/gemini-2.0-flash',
+        ],
+        envModel: process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || '',
+    },
+].filter((p) => p.apiKey);
+
+// Task → ordered tier preferences. Tiers are assigned from model names.
+const TASK_TIERS = {
+    chat: ['smart', 'fast', 'pro'],      // casual conversation: snappy but decent
+    reason: ['smart', 'pro', 'fast'],    // agent tool-loop steps: cheap-ish + capable
+    deep: ['pro', 'smart', 'fast'],      // final synthesis of complex answers
+    verify: ['smart', 'pro', 'fast'],    // citation checking: precision matters
+};
+
+function tierOf(modelName) {
+    const m = modelName.toLowerCase();
+    if (/gemini.*pro|gpt-oss-120b|kimi|deepseek-r1|235b|70b/.test(m)) return 'pro';
+    if (/flash|mini|8b|20b|instant|small/.test(m)) return 'fast';
+    return 'smart';
+}
 
 class LLMReasoningEngine {
     constructor() {
-        this.enabled = !!LLM_API_KEY;
+        this.enabled = PROVIDERS.length > 0;
+        this.activeProvider = null;
+        this.pool = [];              // [{ provider, model, tier }] — discovered, available models
+        this.discovered = false;
         this.conversationHistories = new Map();
         this.userProfiles = new Map();
+        if (this.enabled) {
+            console.log(`🤖 LLM providers: ${PROVIDERS.map((p) => p.name).join(' → ')}`);
+        }
+    }
+
+    // ── Model discovery: ask each provider what this key can actually serve ──
+    async #discover() {
+        if (this.discovered) return this.pool;
+        this.discovered = true;
+
+        const pool = [];
+        await Promise.allSettled(
+            PROVIDERS.map(async (provider) => {
+                let served = [];
+                try {
+                    if (provider.format === 'google') {
+                        const res = await fetch(`${provider.apiUrl}?key=${provider.apiKey}`, { signal: AbortSignal.timeout(15000) });
+                        if (res.ok) {
+                            const data = await res.json();
+                            served = (data.models || [])
+                                .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+                                .map((m) => m.name.replace(/^models\//, ''));
+                        }
+                    } else {
+                        const listUrl = provider.apiUrl.replace(/\/chat\/completions$/, '/models');
+                        const res = await fetch(listUrl, {
+                            headers: { Authorization: `Bearer ${provider.apiKey}` },
+                            signal: AbortSignal.timeout(15000),
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            served = (data.data || []).map((m) => m.id);
+                        }
+                    }
+                } catch {
+                    // listing failed — fall back to env override / first candidate
+                }
+
+                const servedSet = new Set(served);
+                const chosen = [];
+                const push = (model) => {
+                    if (model && !chosen.some((c) => c.model === model)) {
+                        chosen.push({ provider, model, tier: tierOf(model) });
+                    }
+                };
+
+                push(provider.envModel && (!served.length || servedSet.has(provider.envModel)) ? provider.envModel : null);
+                for (const c of provider.candidates) {
+                    if (!served.length || servedSet.has(c)) push(c);
+                }
+                // Nothing matched the catalog? Keep top candidate anyway — chat call may still work
+                if (!chosen.length) push(provider.candidates[0]);
+
+                pool.push(...chosen.slice(0, 3)); // top 3 per provider
+                console.log(`📋 ${provider.name}: ${chosen.slice(0, 3).map((c) => `${c.model}[${c.tier}]`).join(', ') || 'no models'}`);
+            })
+        );
+
+        this.pool = pool;
+        return pool;
+    }
+
+    // ── Task router: order available models by tier preference for the task ──
+    async #route(task = 'chat') {
+        const pool = await this.#discover();
+        const tiers = TASK_TIERS[task] || TASK_TIERS.chat;
+        const ordered = [];
+        for (const tier of tiers) {
+            for (const entry of pool) {
+                if (entry.tier === tier) ordered.push(entry);
+            }
+        }
+        // Append anything not tier-matched as last-resort failover
+        for (const entry of pool) {
+            if (!ordered.includes(entry)) ordered.push(entry);
+        }
+        return ordered;
     }
 
     // Main processing pipeline - LLM-first approach
@@ -204,7 +343,7 @@ RULES:
 - If they seem upset, drop everything and just be there for them. No advice unless they ask. Just listen and validate.
 - Draw on what you know. Science, history, philosophy, music, coding, weird facts — whatever fits.
 - Use their name (${context.userProfile.name || ''}) maybe once or twice, not every other sentence. Warmth, not repetition.
-- NEVER mention "Haki", "Haki Chatbot", agribusiness, human rights law, land rights, food security, legal aid, or anything related to that project. You are Pixel — a personal AI assistant. You have zero connection to Haki. If asked about Haki or any of those topics, say you don't know anything about it and redirect to something you can help with.
+- NEVER mention "AgriShield", "AgriShield Chatbot", agribusiness, human rights law, land rights, food security, legal aid, or anything related to that project. You are Pixel — a personal AI assistant. You have zero connection to AgriShield. If asked about AgriShield or any of those topics, say you don't know anything about it and redirect to something you can help with.
 - Always be polite. Please, thank you, excuse me — the basics matter.
 - FIRST-TIME GREETING (when ${context.conversationLength === 0}): Introduce yourself warmly. Say something like: "Hey! I'm Pixel 😊 I'm [owner's name]'s AI assistant. They're not around at the moment, so I'll be keeping you company and helping out until they're back. What's your name?" — Be natural about it, not robotic. Adjust the tone to match the time of day. After introducing yourself, ask their name so you can use it going forward.
 
@@ -341,47 +480,119 @@ Return ONLY your response text. No JSON, no formatting markers, no meta-commenta
         return this.userProfiles.get(userId) || {};
     }
 
-    // LLM API call
-    async callLLM(messages) {
-        console.log(`🤖 Calling LLM: ${LLM_MODEL}`);
-        
+    // LLM API call — routes by task tier across all discovered models
+    async callLLM(messages, opts = {}) {
+        if (!this.enabled) throw new Error('No LLM provider configured');
+
+        const chain = await this.#route(opts.task || 'chat');
+        if (!chain.length) throw new Error('No models available');
+
+        let lastError = null;
+        for (const { provider, model } of chain) {
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    console.log(`🤖 [${opts.task || 'chat'}] ${provider.name}: ${model}${attempt > 1 ? ' (retry)' : ''}`);
+                    const data = provider.format === 'google'
+                        ? await this.#callGoogle(provider, model, messages)
+                        : await this.#callOpenAI(provider, model, messages);
+                    this.activeProvider = { provider, model };
+                    console.log(`✅ ${provider.name} responded`);
+                    return data;
+                } catch (error) {
+                    lastError = error;
+                    const fatal = /401|403|invalid api key|does not exist|model_not_found/i.test(error.message);
+                    if (fatal || attempt === 2) {
+                        console.log(`⚠️ ${provider.name}/${model} failed: ${error.message.slice(0, 120)}`);
+                        break;
+                    }
+                    await new Promise((r) => setTimeout(r, 1500));
+                }
+            }
+        }
+        throw new Error(`All LLM providers failed: ${lastError?.message || 'unknown'}`);
+    }
+
+    async #callOpenAI(provider, model, messages) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 45000);
-        
         try {
-            const response = await fetch(LLM_API_URL, {
+            const response = await fetch(provider.apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${LLM_API_KEY}`
+                    'Authorization': `Bearer ${provider.apiKey}`,
                 },
                 body: JSON.stringify({
-                    model: LLM_MODEL,
-                    messages: messages,
+                    model,
+                    messages,
                     max_tokens: 1200,
                     temperature: 0.8,
                     top_p: 0.95,
                     presence_penalty: 0.3,
-                    frequency_penalty: 0.3
+                    frequency_penalty: 0.3,
                 }),
-                signal: controller.signal
+                signal: controller.signal,
             });
-            
             clearTimeout(timeoutId);
-            
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`LLM API error: ${response.status} - ${errorText}`);
+                const errorText = await response.text().catch(() => '');
+                throw new Error(`${response.status} - ${errorText.slice(0, 200)}`);
             }
-            
-            const data = await response.json();
-            console.log(`✅ LLM Response received`);
-            return data;
+            return response.json();
         } catch (error) {
             clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-                throw new Error('LLM request timed out');
+            if (error.name === 'AbortError') throw new Error('request timed out');
+            throw error;
+        }
+    }
+
+    async #callGoogle(provider, model, messages) {
+        const system = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n\n');
+        const contents = messages
+            .filter((m) => m.role !== 'system')
+            .map((m) => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }],
+            }));
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
+        try {
+            const response = await fetch(
+                `${provider.apiUrl}/${model}:generateContent?key=${provider.apiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
+                        contents,
+                        generationConfig: {
+                            temperature: 0.8,
+                            topP: 0.95,
+                            maxOutputTokens: 1200,
+                            thinkingConfig: { thinkingBudget: 0 },
+                        },
+                    }),
+                    signal: controller.signal,
+                }
+            );
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+                const errorText = await response.text().catch(() => '');
+                throw new Error(`${response.status} - ${errorText.slice(0, 200)}`);
             }
+            const data = await response.json();
+            const candidate = data.candidates?.[0];
+            const text = (candidate?.content?.parts || [])
+                .filter((p) => p.text && !p.thought)
+                .map((p) => p.text)
+                .join(' ')
+                .trim();
+            if (!text) throw new Error('Gemini returned empty response');
+            return { choices: [{ message: { role: 'assistant', content: text } }] };
+        } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') throw new Error('request timed out');
             throw error;
         }
     }
@@ -428,10 +639,12 @@ Return ONLY your response text. No JSON, no formatting markers, no meta-commenta
     }
 
     getModelInfo() {
+        const active = this.activeProvider;
         return {
-            model: LLM_MODEL,
-            provider: LLM_API_URL.includes('nvidia') ? 'NVIDIA NIM' : 'Other',
-            available: this.enabled
+            model: active?.model || 'none',
+            provider: active?.provider?.name || 'none',
+            available: this.enabled,
+            poolSize: this.pool.length,
         };
     }
 }

@@ -46,7 +46,7 @@ const healthServer = http.createServer((req, res) => {
   };
 
   if (req.url === '/health') {
-    respond(botLive ? 200 : 503, JSON.stringify({ status: botLive ? 'ok' : 'starting', bot: 'Haki-Agri-Shield', uptime: process.uptime() }));
+    respond(botLive ? 200 : 503, JSON.stringify({ status: botLive ? 'ok' : 'starting', bot: 'agrishield', uptime: process.uptime() }));
   } else if (req.url === '/sms' || req.url === '/sms/') {
     const gateway = smsGateway;
     // POST → inject an inbound SMS from any number into the simulator.
@@ -72,7 +72,7 @@ const healthServer = http.createServer((req, res) => {
     const outbox = gateway && gateway.outbox ? [...gateway.outbox].reverse().slice(0, 20).map(m => `<li><b>→ ${m.to}</b>: ${m.text}</li>`).join('') : '<li>(none)</li>';
     const inbox = gateway && gateway.inbound ? [...gateway.inbound].reverse().slice(0, 20).map(m => `<li><b>← ${m.from}</b>: ${m.text}</li>`).join('') : '<li>(none)</li>';
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(`<!doctype html><html><head><meta charset="utf-8"><title>SMS Simulator — Haki</title></head>
+    res.end(`<!doctype html><html><head><meta charset="utf-8"><title>SMS Simulator — AgriShield</title></head>
 <body style="font-family:monospace"><h1>📱 SMS Simulator (${gateway ? gateway.kind : 'unstarted'})</h1>
 <form method="POST" action="/sms"><label>From:</label><input name="from" value="+254700000001"><br>
 <label>Text:</label><textarea name="text" rows="3" cols="60"></textarea><br><button>Send SMS</button></form>
@@ -87,7 +87,7 @@ healthServer.on('error', (err) => {
 healthServer.listen(HEALTH_PORT, () => console.log(`💓 健康检查: http://localhost:${HEALTH_PORT}/health`));
 
 // ============================================
-// HAKI 聊天机器人 — AI 引擎
+// AGRISHIELD 聊天机器人 — AI 引擎
 // ============================================
 
 // 初始化对话管理器（让机器人更像真人）
@@ -219,7 +219,7 @@ function detectLanguage(text) {
 const logger = pino({ level: 'silent' });
 
 async function startBot() {
-  console.log('🔑 正在启动 Haki 农业护盾（Haki Agri-Shield）…');
+  console.log('🔑 正在启动 AgriShield 农业护盾…');
   console.log('📱 请用 WhatsApp 扫描二维码连接');
 
   const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '..', 'auth_info'));
@@ -229,7 +229,7 @@ async function startBot() {
     version,
     auth: state,
     logger,
-    browser: ['Haki Agri-Shield', 'Safari', '1.0']
+    browser: ['AgriShield', 'Safari', '1.0']
   });
 
   // 凭证更新时保存
@@ -242,7 +242,7 @@ async function startBot() {
     if (qr) {
       console.log('\n');
       console.log('╔══════════════════════════════════════════════════════════╗');
-      console.log('║           HAKI 聊天机器人 - WHATSAPP 连接                ║');
+      console.log('║     AGRISHIELD 聊天机器人 - WHATSAPP 连接                ║');
       console.log('╚══════════════════════════════════════════════════════════╝');
       console.log('');
       console.log('📱 第 1 步：在手机上打开 WhatsApp');
@@ -300,7 +300,7 @@ async function startBot() {
       botLive = true;
       sockRef = sock;
       autonomy.setSubscribers(userDb.listRegistered().map(u => u.phone));
-      console.log('✅ Haki Agri-Shield online! (workplace rights)');
+      console.log('✅ AgriShield online! (workplace rights)');
       console.log('💬 Waiting for messages…\n');
 
       // Keepalive: ping WhatsApp every 30s to prevent WebSocket timeout
@@ -579,7 +579,7 @@ if (!lock.acquired) {
 
 for (const sig of ['SIGINT', 'SIGTERM']) {
   process.on(sig, () => {
-    console.log(`\n👋 收到 ${sig}，正在关闭 Haki 农业护盾…`);
+    console.log(`\n👋 收到 ${sig}，正在关闭 AgriShield 农业护盾…`);
     releaseLock();
     process.exit(0);
   });

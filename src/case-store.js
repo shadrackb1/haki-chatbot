@@ -56,10 +56,10 @@ class CaseStore {
     const year = new Date().getFullYear();
     let max = 0;
     for (const c of this.cases) {
-      const m = /HAKI-\d+-(\d+)$/.exec(c.caseId || '');
+      const m = /AGRI-\d+-(\d+)$/.exec(c.caseId || '');
       if (m) max = Math.max(max, parseInt(m[1], 10));
     }
-    return `HAKI-${year}-${String(max + 1).padStart(4, '0')}`;
+    return `AGRI-${year}-${String(max + 1).padStart(4, '0')}`;
   }
 
   // Open a case. `slaDeadline` is computed by the SLA engine and attached

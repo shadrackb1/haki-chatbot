@@ -4,7 +4,7 @@ import { WINDOW_HOURS } from './sla-engine.js';
 
 // ============================================
 // CORPORATE HRDD DASHBOARD
-// Live window into the Haki operation: anonymity-preserving KPIs, county
+// Live window into the AgriShield operation: anonymity-preserving KPIs, county
 // risk hotspots, the case queue with SLA/escalation view, and a live SMS
 // console. Express (already in package.json); live refresh uses polling +
 // Server-Sent Events. Charts are dependency-free inline CSS/SVG — no CDN,
@@ -12,7 +12,7 @@ import { WINDOW_HOURS } from './sla-engine.js';
 // ============================================
 
 function inlinePage() {
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Haki HRDD Dashboard</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>AgriShield HRDD Dashboard</title>
 <style>
 :root{--nk:#0a4d2f;--gold:#c9a227;--paper:#f6f3ec;--ink:#1c2b22;--muted:#5c6b60;--danger:#b3261e}
 *{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink);margin:0}
@@ -38,7 +38,7 @@ form{display:flex;gap:8px;margin:10px 0}input,select,button{font:inherit;padding
 button{background:var(--nk);color:#fff;border:none;cursor:pointer}
 pre{background:#1c2b22;color:#c8f0d8;padding:10px;border-radius:8px;font-size:11px;overflow:auto}
 </style></head><body>
-<header><h1>🌾 Haki — Corporate HRDD Dashboard</h1><span class="live" id="live">connecting…</span></header>
+<header><h1>🌾 AgriShield — Corporate HRDD Dashboard</h1><span class="live" id="live">connecting…</span></header>
 <main>
 <div class="grid" id="kpis"></div>
 <div class="row">

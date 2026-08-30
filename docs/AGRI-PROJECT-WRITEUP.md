@@ -1,4 +1,4 @@
-# HAKI CHATBOT
+# AGRISHIELD
 
 ## AI-Powered WhatsApp Bot for Workers' Rights in Kenya's Agribusiness Sector
 
@@ -33,11 +33,11 @@
 
 Kenya's agribusiness sector employs millions of workers, many of whom face wage violations, unsafe working conditions, lack of contracts, and other labour rights abuses. These workers often lack access to timely, actionable information about their legal rights and the remedy pathways available to them. Existing legal aid services are overstretched, geographically limited, and predominantly English-speaking, leaving a critical gap for rural and low-literacy workers.
 
-Haki Chatbot is an AI-powered WhatsApp bot that provides instant, grounded legal guidance to Kenyan agribusiness workers. Workers describe their workplace problems in plain language — via text, voice notes, or photographs — and the bot identifies the specific violation under Kenyan law, cites the applicable statute, and walks the user through a step-by-step remedy pathway, including which office to visit, what documents to carry, and the expected timeline.
+AgriShield Chatbot is an AI-powered WhatsApp bot that provides instant, grounded legal guidance to Kenyan agribusiness workers. Workers describe their workplace problems in plain language — via text, voice notes, or photographs — and the bot identifies the specific violation under Kenyan law, cites the applicable statute, and walks the user through a step-by-step remedy pathway, including which office to visit, what documents to carry, and the expected timeline.
 
 The system combines a legal knowledge base of 308 statutory passages, a BM25 retrieval engine for grounded responses, and a multi-provider large language model (LLM) pipeline that reasons through each query before generating a response. Voice notes are transcribed via Whisper, and photographs are analysed via Gemini vision to identify payslips, contracts, and workplace hazards. The bot operates in English and Swahili, requires no internet browser or smartphone app — only WhatsApp — and functions fully offline in rule-based fallback mode when no LLM API key is configured.
 
-Haki directly advances the objectives of the United Nations Guiding Principles on Business and Human Rights (UNGPs) by empowering rights-holders with information, lowering barriers to remedy, and creating a scalable tool for monitoring corporate human rights compliance in Kenya's agricultural sector.
+AgriShield directly advances the objectives of the United Nations Guiding Principles on Business and Human Rights (UNGPs) by empowering rights-holders with information, lowering barriers to remedy, and creating a scalable tool for monitoring corporate human rights compliance in Kenya's agricultural sector.
 
 ---
 
@@ -60,7 +60,7 @@ Agriculture accounts for approximately 33% of Kenya's GDP and employs over 70% o
 - Gender-based harassment and discrimination
 - Land displacement without adequate compensation
 
-The Cultivating Justice Project, funded by the European Union and implemented by DanChurchAid, Pamoja Trust, and CEPCJ, has worked with over 100 agribusinesses in Nakuru, Nyandarua, and Nairobi Metropolis counties to promote responsible business conduct. Haki Chatbot builds on this work by extending rights information directly to workers through the platform they already use daily: WhatsApp.
+The Cultivating Justice Project, funded by the European Union and implemented by DanChurchAid, Pamoja Trust, and CEPCJ, has worked with over 100 agribusinesses in Nakuru, Nyandarua, and Nairobi Metropolis counties to promote responsible business conduct. AgriShield Chatbot builds on this work by extending rights information directly to workers through the platform they already use daily: WhatsApp.
 
 ### 2.3 Why WhatsApp
 
@@ -72,7 +72,7 @@ WhatsApp is the most widely used messaging platform in Kenya, with over 11 milli
 - Supports voice notes for users with low literacy
 - Supports photo sharing for visual evidence (payslips, contracts, injuries)
 
-By meeting workers on a platform they already trust and use, Haki eliminates the adoption barrier that defeats most legal tech interventions.
+By meeting workers on a platform they already trust and use, AgriShield eliminates the adoption barrier that defeats most legal tech interventions.
 
 ---
 
@@ -102,9 +102,9 @@ Agribusiness workers in Kenya do not know their rights under Kenyan law, and whe
 | Legal information websites | Require internet access, literacy, and legal knowledge to navigate |
 | Community paralegals | Insufficient coverage; training gaps; no standardised knowledge base |
 
-### 3.4 The Gap Haki Fills
+### 3.4 The Gap AgriShield Fills
 
-Haki addresses the intersection of three failures:
+AgriShield addresses the intersection of three failures:
 
 1. **Information failure**: Workers do not know their rights
 2. **Access failure**: Existing remedies are geographically, linguistically, or temporally out of reach
@@ -114,9 +114,9 @@ Haki addresses the intersection of three failures:
 
 ## 4. Solution Overview
 
-### 4.1 What Is Haki
+### 4.1 What Is AgriShield
 
-Haki is a free WhatsApp chatbot that helps Kenyan agribusiness workers understand their rights under Kenyan law and take action when those rights are violated. A worker sends a message describing their problem — "I am paid KES 200 a day with no contract" — and Haki:
+AgriShield is a free WhatsApp chatbot that helps Kenyan agribusiness workers understand their rights under Kenyan law and take action when those rights are violated. A worker sends a message describing their problem — "I am paid KES 200 a day with no contract" — and AgriShield:
 
 1. **Identifies** the specific legal violation (e.g., wage violation, contract violation)
 2. **Cites** the applicable law (e.g., Employment Act 2007, Section 10)
@@ -135,23 +135,23 @@ The user journey is simple:
 Worker sends message (text, voice note, or photo)
         |
         v
-Haki processes input:
+AgriShield processes input:
   - Text: direct analysis
   - Voice note: transcribed via Whisper
   - Photo: described via Gemini Vision
         |
         v
-Haki classifies the violation against 7 categories:
+AgriShield classifies the violation against 7 categories:
   Wage | Safety | Contract | Child Labour | Environment | Gender | Land
         |
         v
-Haki retrieves relevant legal passages (BM25 RAG over 308 statutes)
+AgriShield retrieves relevant legal passages (BM25 RAG over 308 statutes)
         |
         v
 LLM reasons about the query, violation, and legal context
         |
         v
-Haki generates a grounded response with:
+AgriShield generates a grounded response with:
   - Violation identification
   - Applicable law and section
   - Step-by-step remedy pathway
@@ -180,7 +180,7 @@ Response sent to worker via WhatsApp
 
 ### 5.1 Principle 1 — State Duty to Protect
 
-While Haki is not a state tool, it complements state obligations by:
+While AgriShield is not a state tool, it complements state obligations by:
 
 - Informing workers of the protections already afforded by Kenyan law
 - Directing users to state institutions (County Labour Offices, ODPC, KNCHR)
@@ -188,7 +188,7 @@ While Haki is not a state tool, it complements state obligations by:
 
 ### 5.2 Principle 2 — Corporate Responsibility to Respect
 
-Haki holds businesses accountable by:
+AgriShield holds businesses accountable by:
 
 - Making workers aware when their employer is violating the law
 - Providing workers with specific legal citations they can present to employers
@@ -197,7 +197,7 @@ Haki holds businesses accountable by:
 
 ### 5.3 Principle 3 — Access to Remedy
 
-This is where Haki has its most direct impact. The UNGPs require that effective remedy mechanisms be available when abuses occur. Haki:
+This is where AgriShield has its most direct impact. The UNGPs require that effective remedy mechanisms be available when abuses occur. AgriShield:
 
 - Lowers the information barrier to remedy (workers know what to do)
 - Lowers the procedural barrier (step-by-step guidance)
@@ -207,7 +207,7 @@ This is where Haki has its most direct impact. The UNGPs require that effective 
 
 ### 5.4 UNGPs 10+ Roadmap Alignment
 
-| Roadmap Priority | Haki Contribution |
+| Roadmap Priority | AgriShield Contribution |
 |------------------|-------------------|
 | Mainstreaming BHR in business | Workers equipped with knowledge to demand compliance |
 | Operating environment for BHR | Legal information accessible to the most vulnerable |
@@ -220,7 +220,7 @@ This is where Haki has its most direct impact. The UNGPs require that effective 
 
 ### 6.1 System Overview
 
-Haki is built on Node.js using the Baileys library for WhatsApp Web connectivity. The system operates as a WebSocket client that connects to WhatsApp, receives messages, processes them through the AI pipeline, and sends responses.
+AgriShield is built on Node.js using the Baileys library for WhatsApp Web connectivity. The system operates as a WebSocket client that connects to WhatsApp, receives messages, processes them through the AI pipeline, and sends responses.
 
 ### 6.2 Core Components
 
@@ -238,7 +238,7 @@ Haki is built on Node.js using the Baileys library for WhatsApp Web connectivity
 
 ### 6.3 LLM Reasoning Pipeline
 
-Haki uses a two-step reasoning process inspired by chain-of-thought prompting:
+AgriShield uses a two-step reasoning process inspired by chain-of-thought prompting:
 
 **Step 1 — Reason**: The LLM analyses the user's message and produces structured output:
 
@@ -264,7 +264,7 @@ This two-step process ensures responses are both contextually appropriate and le
 
 ### 6.4 Fallback Architecture
 
-When no LLM API key is configured, Haki operates in rule-based mode:
+When no LLM API key is configured, AgriShield operates in rule-based mode:
 
 - Keyword matching against violation categories
 - Template-based responses with statutory citations
@@ -292,7 +292,7 @@ Each passage includes the statute name, section number, verified text, and sourc
 
 ### 7.1 Design Principles
 
-Haki was designed around the constraints of its target users:
+AgriShield was designed around the constraints of its target users:
 
 | User Constraint | Design Response |
 |-----------------|-----------------|
@@ -305,7 +305,7 @@ Haki was designed around the constraints of its target users:
 
 ### 7.2 Conversation Design
 
-Haki's responses are designed to feel like advice from a knowledgeable friend, not a legal database:
+AgriShield's responses are designed to feel like advice from a knowledgeable friend, not a legal database:
 
 - Acknowledges the user's situation with empathy
 - Explains the violation in plain language
@@ -316,7 +316,7 @@ Haki's responses are designed to feel like advice from a knowledgeable friend, n
 
 ### 7.3 Welcome Flow
 
-New users receive a welcome message explaining what Haki can do, with examples of how to describe their problem. This lowers the activation barrier and sets expectations.
+New users receive a welcome message explaining what AgriShield can do, with examples of how to describe their problem. This lowers the activation barrier and sets expectations.
 
 ### 7.4 Testing and Feedback
 
@@ -326,20 +326,20 @@ The bot has been tested with sample queries across all 7 violation categories, w
 
 ## 8. Innovation
 
-### 8.1 What Makes Haki Different
+### 8.1 What Makes AgriShield Different
 
-| Existing Approach | Haki's Innovation |
+| Existing Approach | AgriShield's Innovation |
 |-------------------|-------------------|
-| Legal aid websites require internet browsers and literacy | Haki works on WhatsApp — the platform workers already use |
-| Hotlines require phone calls during business hours | Haki is available 24/7 via asynchronous messaging |
-| Generic legal information databases | Haki classifies the specific violation and provides targeted remedy steps |
-| English-only legal resources | Haki supports Swahili and is building local language support |
-| Text-only interfaces | Haki accepts voice notes and photographs as input |
-| API-dependent AI systems | Haki works offline with rule-based fallback |
+| Legal aid websites require internet browsers and literacy | AgriShield works on WhatsApp — the platform workers already use |
+| Hotlines require phone calls during business hours | AgriShield is available 24/7 via asynchronous messaging |
+| Generic legal information databases | AgriShield classifies the specific violation and provides targeted remedy steps |
+| English-only legal resources | AgriShield supports Swahili and is building local language support |
+| Text-only interfaces | AgriShield accepts voice notes and photographs as input |
+| API-dependent AI systems | AgriShield works offline with rule-based fallback |
 
 ### 8.2 Technical Innovation
 
-- **RAG-grounded legal reasoning**: Unlike generic chatbots that hallucinate legal citations, Haki retrieves verified statutory passages before generating responses
+- **RAG-grounded legal reasoning**: Unlike generic chatbots that hallucinate legal citations, AgriShield retrieves verified statutory passages before generating responses
 - **Multi-provider LLM fallback**: Automatic escalation across NVIDIA, Groq, and Google ensures high availability
 - **Morphological keyword matching**: The violation classifier handles inflected forms (wages, injured, evicted) through automatic stem variant generation
 - **Zero-dependency BM25**: The retrieval engine runs entirely in-memory with no external search infrastructure
@@ -349,7 +349,7 @@ The bot has been tested with sample queries across all 7 violation categories, w
 - **Meet workers where they are**: No new app, no new platform, no new behaviour required
 - **Voice-first design**: Workers can explain their problem in their own words
 - **Grounded, not generic**: Every response cites specific Kenyan law — workers receive information they can act on
-- **Dignity-centred**: The bot's name means "Rights" in Swahili; its tone treats workers as rights-holders, not charity recipients
+- **Dignity-centred**: Its tone treats workers as rights-holders, not charity recipients
 
 ---
 
@@ -359,7 +359,7 @@ The bot has been tested with sample queries across all 7 violation categories, w
 
 | Impact Dimension | Measurement |
 |------------------|-------------|
-| Reach | Any WhatsApp user in Kenya can access Haki — no registration, no fees |
+| Reach | Any WhatsApp user in Kenya can access AgriShield — no registration, no fees |
 | Rights awareness | Workers learn their rights through every interaction |
 | Remedy access | Workers receive step-by-step guidance to file complaints |
 | Evidence generation | Photo analysis creates documented evidence of violations |
@@ -367,7 +367,7 @@ The bot has been tested with sample queries across all 7 violation categories, w
 
 ### 9.2 Scalability
 
-Haki is designed to scale across Kenya's agribusiness sector and beyond:
+AgriShield is designed to scale across Kenya's agribusiness sector and beyond:
 
 | Scaling Dimension | Approach |
 |-------------------|----------|
@@ -415,7 +415,7 @@ Haki is designed to scale across Kenya's agribusiness sector and beyond:
 
 ## 11. Conclusion
 
-Haki Chatbot is a practical, scalable, and rights-centred solution to a problem that affects millions of Kenyan workers. By combining accessible technology (WhatsApp), grounded AI reasoning (RAG over verified legal corpora), and user-centred design (voice input, Swahili support, plain language), Haki lowers every barrier between a worker and their right to remedy.
+AgriShield Chatbot is a practical, scalable, and rights-centred solution to a problem that affects millions of Kenyan workers. By combining accessible technology (WhatsApp), grounded AI reasoning (RAG over verified legal corpora), and user-centred design (voice input, Swahili support, plain language), AgriShield lowers every barrier between a worker and their right to remedy.
 
 The solution directly advances the UNGPs by:
 - Empowering rights-holders with actionable legal information
@@ -423,9 +423,9 @@ The solution directly advances the UNGPs by:
 - Creating a tool that complements state and corporate obligations
 - Demonstrating how technology can operationalise business and human rights principles
 
-Haki does not replace legal aid, labour offices, or court systems. It bridges the information gap that prevents workers from reaching these institutions in the first place.
+AgriShield does not replace legal aid, labour offices, or court systems. It bridges the information gap that prevents workers from reaching these institutions in the first place.
 
-**Haki means "Rights" in Swahili. Every worker deserves to know theirs.**
+**Every worker deserves to know their rights. AgriShield helps them get there.**
 
 ---
 
@@ -459,6 +459,6 @@ Haki does not replace legal aid, labour offices, or court systems. It bridges th
 
 *Hackathon: Business and Human Rights Solutions Challenge, 24-25 September 2026*
 
-*Project: Haki Chatbot — AI-Powered Workers' Rights Guide*
+*Project: AgriShield Chatbot — AI-Powered Workers' Rights Guide*
 
 *Contact: [Email TBA]*

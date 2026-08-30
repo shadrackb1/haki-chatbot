@@ -101,7 +101,7 @@ class Monitor {
 
   snapshot() {
     return {
-      service: 'haki-agri-shield-monitor',
+      service: 'agrishield-monitor',
       startedAt: this.startedAt,
       uptimeSeconds: Math.floor((Date.now() - new Date(this.startedAt).getTime()) / 1000),
       counters: this.counters,

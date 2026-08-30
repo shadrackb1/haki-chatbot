@@ -82,7 +82,7 @@ class ImageHandler {
       return { description: '', error: 'Vision not configured (set GOOGLE_API_KEY)' };
     }
 
-    const instruction = `You are the eyes of Haki, a WhatsApp rights-assistant for Kenya's agribusiness workers. A worker sent this photo on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Look closely and report:
+    const instruction = `You are the eyes of AgriShield, a WhatsApp rights-assistant for Kenya's agribusiness workers. A worker sent this photo on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Look closely and report:
 - Scene: setting, location clues, lighting or time-of-day hints.
 - People: how many, what they are doing, visible injuries, protective equipment or its absence.
 - Text: transcribe ALL legible text verbatim — payslips, contracts, notices, signs, labels. Copy every number, date, name and amount exactly as written. Mark barely-legible parts with [?].
@@ -104,7 +104,7 @@ Be precise and complete. Never invent details you cannot see.`;
       return { description: '', error: 'Vision not configured (set GOOGLE_API_KEY)' };
     }
 
-    const viewerInstruction = `You are the eyes of Haki, a WhatsApp rights-assistant for Kenya's agribusiness workers. A worker sent this video clip on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Watch carefully and report:
+    const viewerInstruction = `You are the eyes of AgriShield, a WhatsApp rights-assistant for Kenya's agribusiness workers. A worker sent this video clip on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Watch carefully and report:
 - Scene & location clues (farm, flowerhouse, factory, roadside).
 - People & work: what they are doing, visible injuries, protective equipment or its absence.
 - Hazards: unsafe machinery, chemicals, weather exposure, child workers, harassment.

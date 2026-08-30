@@ -86,7 +86,7 @@ class TranslationEngine {
 
     const targetName = this.languageName(targetLang);
     const instruction = [
-      `You are the translator inside Haki, a workers' rights chatbot for Kenya's agribusiness.`,
+      `You are the translator inside AgriShield, a workers' rights chatbot for Kenya's agribusiness.`,
       `Translate the user's message into ${targetName}.`,
       'Reply with ONLY the translation. No quotes, no explanations.',
       'Keep names, numbers, dates, phone numbers and legal terms exactly as written.',

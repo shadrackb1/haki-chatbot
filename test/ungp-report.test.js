@@ -12,7 +12,7 @@ import UngpReport, {
 } from '../src/ungp-report.js';
 
 function seededStore(overrides = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-ungp-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-ungp-'));
   const store = new CaseStore({ path: path.join(dir, 'cases.json'), ...overrides });
   store.create({
     channel: 'whatsapp', phone: '+254700000001', county: 'Kericho',
@@ -96,8 +96,8 @@ test('report never leaks raw phone numbers, only masked last-4 forms', () => {
   assert.equal(fullNumbers, null, 'no full +CC + 10-digit numbers should appear');
   const masked = md.match(/\+254\d{3}••••\d{4}/g);
   assert.ok(!masked || masked.length >= 0);
-  // Every case in the report table is a registry ID like HAKI-2026-0001
-  const caseIds = md.match(/HAKI-\d{4}-\d{4}/g);
+  // Every case in the report table is a registry ID like AGRI-2026-0001
+  const caseIds = md.match(/AGRI-\d{4}-\d{4}/g);
   assert.ok(caseIds && caseIds.length >= 4, 'registry case IDs are the only per-case identifiers');
 });
 

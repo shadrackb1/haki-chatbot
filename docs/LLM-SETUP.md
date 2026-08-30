@@ -1,4 +1,4 @@
-# LLM Setup Guide - Make Haki Chatbot Intelligent
+# LLM Setup Guide - Make AgriShield Intelligent
 
 ## Option 1: NVIDIA NIM (Recommended - Free Tier Available)
 

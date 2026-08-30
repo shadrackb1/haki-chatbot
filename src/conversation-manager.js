@@ -172,7 +172,7 @@ class ConversationManager {
 
   getWelcomeMessage(user, lang = 'en') {
     if (lang === 'sw') {
-      return `🇰🇪 *Karibu Haki!*
+      return `🇰🇪 *Karibu AgriShield!*
 
 Mimi ni msaidizi wako — ninasaidia na haki za kazi: mshahara, mkataba, usalama kazini, ajira ya watoto, unyanyasaji na ardhi.
 
@@ -184,7 +184,7 @@ Unaweza kuniuliza chochote sasa hivi — hakuna usajili unaohitajika. Kwa mfano:
 Kwa usaidizi bora zaidi, sema "register" kuweka jina na eneo lako. Lakini si lazima — niulize tu!`;
     }
 
-    return `🇰🇪 *Welcome to Haki!*
+    return `🇰🇪 *Welcome to AgriShield!*
 
 I'm your assistant — I help with workplace rights: wages, contracts, safety on the job, child labour, harassment and land.
 

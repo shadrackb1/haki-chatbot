@@ -241,7 +241,7 @@ Use this specific legal information to inform your reasoning about the user's me
       conversationCount: context.conversationCount
     });
 
-    const systemPrompt = `You are Haki, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers. You protect workplace rights under Kenyan law: wages, contracts, working conditions, safety, child labour, harassment, environmental harm and land issues. You must think step by step before responding.
+    const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers. You protect workplace rights under Kenyan law: wages, contracts, working conditions, safety, child labour, harassment, environmental harm and land issues. You must think step by step before responding.
 
 REASONING PROCESS:
 1. **Understand**: What is the user really asking or saying?
@@ -354,7 +354,7 @@ Since a specific violation has been classified, your response should:
            .join('\n')
        : 'None retrieved.';
 
-     const systemPrompt = `You are Haki, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers, protecting workplace rights under Kenyan law.
+     const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers, protecting workplace rights under Kenyan law.
 
 Based on your reasoning, generate a response:
 
@@ -615,8 +615,8 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
 
     if (reasoning.intent === 'greeting') {
       return lang === 'sw'
-        ? 'Habari! Karibu Haki. Nasaidia na haki za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji na ardhi. Ni nini kinakusumbua?'
-        : 'Hello! Welcome to Haki. I help with workplace rights — wages, contracts, safety, child labour, harassment and land. What can I do for you?';
+        ? 'Habari! Karibu AgriShield. Nasaidia na haki za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji na ardhi. Ni nini kinakusumbua?'
+        : 'Hello! Welcome to AgriShield. I help with workplace rights — wages, contracts, safety, child labour, harassment and land. What can I do for you?';
     }
 
     if (reasoning.intent === 'thanks') {

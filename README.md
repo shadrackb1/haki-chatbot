@@ -1,8 +1,8 @@
-# Haki Chatbot
+# AgriShield
 
 WhatsApp bots built on Baileys (Node.js). Both run in Docker and stay connected via QR login.
 
-## Haki — workplace rights for Kenya's agribusiness workers
+## AgriShield — workplace rights for Kenya's agribusiness workers
 
 A free WhatsApp bot for farm and agribusiness workers in Kenya. Describe a problem ("I'm paid KES 200 a day with no contract") and the bot identifies the violation under Kenyan labour law, cites the relevant statute, and walks you through the remedy pathway — which office to go to, what documents you need, and the timeline.
 
@@ -15,7 +15,7 @@ A general-purpose WhatsApp assistant (`PixelAI/`) with pluggable skills in `Pixe
 ## Quick start
 
 ```bash
-cd Haki-Chatbot          # Haki
+cd Haki-Chatbot          # AgriShield
 # or
 cd Haki-Chatbot/PixelAI  # PixelAI
 

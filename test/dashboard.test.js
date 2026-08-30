@@ -11,7 +11,7 @@ import Dashboard from '../src/dashboard.js';
 const CLOSE = { connection: 'close' };
 
 function setup() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-dash-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-dash-'));
   const caseStore = new CaseStore({ path: path.join(dir, 'cases.json') });
   const slaEngine = new SLAEngine({ caseStore });
   const smsGateway = createSmsGateway('simulator');
@@ -107,7 +107,7 @@ test('/api/sms exposes the simulator inbox/outbox and inject works', async () =>
 test('monitor subscribe bridge is registered and feeds events to socket.io', () => {
   const s = setup();
   assert.equal(typeof s.monitor.subs, 'function', 'dashboard must subscribe to monitor events');
-  assert.doesNotThrow(() => s.monitor.subs({ type: 'sla-escalation', payload: { caseId: 'HAKI-1' } }));
+  assert.doesNotThrow(() => s.monitor.subs({ type: 'sla-escalation', payload: { caseId: 'AGRI-1' } }));
   assert.doesNotThrow(() => s.monitor.subs({ type: 'crisis', payload: null }));
   s.dash.stop();
 });

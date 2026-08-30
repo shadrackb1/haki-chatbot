@@ -11,7 +11,7 @@ import Monitor from '../src/monitor.js';
 import AutonomyEngine, { ORIGINS } from '../src/autonomy-engine.js';
 
 function tempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'haki-upgrade-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-upgrade-'));
 }
 
 describe('User Database (Deposit DB)', () => {

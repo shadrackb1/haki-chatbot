@@ -104,7 +104,7 @@ class SessionManager {
     const nodes = [];
     const edges = [];
     nodes.push({ id: 'sessions_root', type: 'flow', label: 'Session Layer' });
-    edges.push({ from: 'Haki_Agri_Shield', to: 'sessions_root', type: 'contains' });
+    edges.push({ from: 'AgriShield', to: 'sessions_root', type: 'contains' });
     let count = 0;
     for (const [phone, s] of this.sessions) {
       if (count >= limitUsers) break;

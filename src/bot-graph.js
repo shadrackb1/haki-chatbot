@@ -18,7 +18,7 @@ class BotGraph {
 
   scanProjectStructure() {
     try {
-      this.buildNode('root', { type: 'project', name: 'Haki Agri-Shield', parent: null });
+      this.buildNode('root', { type: 'project', name: 'AgriShield', parent: null });
       this.buildNode('src', { type: 'folder', name: 'src', parent: 'root' });
       this.buildNode('data', { type: 'folder', name: 'data', parent: 'root' });
       this.buildNode('config', { type: 'folder', name: 'config', parent: 'root' });

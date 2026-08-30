@@ -107,7 +107,7 @@ export function buildOverview(cases = []) {
 // Evidence text per OECD-FAO step, derived from the live case data.
 export function buildOecdFao(overview, cases = []) {
   const evidence = {
-    policy: `Company human-rights policy and grievance mechanism are the Haki channel; the mechanism has a documented turnaround window (crisis 2h / critical 24h / standard 72h / info 120h).`,
+    policy: `Company human-rights policy and grievance mechanism are the AgriShield channel; the mechanism has a documented turnaround window (crisis 2h / critical 24h / standard 72h / info 120h).`,
     identify: `${overview.total} adverse-impact concern(s) were reported and triaged in the period, across ${Object.keys(overview.byCategory).length} category(ies) and ${Object.keys(overview.byCounty).length} county(ies).`,
     mitigate: `${overview.open + overview.escalated} case(s) currently in prevention/mitigation (IN_REVIEW or ESCALATED); severe/crisis concerns short-circuit to immediate support.`,
     track: `${overview.escalated} case(s) escalated for lack of timely resolution; ${overview.overdue} open case(s) are past their SLA deadline and tracked for follow-up.`,
@@ -138,7 +138,7 @@ export function buildPillarSections(overview, cases = []) {
   return {
     P1: {
       title: 'Pillar One — The State duty to protect human rights',
-      text: 'Government is the primary duty-bearer. Haki complements state mechanisms (labour offices, magistrates, DCI) and records cases where state remedy channels were required so the company can cooperate.',
+      text: 'Government is the primary duty-bearer. AgriShield complements state mechanisms (labour offices, magistrates, DCI) and records cases where state remedy channels were required so the company can cooperate.',
       cases: []
     },
     P2: {
@@ -165,7 +165,7 @@ export function buildPillarSections(overview, cases = []) {
 class UngpReport {
   constructor(options = {}) {
     this.caseStore = options.caseStore || null;
-    this.company = options.company || 'HakiAgri (Shamba-to-Ship Co-operative)';
+    this.company = options.company || 'AgriShield (Shamba-to-Ship Co-operative)';
     this.period = options.period || this._periodLabel();
     this.reference = options.reference || `HRDD-${new Date().toISOString().slice(0, 10)}`;
     this._now = options.now || (() => new Date());
@@ -273,7 +273,7 @@ class UngpReport {
     push();
     push('## Anonymity & integrity');
     push();
-    push('All case identifiers are registry IDs (HAKI-YYYY-NNNN). Mobile numbers are masked (only the last four digits are retained) and no names are stored. This report is exportable to markdown and PDF for auditors and the board.');
+    push('All case identifiers are registry IDs (AGRI-YYYY-NNNN). Mobile numbers are masked (only the last four digits are retained) and no names are stored. This report is exportable to markdown and PDF for auditors and the board.');
     push();
     return L.join('\n');
   }

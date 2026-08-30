@@ -116,7 +116,7 @@ test('gateway start() routes inbound messages into the handler', async () => {
 });
 
 test('opens a tracked case with an SLA deadline for violations', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-sms-cases-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-sms-cases-'));
   const caseStore = new CaseStore({ path: path.join(dir, 'cases.json') });
   const slaEngine = new SLAEngine({ caseStore });
   const gateway = createSmsGateway('simulator');
@@ -138,13 +138,13 @@ test('opens a tracked case with an SLA deadline for violations', async () => {
   const c = caseStore.all()[0];
   assert.equal(c.channel, 'sms');
   assert.equal(c.violation, 'SAFETY_VIOLATION');
-  assert.match(c.caseId, /^HAKI-/);
+  assert.match(c.caseId, /^AGRI-/);
   assert.ok(c.slaDeadline, 'must carry a computed SLA deadline');
   assert.ok(new Date(c.slaDeadline) > new Date());
 });
 
 test('does not open a case for casual chatter', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-sms-cases-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agrishield-sms-cases-'));
   const caseStore = new CaseStore({ path: path.join(dir, 'cases.json') });
   const gateway = createSmsGateway('simulator');
   const handler = new SmsHandler({
