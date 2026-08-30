@@ -105,11 +105,11 @@ SMS In/Out (SmsGateway) ─┤→ Triage (violation-classifier / detectLanguage)
 ## Build order / checklist
 
 - [x] Spec written
-- [ ] Phase 0: llm-router.js (round-robin across all API keys) + tests
-- [ ] Phase 1: crisis-support.js + support-organizations.json + tests
-- [ ] Phase 1: wire Empathy + IQ + Crisis into index.js; real detectLanguage
-- [ ] Phase 2: sms-gateway.js (Simulator/TextBee/Gammu) + sms-handler.js + tests
-- [ ] Phase 3: case-store.js + sla-engine.js + tests
-- [ ] Phase 4: dashboard.js (Express + Chart.js hotspots + live SMS console) + tests
-- [ ] Phase 5: ungp-report.js + tests
-- [ ] Full suite green; commit + push
+- [x] Phase 0: llm-router.js (round-robin across all API keys) + tests
+- [x] Phase 1: crisis-support.js + support-organizations.json + tests
+- [x] Phase 1: wire Empathy + IQ + Crisis into index.js; real detectLanguage
+- [x] Phase 2: sms-gateway.js (Simulator/TextBee/Gammu) + sms-handler.js + tests
+- [x] Phase 3: case-store.js + sla-engine.js + tests
+- [x] Phase 4: dashboard.js (Express + Chart.js hotspots + live SMS console) + tests
+- [x] Phase 5: ungp-report.js + tests
+- [x] Full suite green (190 tests); commit + push
