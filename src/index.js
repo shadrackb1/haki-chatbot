@@ -194,6 +194,10 @@ autonomy.onDispatch((phone, text, origin) => {
 
 let sockRef = null;
 let keepaliveInterval = null;
+let noOpenStreak = 0;
+const AUTH_DIR = path.join(__dirname, '..', 'auth_info');
+const AUTO_REPAIR_LIMIT = 4;
+const RECONNECT_COOLDOWN_MS = 4000;
 
 console.log('🗂️ 法律语料库: ' + retriever.corpus.length + ' 条条文已完成索引');
 
@@ -285,18 +289,32 @@ async function startBot() {
 
       console.log(`❌ 连接已关闭。状态码: ${statusCode}`);
 
-      if (shouldReconnect) {
-        console.log('🔄 正在重新连接…');
-        startBot();
-      } else {
+      if (!shouldReconnect) {
         console.log('👋 已退出登录。请重新扫描二维码。');
         // 清除认证信息并重启
-        fs.rmSync(path.join(__dirname, '..', 'auth_info'), { recursive: true, force: true });
+        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+        noOpenStreak = 0;
         startBot();
+        return;
       }
+
+      // 连续多次 408（connectionLost）且从未连上 → WhatsApp 已不认本地会话。
+      // 保留本地认证只会造成 408 死循环（状态码不是 loggedOut，不会走上方分支）。
+      // 达到阈值后自动清除认证并重新配对（打印二维码）。
+      if (statusCode === DisconnectReason.connectionLost && ++noOpenStreak >= AUTO_REPAIR_LIMIT) {
+        console.log('♻️ 会话已失效（持续超时 408）。清除本地认证，请重新扫描二维码。');
+        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+        noOpenStreak = 0;
+      } else if (statusCode !== DisconnectReason.connectionLost) {
+        noOpenStreak = 0;
+      }
+
+      console.log(`🔄 ${RECONNECT_COOLDOWN_MS / 1000} 秒后重新连接…`);
+      setTimeout(() => startBot(), RECONNECT_COOLDOWN_MS);
     }
 
     if (connection === 'open') {
+      noOpenStreak = 0;
       botLive = true;
       sockRef = sock;
       autonomy.setSubscribers(userDb.listRegistered().map(u => u.phone));
