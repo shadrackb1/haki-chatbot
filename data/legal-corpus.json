@@ -304,5 +304,635 @@
     "source": "Constitution of Kenya 2010, Art. 41",
     "source_url": "https://kenyalaw.org/akn/ke/act/2010/constitution",
     "verified": true
+  },
+  {
+    "id": "wage-agricultural-2026-grades",
+    "title": "Agricultural minimum wages by grade — 2026 Order",
+    "category": "WAGE_VIOLATION",
+    "text": "The Regulation of Wages (Agricultural Industry) (Amendment) Order 2024 (L.N. 163/2024), updated by the 2026 Amendment Order effective 1 May 2026, sets these minimum daily wages: unskilled worker KES 335.86 per day (KES 7,997.33 per month), stockman/herdsman/watchman KES 391.14, tractor driver KES 430.52, combined-harvester driver KES 473.82, farm foreman or clerk KES 609.66. Weekly hours are 45 normal (52 maximum). These rates apply to all on-farm roles across the agribusiness value chain — fresh produce, flowers, tea, coffee, sugarcane, dairy and livestock estates.",
+    "source": "Regulation of Wages (Agricultural Industry) Order, L.N. 163/2024 as updated 2026",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "wage-general-processing-logistics",
+    "title": "General minimum wage — processing, logistics, packing and trade workers",
+    "category": "WAGE_VIOLATION",
+    "text": "Workers in non-agricultural agribusiness roles — off-farm packhouses, cold-chain, warehouses, transport/driving, agro-dealing, export and trade — are covered by the Regulation of Wages (General) (Amendment) Order, L.N. 164/2024 (and its 2026 update). General Order rates are HIGHER than the Agricultural Order rates. An employer who cites the agricultural rate for factory, packing or transport work is likely underpaying. Check the current Gazette table for town-by-town rates.",
+    "source": "Regulation of Wages (General) (Amendment) Order, L.N. 164/2024 + 2026 update",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "wage-house-allowance",
+    "title": "House allowance is payable ON TOP of basic minimum wage",
+    "category": "WAGE_VIOLATION",
+    "text": "The minimum wage rates in the Wages Orders are basic wages. House allowance (or housing) is payable in ADDITION to the basic minimum wage. An employer may not absorb the house allowance into the basic minimum wage. If your total daily or monthly pay is at the minimum-wage figure and nothing extra is paid for housing, you are likely being underpaid.",
+    "source": "Wages Orders (L.N. 163 & 164/2024); Employment Act 2007",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "wage-payment-legal-tender",
+    "title": "Wages must be paid in money, not goods",
+    "category": "WAGE_VIOLATION",
+    "text": "Wages must be paid in Kenyan legal tender (money). Employers cannot pay workers in goods, produce, tokens or vouchers in substitution for wages. Payment is due at the agreed pay day and at least once monthly. If a farmer or processor pays you in maize, milk or meals instead of money without your written agreement, that is a wage violation.",
+    "source": "Employment Act 2007 (Cap. 226), wage payment provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "wage-deductions-consent",
+    "title": "Unauthorised deductions are illegal — deductions need written consent",
+    "category": "WAGE_VIOLATION",
+    "text": "An employer may only deduct from wages what is required by law (PAYE, NSSF, SHIF, court orders) or with the worker's written consent for the worker's benefit. Deductions for breakage, losses, mistakes, uniforms or as punishment are ILLEGAL. Deductions must never take pay below the applicable minimum wage. See a labour officer if your payslip shows unexplained deductions.",
+    "source": "Employment Act 2007 (Cap. 226), s. 19",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wage-payslip-itemised",
+    "title": "Right to an itemised pay statement (payslip)",
+    "category": "WAGE_VIOLATION",
+    "text": "Every employee has the right to an itemised pay statement on each pay day showing gross pay, all deductions (PAYE, NSSF, SHIF, housing levy, personal deductions) and net pay. Hidden or unexplained deductions, or refusal to provide a payslip, are against the Employment Act and may amount to wage theft.",
+    "source": "Employment Act 2007 (Cap. 226), s. 20",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "deductions-nssf-year4",
+    "title": "NSSF pension contributions — Year 4 tiers",
+    "category": "WAGE_VIOLATION",
+    "text": "Under the NSSF Act 2013 (Third Schedule) Year 4 rates, contributions are tiered: Tier I on earnings from KES 0 to 9,000 per month, Tier II on earnings from KES 9,001 up to 108,000 per month. Both employer and employee contribute 6% each of pensionable pay, up to a combined ceiling. Workers should see their NSSF deduction and the employer's matching contribution on their payslip.",
+    "source": "NSSF Act 2013 (Cap. 258), Third Schedule (Year 4 rates)",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2013/17",
+    "verified": true
+  },
+  {
+    "id": "deductions-shif",
+    "title": "SHIF social health insurance — 2.75% of gross pay (replaces NHIF)",
+    "category": "WAGE_VIOLATION",
+    "text": "Since the Social Health Insurance Act 2023 came fully into force (October 2024), NHIF is replaced by the Social Health Insurance Fund (SHIF). Employers must deduct and remit SHIF at 2.75% of the employee's gross salary (minimum contribution KES 300 per month) and register employees for Social Health Insurance. A payslip line showing 'NHIF' after October 2024 may be outdated or misapplied.",
+    "source": "Social Health Insurance Act 2023 (No. 16 of 2023); SHA regulations",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "deductions-housing-levy",
+    "title": "Affordable Housing Levy — 1.5% each from employer and employee",
+    "category": "WAGE_VIOLATION",
+    "text": "Under the Finance Act, employers deduct the Affordable Housing Levy at 1.5% of gross monthly pay from the employee and match it with an equal 1.5% employer contribution, remitted to the Housing Fund. The levy applies to employment income (subject to statutory thresholds). Verify current status of the levy via the latest Gazette/legislation before advising.",
+    "source": "Finance Act / Affordable Housing Levy provisions — verify against current law",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": false
+  },
+  {
+    "id": "deductions-paye",
+    "title": "PAYE income tax bands (10% to 35%)",
+    "category": "WAGE_VIOLATION",
+    "text": "PAYE is deducted monthly using Kenyan income-tax bands from 10% (bottom band) up to 35% (top band) of chargeable pay, with personal relief offset. Employers must deduct PAYE and remit to KRA by the 9th day of the following month. A worker whose payslip shows a flat withholding that does not follow the PAYE bands should query the deduction with KRA.",
+    "source": "Income Tax Act (Cap. 470), KRA PAYE tables",
+    "source_url": "https://www.kra.go.ke",
+    "verified": true
+  },
+  {
+    "id": "wage-remittance-by-9th",
+    "title": "Deductions must be remitted — not kept by the employer",
+    "category": "WAGE_VIOLATION",
+    "text": "NSSF, SHIF, PAYE and housing levy are deducted from wages for the worker's benefit and MUST be remitted to the respective funds within statutory deadlines (PAYE and remittances generally by the 9th of the following month). An employer who deducts these amounts but fails to remit commits an offence — the worker still deserves credit for the contributions.",
+    "source": "NSSF Act 2013; Social Health Insurance Act 2023; Income Tax Act",
+    "source_url": "https://www.kra.go.ke",
+    "verified": true
+  },
+  {
+    "id": "wage-overtime-rate",
+    "title": "Overtime at 1.5x, rest days and public holidays at 2x",
+    "category": "WAGE_VIOLATION",
+    "text": "Normal working hours are up to 8 hours a day or 45 hours a week. Hours worked beyond normal are overtime, payable at at least 1.5 times the hourly rate. Work on rest days or public holidays is payable at at least twice the normal rate. In agriculture, daily overtime beyond the normal working hours and weekly overtime apply under the sectoral order.",
+    "source": "Employment Act 2007; Regulation of Wages (Agricultural/General) Orders",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "contract-written-within-2-months",
+    "title": "Written contract within 2 months — Employment Act s.9",
+    "category": "NO_CONTRACT",
+    "text": "The employer must provide a written contract of service to every employee, including casual and seasonal agribusiness workers, within two months of starting work. The contract must be in a language the employee understands. Working without a written contract after two months is an offence and leaves your terms (wage, leave, notice) unrecorded.",
+    "source": "Employment Act 2007 (Cap. 226), s. 9",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "contract-particulars",
+    "title": "Particulars of employment the contract must contain",
+    "category": "NO_CONTRACT",
+    "text": "The written statement of particulars must include: names of parties, job description, date of employment, place of work, remuneration and how it is calculated and paid, hours of work, annual and sick leave entitlements, period of notice, and any collective agreement affecting terms. If your 'contract' is verbal or a blank form, request your particulars in writing.",
+    "source": "Employment Act 2007 (Cap. 226), s. 10",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "contract-probation-period",
+    "title": "Probation period is limited — 6 months maximum",
+    "category": "CONTRACT_VIOLATION",
+    "text": "A probation period may not exceed six months unless written into the contract or collective agreement. During probation either party may terminate on notice of not less than 7 days. Prolonged 'trial months' on the farm or in the packhouse with no pay are unlawful.",
+    "source": "Employment Act 2007 (Cap. 226), s. 42",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "contract-casual-2022",
+    "title": "Casual workers' protection — 2022 amendments",
+    "category": "CONTRACT_VIOLATION",
+    "text": "Following the Employment (Amendment) Act 2022: casual employees engaged on intermittent casual work over a period of 30 days or more must now be treated as having a term contract, receive a copy of their casual agreement, and be paid on designated days. Long-term 'seasonal' farm labour must not be used to avoid stable employment rights.",
+    "source": "Employment Act 2007 as amended by the Employment (Amendment) Act 2022",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "termination-notice-periods",
+    "title": "Notice periods for termination (or pay in lieu)",
+    "category": "CONTRACT_VIOLATION",
+    "text": "An employment contract may only be terminated on notice (or payment in lieu): at least 28 days if employed for more than 10 years (or as contracted), and otherwise per the contract but not less than the statutory minimum — for a monthly contract, 28 days' written notice. End-of-season 'you're done', if permanent employment, requires proper notice and process.",
+    "source": "Employment Act 2007 (Cap. 226), s. 35",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "unfair-termination-remedies",
+    "title": "Unfair termination — remedies up to 12 months' wages",
+    "category": "CONTRACT_VIOLATION",
+    "text": "Termination is unfair if the employer had no valid reason, did not follow fair procedure (hearing, notice), or the dismissal was for exercising a legal right (union membership, maternity, safety refusal). The ELRC may award up to 12 months' wages as compensation for unfair termination. Complaints must be filed with the labour officer within 3 months of the dismissal.",
+    "source": "Labour Relations Act 2007 ss. 41, 45, 49-50; Employment Act 2007",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "redundancy-process",
+    "title": "Redundancy needs notice and consultation — Employment Act s.40",
+    "category": "CONTRACT_VIOLATION",
+    "text": "Before declaring a redundancy an employer must give the union (or the employee) at least one month's notice, explain the reason, and discuss severance. Redundant employees are entitled to severance pay (at least 15 days' pay per completed year of service) and payment of all dues. 'Season over, no job next week' without redundancy process may be unlawful.",
+    "source": "Employment Act 2007 (Cap. 226), s. 40",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "leave-annual",
+    "title": "Annual leave — 21 working days minimum",
+    "category": "CONTRACT_VIOLATION",
+    "text": "After 12 months of continuous service an employee is entitled to at least 21 working days of paid annual leave, in addition to public holidays. Agricultural workers under the sectoral order are entitled to paid leave as set by the order. An employer cannot pay out months of unused leave and roll you over forever without your agreement.",
+    "source": "Employment Act 2007 (Cap. 226), leave provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "leave-maternity-paternity",
+    "title": "Maternity leave 3 months paid; paternity leave 2 weeks paid",
+    "category": "CONTRACT_VIOLATION",
+    "text": "A female employee is entitled to 3 months (90 days) of fully-paid maternity leave; her job is protected and she cannot be dismissed while on or because of that leave. A male employee is entitled to 2 weeks of paternity leave with full pay. Dismissal related to pregnancy or leave is unlawful discrimination.",
+    "source": "Employment Act 2007 (Cap. 226), maternity & paternity leave provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "leave-sick",
+    "title": "Sick leave — 7 days full pay + 7 days half pay",
+    "category": "CONTRACT_VIOLATION",
+    "text": "An employee who has worked for at least two months is entitled to sick leave of at least 7 days with full pay and 7 days with half pay, per year, supported by a medical certificate. For farm and packhouse workers taking these days to health centres, an employer cannot dock wages because of certified sick absence.",
+    "source": "Employment Act 2007 (Cap. 226), sick leave provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "leave-rest-week",
+    "title": "Weekly rest — at least 1 rest day per week",
+    "category": "CONTRACT_VIOLATION",
+    "text": "Every worker is entitled to a weekly rest day. Agricultural employees must receive at least one rest day per week; work on the rest day is payable at a differential rate. Refusing scheduled rest days or paying normal rate for rest-day work is a violation.",
+    "source": "Regulation of Wages (Agricultural Industry) Order; Employment Act",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "safety-general-duty",
+    "title": "Employer's general duty of care — OSHA s.6",
+    "category": "SAFETY_VIOLATION",
+    "text": "Every employer, including farm and factory operators, must ensure the health, safety and welfare of workers: safe systems of work, safe plant and machinery, safe handling of chemicals, training and supervision, and a safe working environment. Failure to provide a safe workplace is an offence under the Occupational Safety and Health Act 2007.",
+    "source": "Occupational Safety and Health Act 2007 (Cap. 236A), s. 6",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "safety-ppe-free",
+    "title": "PPE must be free — you cannot be charged for safety gear",
+    "category": "SAFETY_VIOLATION",
+    "text": "Employers must provide and maintain suitable personal protective equipment at no cost to the worker. Masks, gloves, boots, overalls and eye protection for agrochemical application and handling must be provided free. Deducting the cost of 'protective equipment' from wages is a double violation (unsafe + illegal deduction).",
+    "source": "OSHA 2007, PPE provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "safety-agrochemical-training",
+    "title": "Agrochemical safety — training, PPE and medical checks",
+    "category": "SAFETY_VIOLATION",
+    "text": "Workers who handle, mix or spray pesticides must be trained in safe use, be provided the correct PPE, and receive medical supervision where required. Spraying programmes, washing facilities after work and re-entry intervals protect workers and bystanders. The Pest Control Products Act and safety regulations govern agrochemical handling.",
+    "source": "OSHA 2007; Pest Control Products Act (Cap. 346); AFA practice codes",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "safety-refuse-dangerous",
+    "title": "Right to refuse dangerous work (and not be punished)",
+    "category": "SAFETY_VIOLATION",
+    "text": "A worker who reasonably believes there is imminent and serious danger may refuse to work and must not be disciplined, dismissed or threatened for doing so. Intimidating a worker who raises a safety concern or refuses unsafe work is an offence. Document the refusal and report to DOSHS and the labour office.",
+    "source": "OSHA 2007, worker protection provisions; Employment Act",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "safety-medical-exams",
+    "title": "Medical examinations for chemical and hazardous work",
+    "category": "SAFETY_VIOLATION",
+    "text": "Employers must arrange medical examinations for workers exposed to dust, chemicals or other hazardous conditions, at the employer's cost, as prescribed by OSHA regulations. You cannot be charged for a workplace medical exam.",
+    "source": "OSHA 2007, medical examination provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "safety-report-accident",
+    "title": "Reporting workplace accidents — employer must report within 7 days",
+    "category": "SAFETY_VIOLATION",
+    "text": "Workplace accidents must be reported by the employer to the Director of Work Injury Benefits within 7 days. For injuries on the farm, in the packhouse or during transport, record the accident, tell the employer in writing, and you may report directly to the Director yourself. Keep medical records — they are evidence for compensation.",
+    "source": "WIBA 2007, s. 22",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wiba-permanent-disablement-rates",
+    "title": "Permanent disability compensation — 96 months of earnings, fixed rates",
+    "category": "SAFETY_VIOLATION",
+    "text": "WIBA permanent disablement compensation is based on 96 months of earnings, using fixed percentages for scheduled injuries (e.g. loss of a limb or eye) and medical assessment for others, subject to Cabinet Secretary minimums and maximums. Compensation for disablement cannot be set off against debts.",
+    "source": "Work Injury Benefits Act 2007, compensation provisions & First Schedule",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "child-minimum-working-age",
+    "title": "Minimum working age — 16; hazardous work — 18",
+    "category": "CHILD_LABOR",
+    "text": "A child under 16 may not be employed in any form of labour. Children aged 13-15 may do light work only outside school hours and not harmful to health or schooling. No one under 18 may do hazardous work (working with chemicals and pesticides, machinery operation, night work, heavy lifting) — all common in agribusiness. Any breach is criminal.",
+    "source": "Employment Act 2007; Children Act 2022",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "child-hazardous-list",
+    "title": "Hazardous and worst-forms of child labour — what to report",
+    "category": "CHILD_LABOR",
+    "text": "The worst forms of child labour include pesticide handling, hazardous sugarcane cutting, commercial agricultural work during school hours, and work exposing children to chemicals or dangerous machinery. Kenya has listed hazardous occupations for children; agriculture with chemicals is among them. Report to the Sub-County Children's Officer or the police Children's Desk.",
+    "source": "Children Act 2022; Employment (Child Labour) (Prohibition) provisions",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2022/15",
+    "verified": true
+  },
+  {
+    "id": "child-reporting-116",
+    "title": "Report child labour — Childline 116 and Children's Officers",
+    "category": "CHILD_LABOR",
+    "text": "You can report child labour or child abuse free on Childline 116 (24/7) or to your Sub-County Children's Officer (Department of Children's Services). Reports may be anonymous. Children found in hazardous agribusiness work should be removed and the employer prosecuted.",
+    "source": "Department of Children's Services; Children Act 2022",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2022/15",
+    "verified": true
+  },
+  {
+    "id": "gender-sexual-harassment-employment",
+    "title": "Sexual harassment at work is illegal — including on farms",
+    "category": "GENDER_VIOLENCE",
+    "text": "Sexual harassment by an employer, supervisor, or co-worker is prohibited under the Employment Act. It includes unwelcome advances, requests for sexual favours, and verbal or physical conduct of a sexual nature. Employers with 20 or more employees must have a written sexual harassment policy. Harvest teams, supervisors and managers are equally bound.",
+    "source": "Employment Act 2007, sexual harassment provisions; Sexual Offences Act 2006",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "gender-gbv-hotline",
+    "title": "Gender-based violence — reporting and support",
+    "category": "GENDER_VIOLENCE",
+    "text": "GBV and sexual violence can be reported free on the GBV hotline 1195 (24/7), to the police Gender Desk, or to FIDA Kenya for legal help. Survivors are entitled to protection orders under the Protection Against Domestic Violence Act. Employers must not retaliate against workers who report harassment or abuse.",
+    "source": "Protection Against Domestic Violence Act 2015; GBV hotline 1195",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "land-eviction-90-days",
+    "title": "Eviction requires notice and due process — Land Act",
+    "category": "LAND_RIGHTS",
+    "text": "Under the Land Act 2012, eviction of persons from land requires a court order and adequate notice (commonly 3 months). No one may be evicted arbitrarily or without due process. Workers evicted from farm-provided housing, or communities displaced for agro-industries, can challenge the eviction before the Environment and Land Court and complain to the NLC.",
+    "source": "Land Act 2012; Constitution Art. 40",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2012/6",
+    "verified": true
+  },
+  {
+    "id": "land-nlc-county-coordinators",
+    "title": "NLC county coordinators — help in all 47 counties",
+    "category": "LAND_RIGHTS",
+    "text": "The National Land Commission has county coordinators in all 47 counties (published at landcommission.go.ke/county-coordinators). Land disputes, historical injustice claims and complaints about unlawful acquisition can be lodged through the county coordinator before or alongside court action.",
+    "source": "National Land Commission; NLC county coordinators directory",
+    "source_url": "https://landcommission.go.ke/county-coordinators",
+    "verified": true
+  },
+  {
+    "id": "land-community-land-act",
+    "title": "Community land — registration and consent requirements",
+    "category": "LAND_RIGHTS",
+    "text": "Community land (trust land) is held, used and managed by communities under the Community Land Act 2016. Disposal, conversion of use, or registration of community land for agro-industrial purposes requires the consent of the community. Transactional sales without community consent are challengeable.",
+    "source": "Community Land Act 2016",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2016/27",
+    "verified": true
+  },
+  {
+    "id": "environment-water-pollution",
+    "title": "Water pollution by agro-industries is illegal — EMCA",
+    "category": "ENVIRONMENTAL_HARM",
+    "text": "Discharging agrochemicals, effluent or waste into rivers, lakes or groundwater without a licence violates the Environmental Management and Co-ordination Act 1999 and the Water Quality Regulations. Communities harmed by agribusiness pollution can complain to NEMA (hotline 0722 500 777) and the National Environment Tribunal.",
+    "source": "EMCA 1999; Water Quality Regulations; NEMA",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/1999/8",
+    "verified": true
+  },
+  {
+    "id": "environment-eia-agri-projects",
+    "title": "Environmental Impact Assessment for agribusiness projects",
+    "category": "ENVIRONMENTAL_HARM",
+    "text": "Large agribusiness projects (irrigation, plantations, agro-processing plants, geothermal/greenhousing expansions) require an Environmental Impact Assessment (EIA) licensed by NEMA and public participation of affected communities. Projects running without an EIA licence, or that ignore community objections, violate EMCA.",
+    "source": "EMCA 1999, EIA provisions; NEMA regulations",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/1999/8",
+    "verified": true
+  },
+  {
+    "id": "elrc-procedure-rules-fees",
+    "title": "ELRC filing — procedures, fees and fee waiver",
+    "category": "GENERAL",
+    "text": "Employment disputes go to the Employment and Labour Relations Court (ELRC). Filing is under the ELRC (Procedure) Rules, L.N. 133/2024 as amended, with fees in the Second Schedule. If you cannot afford the fees, apply for a fee waiver on the ground of insufficient means (r.81). Unfair-dismissal and labour-rights complaints scale with claim value — ask the registry for the current table before paying.",
+    "source": "ELRC (Procedure) Rules, L.N. 133/2024 (as amended)",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "elrc-stations",
+    "title": "ELRC stations and sub-registries",
+    "category": "GENERAL",
+    "text": "The Employment and Labour Relations Court sits at Nairobi, Mombasa, Kisumu, Nakuru, Kericho, Nyeri and Eldoret, with sub-registries at Malindi, Machakos, Bungoma, Garissa, Meru, Kisii, Voi and Kitale. E-filing is available. Registrar: Milimani Commercial Courts, Nairobi, +254 0730 182 000.",
+    "source": "Judiciary of Kenya — ELRC service points",
+    "source_url": "https://judiciary.go.ke",
+    "verified": true
+  },
+  {
+    "id": "nlas-legal-aid-eligibility",
+    "title": "Free legal aid — NLAS eligibility (income under KES 30,000)",
+    "category": "GENERAL",
+    "text": "The National Legal Aid Service (NLAS) provides free legal advice and representation. Eligibility: monthly income below KES 30,000 (or other permitted grounds), with a decision within 48 hours. Call toll-free 0800 720 640 or reach NLAS on WhatsApp +254 703 149 933. Offices in Nairobi, Kisumu, Mombasa, Eldoret and Nakuru.",
+    "source": "Legal Aid Act 2016; NLAS",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "mol-dispute-process",
+    "title": "Ministry of Labour complaint process — Form LD-64",
+    "category": "GENERAL",
+    "text": "Wage, contract and dismissal disputes start at the county Ministry of Labour office. How it works: (1) report the dispute and fill the complaint form (LD-64, free); (2) the labour officer summons both parties to conciliation, usually within 7 days; (3) if unresolved, the officer issues a demand notice or certificate and you can file at the ELRC.",
+    "source": "Ministry of Labour and Social Protection — dispute handling",
+    "source_url": "https://labour.go.ke",
+    "verified": true
+  },
+  {
+    "id": "wiba-claim-process",
+    "title": "Work injury claim process under WIBA — step by step",
+    "category": "SAFETY_VIOLATION",
+    "text": "Work injury claim: (1) report the injury to your employer at once; (2) employer must report to the Director within 7 days; (3) claim lodged within 12 months of the accident (or death); (4) employer/insurer pays medical expenses and, where applicable, compensation within 90 days of lodging; (5) you can report directly to the Director at any time if the employer fails to act.",
+    "source": "Work Injury Benefits Act 2007, ss. 21-26 & 47",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "sector-floriculture-foss",
+    "title": "Floriculture standards — KFC Silver/FOSS and KS 1758",
+    "category": "GENERAL",
+    "text": "Kenya's horticulture and flower sector operates under standards including the Kenya Flower Council Silver Directive/FOSS and KS 1758 certification. These require decent wages, PPE, water and sanitation, and grievance mechanisms. Workers on certified farms/flower estates can raise standards violations with KFC (contactable via its member directory) and the labour ministry.",
+    "source": "Kenya Flower Council; KS 1758",
+    "source_url": "https://kfc.org.co.ke",
+    "verified": true
+  },
+  {
+    "id": "sector-eu-cs3d-outlook",
+    "title": "EU corporate due diligence — export outlook from 2027",
+    "category": "GENERAL",
+    "text": "The EU Corporate Sustainability Due Diligence Directive (CS3D) and aligned regulations will require exporters into the EU market (flowers, produce, coffee, tea) to identify and prevent human-rights and environmental harms in their value chains from around 2027. Kenyan agribusiness employers increasingly face audits on wages, safety and child labour — workers' documented complaints feed these checks.",
+    "source": "EU CS3D implementation timeline (2027)",
+    "source_url": "https://commission.europa.eu",
+    "verified": true
+  },
+  {
+    "id": "sector-mpesa-payment-validity",
+    "title": "Paying wages by M-Pesa — valid but must be legal tender in money terms",
+    "category": "WAGE_VIOLATION",
+    "text": "Employers may pay wages via mobile money (M-Pesa) — that is still payment in money and legal. What is NOT allowed is paying wages as goods, produce, tokens, or forcing workers to spend wages at company shops. If your 'payment' is partly in maize, milk or credit at a farm shop, the money part must still meet the minimum wage.",
+    "source": "Employment Act 2007 wage payment provisions; mobile-money practice",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": false
+  },
+  {
+    "id": "sector-tea-coffee-estate",
+    "title": "Tea and coffee estates — same employment law applies",
+    "category": "GENERAL",
+    "text": "Tea and coffee estate workers (pluckers, millers, factory staff) are workers with full Employment Act, WIBA and OSHA rights. Estate management must pay minimum wages, provide contracts, PPE, leave and safe working conditions. The sectoral wage order for agriculture applies to plantation roles; factory/milling roles fall under the General Order.",
+    "source": "Employment Act 2007; Wages Orders",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "sector-dairy-livestock",
+    "title": "Dairy and livestock workers' rights",
+    "category": "GENERAL",
+    "text": "Dairy farmhands, herders and livestock workers are covered by the Agricultural Industry wage order (stockman/herdsman/watchman grade) and general employment law. They are entitled to written contracts, rest days, PPE (boots, gloves) and safe handling of livestock and machinery. AI/insemination and veterinary helpers handling chemicals must be trained and equipped.",
+    "source": "Regulation of Wages (Agricultural Industry) Order; OSHA",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "sector-aquaculture-fishing",
+    "title": "Aquaculture and fishing workers' rights",
+    "category": "GENERAL",
+    "text": "Workers in aquaculture (fish ponds, cages), fisheries processing and lake fishing crews have employment rights under Kenyan law: written contracts, minimum wage (fisheries/fish-handling roles generally fall under the General/other order), safe boats and PPE, and WIBA coverage for accidents on water. Health and safety on the water is the employer's duty.",
+    "source": "Employment Act 2007; WIBA; OSHA",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "sector-logistics-drivers",
+    "title": "Transport and logistics workers in agribusiness",
+    "category": "GENERAL",
+    "text": "Drivers, loaders and cold-chain staff moving produce to the port or market fall under the General wage order, not the agricultural order. They are entitled to rest periods, road safety standards, and WIBA compensation for transport accidents in the course of work. Refrigerated-vegetable and flower trucks must not be driven beyond legal hours.",
+    "source": "Regulation of Wages (General) Order; WIBA; Traffic Act",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "sector-packhouse-workers",
+    "title": "Packhouse and agro-processing workers — higher wage order",
+    "category": "WAGE_VIOLATION",
+    "text": "Packhouse, sorting, grading, freezing and factory staff in agribusiness are generally covered by the General Wage Order (higher than the agricultural order) because their work is processing/packing, not primary production. If you grade, cut, pack or freeze produce in a packhouse or factory and are paid the agricultural minimum, check the General Order table for your location.",
+    "source": "Regulation of Wages (General) (Amendment) Order, L.N. 164/2024",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "rights-helpmenu-union",
+    "title": "Right to join a trade union and engage in collective bargaining",
+    "category": "GENERAL",
+    "text": "Constitution Art. 41 and the Labour Relations Act protect every worker's right to form or join a trade union, to participate in union activities, and to collective bargaining. Dismissing or disciplining a worker for joining or leading a union (e.g. plantation workers organising) is discrimination and unfair labour practice.",
+    "source": "Constitution Art. 41; Labour Relations Act 2007",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2010/constitution",
+    "verified": true
+  },
+  {
+    "id": "rights-whistleblower-protection",
+    "title": "Reporting violations — no retaliation allowed",
+    "category": "GENERAL",
+    "text": "Workers who report wage, safety or labour violations, or who testify in an inquiry, are protected from victimisation and dismissal as a result. Retaliation for reporting is itself a violation you can report to the labour officer and ELRC. Document threats against you if you raise issues.",
+    "source": "Employment Act 2007 (victimisation protections); Labour Relations Act",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "rights-data-protection-payslips",
+    "title": "Your personal data (payslips, medicals, biometrics) — DPA 2019",
+    "category": "GENERAL",
+    "text": "Under the Data Protection Act 2019, employers must handle your personal data (payslips, medical records, biometric time-and-attendance) lawfully, for a stated purpose, and keep it secure. You can request access to data held about you and object to unlawful collection. Employers may not share your medical or salary data without consent.",
+    "source": "Data Protection Act 2019",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2019/24",
+    "verified": true
+  },
+  {
+    "id": "remedy-timeline-compensation",
+    "title": "Wage arrears recovery limits — time matters",
+    "category": "WAGE_VIOLATION",
+    "text": "Wage arrears and minimum-wage shortfalls can be recovered through Labour Office conciliation or an ELRC claim. File early: delay erodes evidence and claims can be time-barred (unfair dismissal complaints must be filed within 3 months). Keep payslips, M-Pesa records and any written notes of promised pay.",
+    "source": "Employment Act; ELRC practice",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "kituo-fida-legal-aid-ngos",
+    "title": "Community legal aid — Kituo cha Sheria, FIDA and paralegals",
+    "category": "GENERAL",
+    "text": "Beyond NLAS, free help is available from civil-society legal clinics: Kituo cha Sheria (020 271 5212), FIDA Kenya for women (020 271 2722), and community paralegal networks in agribusiness regions. They assist with labour complaints, land cases and sexual-harassment claims and can accompany workers to the labour office.",
+    "source": "Kituo cha Sheria; FIDA Kenya; community paralegal networks",
+    "source_url": "https://www.kituochasheria.or.ke",
+    "verified": true
+  },
+  {
+    "id": "wage-general-order-rates-2026",
+    "title": "General minimum wage rates (2026) by town category",
+    "category": "WAGE_VIOLATION",
+    "text": "The General Wage Order distinguishes town categories: Nairobi/other municipalities, towns, and rural areas. The 2026 rates run about KES 700+ per day in Nairobi, with intermediate municipal and lower rural-tier rates, plus house allowance. For exact figures consult the current Gazette notice (L.N. 164/2024 and the 2026 Order). Packhouse and transport workers should verify their exact rate for their town.",
+    "source": "Regulation of Wages (General) Order, L.N. 164/2024 & 2026 update",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "shif-registration-employees",
+    "title": "SHA/SHIF registration — your health cover after October 2024",
+    "category": "GENERAL",
+    "text": "The Social Health Authority (SHA) administers SHIF and its benefits (emergency, chronic, primary care). Employers must register workers and deduct SHIF at 2.75% of gross pay. A worker who should be covered but has no SHIF/SHA card, or whose payslip still shows only NHIF, should ask the employer to register them — health cover is a statutory right.",
+    "source": "Social Health Insurance Act 2023; SHA operational circulars",
+    "source_url": "https://new.kenyalaw.org",
+    "verified": true
+  },
+  {
+    "id": "doshs-county-offices",
+    "title": "DOSHS county offices — report unsafe conditions near you",
+    "category": "SAFETY_VIOLATION",
+    "text": "The Directorate of Occupational Safety and Health Services has county officers in every county (official list September 2022). Report unsafe conditions, refusal of PPE, or workplace accidents to your county DOSHS officer. Officers can inspect workplaces, issue improvement and prohibition notices, and prosecute offenders.",
+    "source": "Directorate of Occupational Safety and Health Services — county officers contacts PDF",
+    "source_url": "https://labour.go.ke",
+    "verified": true
+  },
+  {
+    "id": "mol-county-offices-lookup",
+    "title": "Find your county labour office",
+    "category": "GENERAL",
+    "text": "Labour offices serve every county; the Ministry of Labour publishes the official county officers' contacts (emails and phones) at labour.go.ke. From Bungoma to Kwale, the county labour officer handles wage complaints, LD-64 conciliation and referrals to the ELRC. Ask the bot for your county's officer details.",
+    "source": "Ministry of Labour and Social Protection — county offices",
+    "source_url": "https://labour.go.ke",
+    "verified": true
+  },
+  {
+    "id": "rights-equal-pay",
+    "title": "Equal pay for work of equal value",
+    "category": "GENDER_VIOLENCE",
+    "text": "Kenyan law requires equal remuneration for work of equal value. Paying women less than men for the same harvest, packing or grading work, or paying piece rates that discriminate, is unlawful discrimination. Payslips and piece-rate scales must be transparent and non-discriminatory.",
+    "source": "Constitution Art. 27 & 41; Employment Act 2007",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2010/constitution",
+    "verified": true
+  },
+  {
+    "id": "rights-health-safety-water",
+    "title": "Workplace sanitation and drinking water",
+    "category": "SAFETY_VIOLATION",
+    "text": "Employers must provide clean drinking water, toilets, washing facilities and, where needed, rest shelters for field and packhouse workers. Denying access to water, sanitation or washing after chemical work endangers health and violates OSH duties.",
+    "source": "OSHA 2007; ILO C184 agri-safety standards",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/15/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "mid-season-victimisation-grievance",
+    "title": "Grievance mechanisms must not punish complainants",
+    "category": "GENERAL",
+    "text": "Workers have the right to raise grievances internally or with the labour office without being blacklisted, demoted or not re-hired next season. Victimisation for complaining, or for helping a co-worker complain, is retaliation and is reportable. Blacklisting across farms for complaints is unlawful.",
+    "source": "Employment Act 2007; Kenya Constitution Art. 41",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "wage-payroll-records-inspection",
+    "title": "Employers must keep payroll records you can verify",
+    "category": "WAGE_VIOLATION",
+    "text": "Employers must maintain registers of employees and earnings (WIBA s.9 requires at least 6 years). You may inspect the records held about your own earnings. Falsified or absent payroll records make wage theft easier — request your records in writing before filing a claim.",
+    "source": "WIBA 2007, s. 9; Employment Act 2007",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/13/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "seasonal-worker-contract-rollover",
+    "title": "Repeated 'seasonal' contracts may become permanent",
+    "category": "CONTRACT_VIOLATION",
+    "text": "Rolling seasonal contracts that are renewed every season can, under employment law and 2022 amendments, vest stable employment rights (notice, leave, severance). Employers who treat years of continuous seasonal labour as casual evade statutory protections. Track your seasons and records.",
+    "source": "Employment Act 2007 (2022 amendments on casual/term contracts)",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2007/11/eng@2022-12-31",
+    "verified": true
+  },
+  {
+    "id": "land-lease-smallholder",
+    "title": "Smallholder lease and out-grower contract fairness",
+    "category": "LAND_RIGHTS",
+    "text": "Smallholders leasing land to agro-processors or entering out-grower (nucleus) schemes are entitled to written, fair terms and transparent pricing. Unfair clauses, sudden land seizures, or dispossession under debt arrangements are challengeable before the ELC and NLC. Keep your agreements and payment records.",
+    "source": "Land Act 2012; Crops Act 2013; Food Crops/AFA contracts",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2012/6",
+    "verified": true
+  },
+  {
+    "id": "environment-cooperative-water",
+    "title": "Water rights and community water use",
+    "category": "ENVIRONMENTAL_HARM",
+    "text": "Water is a public good administered by WRMA/Water Authority; agro-industries must not extract so much that communities and livestock are left dry, nor pollute shared sources. Exhausted or diverted community water supplies can be reported to the Water Resources Authority.",
+    "source": "Water Act 2016; EMCA 1999",
+    "source_url": "https://new.kenyalaw.org/akn/ke/act/2016/43",
+    "verified": true
+  },
+  {
+    "id": "govt-agency-contacts-audit",
+    "title": "Key agribusiness-relevant agency contacts",
+    "category": "GENERAL",
+    "text": "Ministry of Labour: +254 (020) 2729801/804-819, complaints@labour.go.ke. ELRC Registrar: Milimani, +254 0730 182 000. NLAS toll-free 0800 720 640. NEMA hotline 0722 500 777. DOSHS county officers via labour.go.ke. GBV hotline 1195. Childline 116. Keep these numbers handy for reporting.",
+    "source": "Official agency contacts (2024-2026)",
+    "source_url": "https://labour.go.ke",
+    "verified": true
   }
 ]

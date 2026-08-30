@@ -53,6 +53,33 @@
       "description": "Support for gender-based and sexual violence — free call.",
       "crisis": true,
       "languages": ["en", "sw"]
+    },
+    {
+      "id": "childline-kenya",
+      "name": "Childline Kenya",
+      "phone": "116",
+      "hours": "24/7",
+      "description": "Free national helpline for children in danger — child labour, abuse or neglect. Trained counsellors answer.",
+      "crisis": true,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "doshs-hotline",
+      "name": "DOSHS — Occupational Safety & Health",
+      "phone": "+254 (020) 2729801",
+      "hours": "Mon–Fri, 8am–5pm",
+      "description": "Report unsafe farm/factory conditions, missing PPE or workplace accidents. Complaints also to complaints@labour.go.ke.",
+      "crisis": false,
+      "languages": ["en", "sw"]
+    },
+    {
+      "id": "nlas",
+      "name": "National Legal Aid Service (NLAS)",
+      "phone": "0800 720 640",
+      "hours": "Mon–Fri, 8am–5pm",
+      "description": "Free legal aid for low-income workers — WhatsApp +254 703 149 933. Get free legal representation for wage disputes.",
+      "crisis": false,
+      "languages": ["en", "sw"]
     }
   ],
   "templates": {

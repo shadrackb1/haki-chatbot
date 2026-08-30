@@ -18,6 +18,9 @@ sender-key-*.json
 data/*
 !data/legal-knowledge-base.json
 !data/support-organizations.json
+!data/legal-corpus.json
+!data/county-labour-offices.json
+!data/golden-evals.json
 users.json
 
 # Logs

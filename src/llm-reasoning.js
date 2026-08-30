@@ -234,6 +234,17 @@ Use this specific legal information to inform your reasoning about the user's me
           .join('\n')
       : 'None retrieved.';
 
+    const countyOffice = context.countyOffice
+      ? `\nCOUNTY LABOUR OFFICE (use when the user needs to report or visit an office):
+- County: ${context.countyOffice.county}
+- Officer: ${context.countyOffice.officer}
+- Office location: ${context.countyOffice.office_location}
+- Tel: ${context.countyOffice.tel}
+- Mobile: ${context.countyOffice.mobile}
+- Email: ${context.countyOffice.email}
+Share these details when giving the user concrete next steps.`
+      : '';
+
     const userProfile = JSON.stringify({
       language: context.language,
       location: context.location,
@@ -252,6 +263,7 @@ REASONING PROCESS:
 
 RECALLED LEGAL PASSAGES (ground your analysis in these):
 ${knowledgePassages}
+${countyOffice}
 
 THINKING RULES:
 - Always reason first, then answer
@@ -354,6 +366,16 @@ Since a specific violation has been classified, your response should:
            .join('\n')
        : 'None retrieved.';
 
+    const countyOffice = context.countyOffice
+      ? `\nCOUNTY LABOUR OFFICE (share these when the user needs to report or visit an office):
+- County: ${context.countyOffice.county}
+- Officer: ${context.countyOffice.officer}
+- Office location: ${context.countyOffice.office_location}
+- Tel: ${context.countyOffice.tel}
+- Mobile: ${context.countyOffice.mobile}
+- Email: ${context.countyOffice.email}`
+      : '';
+
      const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers, protecting workplace rights under Kenyan law.
 
 Based on your reasoning, generate a response:
@@ -368,6 +390,7 @@ REASONING SUMMARY:
 
 SUPPORTING LEGAL PASSAGES (cite these when relevant — use exact wording so the worker knows their rights):
 ${knowledgePassages}
+${countyOffice}
 
 RESPONSE RULES:
 1. **Write like a WhatsApp text from a knowledgeable friend** - not like an essay or a customer service bot
@@ -627,7 +650,7 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
 
     if (violations.length > 0) {
       // Use rule-based legal response
-      return this.getRuleBasedLegalResponse(violations[0], lang);
+      return this.getRuleBasedLegalResponse(violations[0], lang, context);
     }
 
     // Default response
@@ -636,7 +659,7 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
       : 'I didn\'t quite catch that. Tell me a bit more about what happened at work — pay, safety, contract, anything. Or type "rights" to see what you\'re entitled to.';
   }
 
-  getRuleBasedLegalResponse(violationType, lang) {
+  getRuleBasedLegalResponse(violationType, lang, context = {}) {
     const category = legalKB.violation_categories.find(v => v.id === violationType);
     
     if (!category) {
@@ -665,7 +688,13 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
       response += `   ⏰ ${pathway.timeline}\n`;
     }
 
-    response += '\n' + (lang === 'sw' ? '📞 NLAS (Bure): 0800 723 255' : '📞 NLAS (Free): 0800 723 255');
+    const countyOffice = context.countyOffice
+      ? `\n📍 ${context.countyOffice.county}: ${context.countyOffice.officer} (${context.countyOffice.office_location})\n   ${context.countyOffice.mobile || context.countyOffice.tel}\n   ${context.countyOffice.email}`
+      : '';
+
+    response += '\n' + (lang === 'sw'
+      ? '📞 NLAS (Bure): 0800 720 640\n💬 WhatsApp: +254 703 149 933'
+      : '📞 NLAS (Free): 0800 720 640\n💬 WhatsApp: +254 703 149 933') + countyOffice;
 
     return response;
   }

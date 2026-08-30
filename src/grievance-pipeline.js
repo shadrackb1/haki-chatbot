@@ -7,9 +7,11 @@
 // ============================================
 
 import { classifyViolation } from './violation-classifier.js';
+import { findCountyOffice, equippedCountyMessage } from './county-directory.js';
 
-const CRITICAL_VIOLATIONS = ['SAFETY_VIOLATION', 'HARASSMENT'];
-const ANALYSIS_VIOLATIONS = ['WAGE_VIOLATION', 'CONTRACT_VIOLATION', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS'];
+// Must match the violation_categories ids in data/legal-knowledge-base.json.
+const CRITICAL_VIOLATIONS = ['SAFETY_VIOLATION', 'GENDER_VIOLENCE'];
+const ANALYSIS_VIOLATIONS = ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS', 'CERTIFICATION_FRAUD'];
 
 const noopTranslation = {
   enabled: false,
@@ -109,12 +111,23 @@ class GrievancePipeline {
 
     // STEP F: tiered multi-provider LLM reasoning.
     const tier = this._decideTier(violation, llmOverride.tier);
+    const countyOffice = findCountyOffice(user.location);
     const llmContext = {
       language: 'en',
       location: user.location,
       workType: user.workType,
       isNewUser: user.isNewUser,
       conversationCount: user.conversationCount,
+      countyOffice: countyOffice
+        ? {
+            county: countyOffice.county,
+            officer: countyOffice.officer,
+            office_location: countyOffice.office_location,
+            tel: countyOffice.tel,
+            mobile: countyOffice.mobile,
+            email: countyOffice.email
+          }
+        : null,
       violation: violation ? {
         id: violation.id,
         description: violation.data?.description || '',

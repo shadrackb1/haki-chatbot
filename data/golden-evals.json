@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "purpose": "Deterministic golden acceptance tests for AgriShield's rule-based data layer. No LLM, no network — asserts that the ingested knowledge base, corpus and county directory produce the expected classifications and lookups. Add a case here whenever the KB/corpus data changes.",
+    "updated": "2026-08-30"
+  },
+  "classification": [
+    {
+      "id": "wage-underpaid-worker",
+      "input": "the supervisor pays us less than minimum wage and withholds my salary",
+      "expect": "WAGE_VIOLATION"
+    },
+    {
+      "id": "wage-underpaid-sw",
+      "input": "mshahara wangu haujalipwa",
+      "expect": "WAGE_VIOLATION"
+    },
+    {
+      "id": "safety-no-PPE",
+      "input": "we spray pesticides without any protective gear and no training",
+      "expect": "SAFETY_VIOLATION"
+    },
+    {
+      "id": "contract-no-contract",
+      "input": "i have worked for a year but there is no written contract of employment",
+      "expect": "NO_CONTRACT"
+    },
+    {
+      "id": "child-labour",
+      "input": "my supervisor employs child labour in the flower farm, children skip school to work",
+      "expect": "CHILD_LABOR"
+    },
+    {
+      "id": "environmental-dumping",
+      "input": "the factory dumps chemical waste into the river that we drink from",
+      "expect": "ENVIRONMENTAL_HARM"
+    },
+    {
+      "id": "land-eviction",
+      "input": "we were evicted from the land without notice and my crops are still unharvested",
+      "expect": "LAND_RIGHTS"
+    },
+    {
+      "id": "harassment",
+      "input": "my foreman sexually harasses me and threatened to fire me",
+      "expect": "GENDER_VIOLENCE"
+    },
+    {
+      "id": "no-violation-smalltalk",
+      "input": "polite greetings from Nyeri county, the weather is nice today",
+      "expect": null
+    }
+  ],
+  "countyLookup": [
+    { "id": "kericho-officer", "county": "Kericho", "expectOfficer": "Christopher Mwita" },
+    { "id": "nakuru-officer", "county": "Nakuru", "expectOfficer": "Bernard Ondimu" },
+    { "id": "busty-province", "county": "Murang'a", "expectOfficer": "Esther Wanjue Njagi" },
+    { "id": "shared-officer-kitui", "county": "Kitui", "expectOfficer": "Ephantus Mburu" },
+    { "id": "hq-fallback-busia", "county": "Busia", "expectOfficer": "See ministry HQ — no listed county officer" },
+    { "id": "hq-fallback-isiolo", "county": "Isiolo", "expectOfficer": "See ministry HQ — no listed county officer" },
+    { "id": "unknown-county", "county": "Atlantis", "expectOfficer": null }
+  ],
+  "minimumWage2026": {
+    "agriculturalDaily": 335.86,
+    "agriculturalMonthly": 7997.33,
+    "stockman": 391.14,
+    "tractorDriver": 430.52,
+    "combinedHarvester": 473.82,
+    "farmForeman": 609.66,
+    "effective": "2026-05-01"
+  }
+}

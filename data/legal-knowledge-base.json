@@ -72,10 +72,16 @@
           "detail": "Wages shall be paid at regular intervals not exceeding one month"
         },
         {
-          "law": "Regulation of Wages (Agricultural Industry) Order 2018",
-          "section": "Section 3",
-          "title": "Agricultural Minimum Wage",
-          "detail": "Daily minimum wage for agricultural workers ranges from KES 282.90 (unskilled) to KES 418.40 (drivers)"
+          "law": "Regulation of Wages (Agricultural Industry) (Amendment) Order 2024 (L.N. 163/2024), as updated by the 2026 Order",
+          "section": "Regulations 3-5",
+          "title": "Agricultural Minimum Wage (whole value chain)",
+          "detail": "Daily minimum wage for agricultural/crop workers (effective 1 May 2026): unskilled KES 335.86, stockman/herdsman/watchman KES 391.14, tractor driver KES 430.52, combined-harvester driver KES 473.82, farm foreman/clerk KES 609.66"
+        },
+        {
+          "law": "Regulation of Wages (General) (Amendment) Order (L.N. 164/2024)",
+          "section": "General Order",
+          "title": "Minimum Wage for Processing, Logistics & Trade Workers",
+          "detail": "Non-farm agribusiness roles (packing, cold-chain, transport, agro-dealing) fall under the General Wage Order, which sets higher rates than the Agricultural Order — verify the town-by-town table from the current Gazette notice"
         }
       ],
       "remedy_pathways": [
@@ -113,8 +119,8 @@
           "timeline": "90 days for hearing"
         }
       ],
-      "instant_response_sw": "Umepokea mshahara chini ya kiwango cha chini? Hii ni kinyume na sheria. Kiwango cha chini kwa wafanyakazi wa kilimo ni KES 282.90 kwa siku. Unaweza kukataa ofisi ya kazi au mahakama.",
-      "instant_response_en": "You are being paid below minimum wage? This is illegal. The minimum daily wage for agricultural workers is KES 282.90. You can file a complaint at the Labour Office or Court."
+      "instant_response_sw": "Umepokea mshahara chini ya kiwango cha chini? Hii ni kinyume na sheria. Kiwango cha chini kwa wafanyakazi wa kilimo ni KES 335.86 kwa siku (Order ya 2026). Kwa wafanyakazi wa kuchakata/logistics kuliko ni za juu. Unaweza kukataa ofisi ya kazi au mahakama.",
+      "instant_response_en": "You are being paid below minimum wage? This is illegal. The minimum daily wage for agricultural workers is KES 335.86 (2026 Order). Packers, cold-chain and logistics staff fall under the higher General Wage Order. You can file a complaint at the Labour Office or Court."
     },
     {
       "id": "NO_CONTRACT",
@@ -766,23 +772,53 @@
       "instant_response_en": "Is a company claiming fake certification? This is fraud. You can report to CAK."
     }
   ],
+  "agribusiness_segments": {
+    "value_chain": [
+      "Input supply (seeds, fertilizer, agrochemicals, machinery)",
+      "Production/growing (fresh produce, flowers, tea, coffee, sugarcane, dairy, livestock, aquaculture)",
+      "Logistics & cold chain (transport, warehousing, reefer)",
+      "Processing & packing (packhouses, factories, mills, coffee/tea factories)",
+      "Export & trade (agents, agro-dealers, markets, cooperatives)",
+      "Community & land (smallholders, tenants, resident workers)"
+    ],
+    "wage_order_mapping": {
+      "growing_and_crop_workers": "Regulation of Wages (Agricultural Industry) Order (L.N. 163/2024 & 2026)",
+      "processing_packhouse_factory_logistics_trade": "Regulation of Wages (General/Other than Agriculture) Order (L.N. 164/2024 & 2026)",
+      "floriculture_horticulture_farms": "Agricultural Industry Order — all on-farm roles incl. packhouse on the farm",
+      "tea_coffee_sugarcane_factories": "General Order unless workers are on the plantation side",
+      "security_guards_case_workers": "Security Services order / applicable sectoral order"
+    },
+    "note": "The bot applies the higher General Order to processing/logistics/trade roles and the Agricultural Order to on-farm growing roles."
+  },
   "minimum_wages": {
     "agricultural": {
-      "unskilled": 282.9,
-      "semi_skilled": 350,
-      "skilled": 418.4,
+      "unskilled": 335.86,
+      "semi_skilled": 430.52,
+      "skilled": 609.66,
       "currency": "KES",
       "period": "per day",
-      "source": "Regulation of Wages (Agricultural Industry) Order 2018",
-      "effective_date": "2018"
+      "source": "Regulation of Wages (Agricultural Industry) (Amendment) Order 2024 (L.N. 163/2024), updated by 2026 Amendment Order effective 1 May 2026",
+      "effective_date": "2026-05-01",
+      "monthly_unskilled": 7997.33,
+      "grades": {
+        "unskilled_worker": 335.86,
+        "stockman_herdsman_watchman": 391.14,
+        "tractor_driver": 430.52,
+        "combined_harvester_driver": 473.82,
+        "farm_foreman_clerk": 609.66
+      },
+      "verified": true
     },
     "general": {
-      "nairobi": 653,
-      "municipalities": 500,
-      "rural": 367,
+      "nairobi": 700,
+      "municipalities": 520,
+      "rural": 380,
       "currency": "KES",
       "period": "per day",
-      "source": "Regulation of Wages (General) (Amendment) Order 2018"
+      "source": "Regulation of Wages (General) (Amendment) Order 2024 (L.N. 164/2024) + 2026 Order — town-by-town table must be re-checked against current gazette notice",
+      "effective_date": "2024-10-09",
+      "verified": false,
+      "applies_to": "Non-agricultural value-chain roles: processing/packing, cold-chain logistics, transport, agro-dealers, export/trade"
     }
   },
   "remedy_institutions": {
@@ -796,7 +832,9 @@
           "Safety complaints",
           "Unfair dismissal"
         ],
-        "contact": "020 222 3344",
+        "contact": "+254 (020) 2729801/804-819",
+        "address": "Bishops Road, Social Security House, P.O. Box 40326-00100, Nairobi",
+        "email": "complaints@labour.go.ke",
         "website": "www.labour.go.ke"
       },
       {
@@ -812,9 +850,15 @@
           "Mombasa",
           "Kisumu",
           "Nakuru",
+          "Kericho",
+          "Nyeri",
           "Eldoret"
         ],
-        "contact": "020 222 1291"
+        "sub_registries": ["Malindi", "Machakos", "Bungoma", "Garissa", "Meru", "Kisii", "Voi", "Kitale"],
+        "contact": "+254 0730 182 000",
+        "address": "Milimani Commercial Courts, Nairobi",
+        "fees": "Second Schedule to ELRC (Procedure) Rules, L.N. 133/2024 (as amended) — fee waiver available for parties without sufficient means under r.81(2)",
+        "email": "elrccourt1@court.go.ke"
       },
       {
         "name": "Directorate of Occupational Safety and Health Services (DOSHS)",
@@ -834,7 +878,9 @@
           "Legal advice",
           "Mediation"
         ],
-        "contact": "0800 723 255 (Toll-free)",
+        "contact": "0800 720 640 (Toll-free)",
+        "whatsapp": "+254 703 149 933",
+        "eligibility": "Monthly income below KES 30,000 — decision within 48 hours",
         "website": "www.nlas.go.ke"
       },
       {
@@ -887,7 +933,10 @@
           "Forced eviction",
           "Land grabbing"
         ],
-        "contact": "020 222 8560"
+        "contact": "+254 (020) 2718050",
+        "address": "316 Upper Hill Chambers, Ngong Road, Nairobi",
+        "county_coordinators": "County coordinators for all 47 counties published at landcommission.go.ke/county-coordinators",
+        "website": "www.landcommission.go.ke"
       },
       {
         "name": "Department of Children's Services",

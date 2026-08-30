@@ -35,7 +35,7 @@ Kenya's agribusiness sector employs millions of workers, many of whom face wage 
 
 AgriShield Chatbot is an AI-powered WhatsApp bot that provides instant, grounded legal guidance to Kenyan agribusiness workers. Workers describe their workplace problems in plain language — via text, voice notes, or photographs — and the bot identifies the specific violation under Kenyan law, cites the applicable statute, and walks the user through a step-by-step remedy pathway, including which office to visit, what documents to carry, and the expected timeline.
 
-The system combines a legal knowledge base of 308 statutory passages, a BM25 retrieval engine for grounded responses, and a multi-provider large language model (LLM) pipeline that reasons through each query before generating a response. Voice notes are transcribed via Whisper, and photographs are analysed via Gemini vision to identify payslips, contracts, and workplace hazards. The bot operates in English and Swahili, requires no internet browser or smartphone app — only WhatsApp — and functions fully offline in rule-based fallback mode when no LLM API key is configured.
+The system combines a legal knowledge base of 104+ statutory passages, a BM25 retrieval engine for grounded responses, and a multi-provider large language model (LLM) pipeline that reasons through each query before generating a response. Voice notes are transcribed via Whisper, and photographs are analysed via Gemini vision to identify payslips, contracts, and workplace hazards. The bot operates in English and Swahili, requires no internet browser or smartphone app — only WhatsApp — and functions fully offline in rule-based fallback mode when no LLM API key is configured.
 
 AgriShield directly advances the objectives of the United Nations Guiding Principles on Business and Human Rights (UNGPs) by empowering rights-holders with information, lowering barriers to remedy, and creating a scalable tool for monitoring corporate human rights compliance in Kenya's agricultural sector.
 
@@ -145,7 +145,7 @@ AgriShield classifies the violation against 7 categories:
   Wage | Safety | Contract | Child Labour | Environment | Gender | Land
         |
         v
-AgriShield retrieves relevant legal passages (BM25 RAG over 308 statutes)
+AgriShield retrieves relevant legal passages (BM25 RAG over 104+ statutes)
         |
         v
 LLM reasons about the query, violation, and legal context
@@ -229,7 +229,7 @@ AgriShield is built on Node.js using the Baileys library for WhatsApp Web connec
 | WhatsApp Connection | Baileys (open-source) | WebSocket-based WhatsApp Web API; no Meta Business API fees |
 | LLM Engine | NVIDIA NIM, Groq, Google AI Studio | Multi-provider fallback chain for natural language reasoning |
 | Legal Knowledge Base | JSON (938 lines) | 7 violation categories with Swahili/English/local keywords, applicable laws, remedy pathways |
-| Legal Corpus | JSON (308 passages) | Verified statutory passages for RAG retrieval |
+| Legal Corpus | JSON (104 passages) | Verified statutory passages for RAG retrieval |
 | RAG Retrieval | BM25 (pure JS, zero dependencies) | In-memory search over legal corpus; top-3 passages per query |
 | Voice Transcription | OpenAI Whisper / Groq Whisper | Converts WhatsApp voice notes to text |
 | Image Analysis | Google Gemini Vision | Analyses photos of payslips, contracts, workplace conditions |
