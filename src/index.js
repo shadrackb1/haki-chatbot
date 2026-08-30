@@ -31,6 +31,7 @@ import { createSmsGateway } from './sms-gateway.js';
 import SmsHandler from './sms-handler.js';
 import CaseStore from './case-store.js';
 import SLAEngine from './sla-engine.js';
+import Dashboard from './dashboard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -178,6 +179,10 @@ const smsHandler = new SmsHandler({
 });
 smsHandler.start();
 console.log(`📱 SMS channel: ${smsGateway.kind} (${smsGateway.kind === 'simulator' ? 'https://localhost:' + HEALTH_PORT + '/sms console' : 'shortcode 22141'})`);
+
+// ── 企业 HRDD 仪表盘（Phase 4）──
+const dashboard = new Dashboard({ caseStore, slaEngine, monitor, smsGateway });
+dashboard.start();
 
 // 自主分发 → 无需用户触发，直接通过 WhatsApp 发出
 autonomy.onDispatch((phone, text, origin) => {

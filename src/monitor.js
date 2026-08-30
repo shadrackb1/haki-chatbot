@@ -21,6 +21,7 @@ class Monitor {
     this.port = port;
     this.server = null;
     this.sources = {};
+    this.subscribers = new Set();
     this.counters = {
       registrations: 0,
       credentialPushes: 0,
@@ -33,6 +34,11 @@ class Monitor {
 
   attachSource(name, ref) {
     this.sources[name] = ref;
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+    return () => this.subscribers.delete(fn);
   }
 
   // 自动推送：任何系统事件即时进入数据流与仪表盘
@@ -51,6 +57,10 @@ class Monitor {
     if (type === 'credentials') this.counters.credentialPushes += 1;
     if (origin === 'AUTONOMOUS_IMPORTANT_INFO' || origin === 'AUTONOMOUS_FOLLOW_UP') this.counters.autonomousInfo += 1;
     if (origin === 'KNOWN_TRIGGER') this.counters.reactive += 1;
+
+    for (const fn of this.subscribers) {
+      try { fn(event); } catch {}
+    }
 
     return event;
   }
