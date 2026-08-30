@@ -21,6 +21,10 @@ import SessionManager from './session-manager.js';
 import Monitor from './monitor.js';
 import AutonomyEngine, { ORIGINS } from './autonomy-engine.js';
 import { acquireLock, releaseLock } from './instance-lock.js';
+import EmpathyEngine from './empathy-engine.js';
+import IQEngine from './iq-engine.js';
+import CrisisSupport from './crisis-support.js';
+import LanguageLibrary from './language-library.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -79,6 +83,12 @@ const registration = new RegistrationFlow(userDb, {
   }
 });
 
+// ── 情感支持 / 危机路由 / 多语言引擎（2026 全量升级）──
+const empathy = new EmpathyEngine();
+const iq = new IQEngine();
+const crisisSupport = new CrisisSupport();
+const langLib = new LanguageLibrary();
+
 // 自主分发 → 无需用户触发，直接通过 WhatsApp 发出
 autonomy.onDispatch((phone, text, origin) => {
   if (sockRef) {
@@ -96,10 +106,12 @@ console.log('🧠 AI Engine: ' + (llmEngine.isAvailable() ? `unlocked (${llmEngi
 console.log('🎤 Voice notes: ' + (voiceHandler.enabled ? voiceHandler.providerName : '未启用'));
 console.log('🖼️ Photos: ' + (imageHandler.enabled ? `视觉模型: ${imageHandler.model}` : '未检测到（设置 GOOGLE_API_KEY 后可分析图片）'));
 console.log('💬 对话风格：拟人化并带欢迎流程');
+console.log('💛 Emotional support: ' + (crisisSupport.crisisOrganizations().length > 0 ? `${crisisSupport.crisisOrganizations().length} support lines loaded` : 'disabled'));
 
+// Real multilingual detection via LanguageLibrary (Swahili + local languages)
 function detectLanguage(text) {
-   // 暂时固定返回英语 — 优先支持英语
-   return 'en';
+  const r = langLib.detectLanguage(text);
+  return r.language || r.detected || 'en';
 }
 
 // ============================================
@@ -321,13 +333,59 @@ async function startBot() {
         }
 
         // ============================================
+        // 情感支持：危机检测在任何法律分析之前
+        // ============================================
+        empathy.setCulturalContext(from, lang);
+        const sentimentState = empathy.processSentiment(from, messageText, null);
+        const history = conversationManager.getConversationHistory(from);
+        const iqResult = iq.processMessage(from, messageText, lang, history);
+
+        const crisisResult = crisisSupport.triage(messageText, lang);
+
+        // 危机介入：优先于法律回复 — 免费支持线路 + 暖转介，绝不让机器人独自应付
+        if (crisisResult.needsCare) {
+          const crisisReply = crisisResult.response;
+          await sock.sendMessage(from, { text: toWhatsApp(crisisReply) });
+          conversationManager.addToHistory(from, 'user', messageText);
+          conversationManager.addToHistory(from, 'assistant', crisisReply);
+          conversationManager.updateContext(from, { lastIntent: 'crisis', lastTopic: `crisis:${crisisResult.level}` });
+          sessions.recordTransaction(from, {
+            direction: 'exchange',
+            userMessage: messageText.slice(0, 500),
+            botResponse: crisisReply.slice(0, 500),
+            intent: 'crisis',
+            topic: 'emotional-support',
+            language: lang,
+            crisisLevel: crisisResult.level,
+            usedLLM: false,
+            provider: null
+          });
+          monitor.push('crisis', {
+            sessionId: session.sessionId,
+            phone: from,
+            level: crisisResult.level,
+            escalate: crisisResult.escalate,
+            triggers: crisisResult.triggers.slice(0, 3).map(t => t.phrase)
+          }, ORIGINS.KNOWN_TRIGGER);
+
+          // 严重危机 → 24 小时后暖回访 + 标记转介人工/CSO 跟进
+          if (crisisResult.escalate) {
+            autonomy.scheduleFollowUp(from, 'checking in on you after your last message', 24);
+            monitor.push('crisis-escalation', {
+              sessionId: session.sessionId,
+              level: 'severe',
+              action: 'warm-handoff'
+            }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
+          }
+          console.log(`💛 Crisis intervention (${crisisResult.level}) >> ${from}`);
+          continue;
+        }
+
+        // ============================================
         // 先推理，后回答（ChatGPT 式）
         // ============================================
         // 违规分类以增强法律推理（RAG）
         const violation = classifyViolation(messageText);
-
-        // 传入对话历史以支持多轮上下文推理
-        const history = conversationManager.getConversationHistory(from);
 
         // 从语料库检索有依据的法律条文（RAG）
         const knowledge = retriever.search(messageText, 3);
@@ -374,7 +432,10 @@ async function startBot() {
           violation: violation ? violation.id : null,
           language: lang,
           usedLLM,
-          provider: result.provider || null
+          provider: provider || null,
+          sentiment: sentimentState.sentiment,
+          iqIntents: iqResult.intents,
+          crisisLevel: crisisResult.level
         });
 
         // 仪表盘：自动推送机器人活动（来源：已知触发 — 用户先发消息）
@@ -392,7 +453,7 @@ async function startBot() {
         }
 
         console.log(`✅ 已回复 ${from}（通过 ${usedLLM ? (provider ? `LLM [${provider}]` : 'LLM') : '兜底规则'})`);
-        console.log(`   意图: ${reasoning.intent} | 主题: ${reasoning.topic} | 紧急度: ${reasoning.urgency}\n`);
+        console.log(`   意图: ${reasoning.intent} | 主题: ${reasoning.topic} | 紧急度: ${reasoning.urgency} | 情绪: ${sentimentState.sentiment}\n`);
       } catch (error) {
         console.error('❌ 处理消息出错:', error);
 
