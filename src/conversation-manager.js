@@ -6,12 +6,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
-// Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Load users database
 function loadUsers() {
   try {
     if (fs.existsSync(USERS_FILE)) {
@@ -44,9 +42,6 @@ function flushPendingSave() {
   }
 }
 
-// One incoming message can touch the profile several times (lastSeen,
-// history, context). Debounce so each burst hits the disk once instead of
-// on every call; pending changes are flushed on shutdown.
 function saveUsers(users) {
   pendingUsers = users;
   if (!saveTimer) {
@@ -55,7 +50,6 @@ function saveUsers(users) {
       writeUsers(pendingUsers);
       pendingUsers = null;
     }, SAVE_DEBOUNCE_MS);
-    // A pending save alone shouldn't keep the process alive
     if (typeof saveTimer.unref === 'function') saveTimer.unref();
   }
 }
@@ -68,18 +62,12 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   });
 }
 
-// ============================================
-// CONVERSATION MANAGER
-// Makes the bot feel like talking to a real human
-// ============================================
-
 class ConversationManager {
   constructor() {
     this.users = loadUsers();
     this.conversationStates = new Map();
   }
 
-  // Get or create user profile
   getUser(phoneNumber) {
     console.log(`👤 getUser called for: ${phoneNumber}`);
     console.log(`   Exists in memory: ${!!this.users[phoneNumber]}`);
@@ -113,7 +101,6 @@ class ConversationManager {
     return this.users[phoneNumber];
   }
 
-  // Update user last seen
   updateLastSeen(phoneNumber) {
     console.log(`⏱️ updateLastSeen called for: ${phoneNumber}`);
     if (this.users[phoneNumber]) {
@@ -126,7 +113,6 @@ class ConversationManager {
     }
   }
 
-  // Mark user as no longer new
   markAsReturning(phoneNumber) {
     console.log(`🔄 markAsReturning called for: ${phoneNumber}`);
     console.log(`   Before: isNewUser = ${this.users[phoneNumber]?.isNewUser}`);
@@ -139,7 +125,6 @@ class ConversationManager {
     }
   }
 
-  // Update user context
   updateContext(phoneNumber, updates) {
     if (this.users[phoneNumber]) {
       this.users[phoneNumber].context = {
@@ -150,7 +135,6 @@ class ConversationManager {
     }
   }
 
-  // Get conversation history for a user
   getConversationHistory(phoneNumber) {
     if (this.users[phoneNumber]) {
       return this.users[phoneNumber].context.conversationHistory || [];
@@ -158,23 +142,18 @@ class ConversationManager {
     return [];
   }
 
-  // Add a message to conversation history
   addToHistory(phoneNumber, role, content) {
     if (this.users[phoneNumber]) {
       const history = this.users[phoneNumber].context.conversationHistory || [];
       history.push({ role, content, timestamp: new Date().toISOString() });
-      
-      // Keep only last 20 messages to manage context
       if (history.length > 20) {
         history.shift();
       }
-      
       this.users[phoneNumber].context.conversationHistory = history;
       saveUsers(this.users);
     }
   }
 
-  // Get conversation state
   getState(phoneNumber) {
     return this.conversationStates.get(phoneNumber) || {
       step: 'welcome',
@@ -183,48 +162,44 @@ class ConversationManager {
     };
   }
 
-  // Update conversation state
   setState(phoneNumber, state) {
     this.conversationStates.set(phoneNumber, state);
   }
 
-  // Clear conversation state
   clearState(phoneNumber) {
     this.conversationStates.delete(phoneNumber);
   }
 
-  // ============================================
-  // WELCOME FLOW FOR NEW USERS
-  // ============================================
-
   getWelcomeMessage(user, lang = 'en') {
     if (lang === 'sw') {
-      return `🇰🇪 *Karibu Haki Chatbot!*
+      return `🇰🇪 *Karibu Haki!*
 
-Mimi ni Haki. Nasaidia wafanyakazi wa mashamba nchini Kenya kufahamu haki zao chini ya sheria, na hatua za kuchukua pale haki zinapokiukwa.
+Mimi ni msaidizi wako — ninasaidia na haki za kazi: mshahara, mkataba, usalama kazini, ajira ya watoto, unyanyasaji na ardhi.
 
-Unaweza kunieleza shida yako — mshahara mdogo, kukosekana kwa mkataba, usalama kazini, unyanyasaji — nami nitakuonyesha sheria inayohusika na ofisi inayoweza kukusaidia. Au uliza chochote, kwa mfano: "mshahara wa chini ni ngapi?"
+Unaweza kuniuliza chochote sasa hivi — hakuna usajili unaohitajika. Kwa mfano:
+• "Ninalipwa KES 200 bila mkataba"
+• "Sijapata mapumziko kwa siku nyingi"
+• "Mwenye shamba hatoi mkataba"
 
-Ni nini kinatokea kazini kwako?`;
+Kwa usaidizi bora zaidi, sema "register" kuweka jina na eneo lako. Lakini si lazima — niulize tu!`;
     }
 
-    return `🇰🇪 *Welcome to Haki Chatbot!*
+    return `🇰🇪 *Welcome to Haki!*
 
-I'm Haki. I help people working on Kenya's farms and in agribusiness understand their rights under Kenyan law, and what to do when those rights are ignored.
+I'm your assistant — I help with workplace rights: wages, contracts, safety on the job, child labour, harassment and land.
 
-Tell me what's happening — low pay, no contract, unsafe conditions, harassment — and I'll show you the law that applies plus the office that can actually help. Or just ask something like "what's the minimum wage?"
+You can ask me anything right now — no registration needed. For example:
+• "I'm paid KES 200 with no contract"
+• "I've worked for days without a break"
+• "My employer won't give me a contract"
 
-So, what's going on at your workplace?`;
+For better, personalized help, say "register" to share your name and location. But it's totally optional — just ask!`;
   }
-
-  // ============================================
-  // CONVERSATIONAL RESPONSE GENERATORS
-  // ============================================
 
   getConversationalGreeting(user, lang = 'en') {
     const hour = new Date().getHours();
     let timeGreeting = '';
-    
+
     if (lang === 'sw') {
       if (hour < 12) timeGreeting = 'Habari za asubuhi';
       else if (hour < 17) timeGreeting = 'Habari za mchana';
@@ -242,67 +217,65 @@ So, what's going on at your workplace?`;
     if (lang === 'sw') {
       return `${timeGreeting}, ${user.firstName || 'rafiki'}! 👋
 
-Ni furaha kukuona tena. Kuna shida mpya kazini? Niambie yaliyotokea.
+Karibu tena. Kuna jambo jipya kuhusu kazi? Niambie kilichotokea.
 
-Ukiwa umesahau, unaweza uliza haki zako, au andika "nambari" kupata ofisi za msaada.`;
+Ukihitaji mwanzo, unaweza kuuliza kuhusu haki zako au kuandika "numbers" kupata nambari za msaada.`;
     }
 
     return `${timeGreeting}, ${user.firstName || 'friend'}! 👋
 
-Good to hear from you again. Got a new problem at work? Tell me what happened.
+Welcome back. Anything new at work? Tell me what happened.
 
-If you're not sure where to start, ask about your rights, or type "numbers" for offices that can help.`;
+If you're not sure where to start, ask about your rights or type "numbers" for helpdesk contacts.`;
   }
 
   getConversationalResponse(intent, violation, user, lang = 'en') {
-    // Add human-like conversational elements
     const empathyPhrases = {
       sw: [
-        'Samahani, hii ni pigo sana.',
-        'Pole sana. Ni vizuri uliongea.',
-        'Hilo halipo sawa kabisa.',
-        'Nasikitika unapitia hivi.'
+        'Pole sana. Hiyo si sawa.',
+        'Naelewa. Asante kwa kujitokeza.',
+        'Hii ni ngumu, lakini unafanya vyema kwa kusema.',
+        'Sikiliza, hii haki haitakiwi.'
       ],
       en: [
-        'I\'m sorry — that\'s a hard situation.',
-        'That isn\'t fair, and you\'re right to speak up.',
-        'Pole. Thanks for telling me.',
-        'That sounds exhausting to deal with.'
+        'That\'s really tough. I\'m sorry you\'re going through this.',
+        'You\'re right to speak up — this isn\'t okay.',
+        'Thanks for telling me. That takes courage.',
+        'This sounds exhausting. You deserve better.'
       ]
     };
 
     const encouragementPhrases = {
       sw: [
-        'Usiache hivi. Haki yako ina thamani.',
-        'Watu hushinda kesi kama hii. Nawe unaweza.',
-        'Hatua kwa hatua, tutafika.',
-        'Sheria iko upande wako hapa.'
+        'Usikubali hii. Haki yako ni muhimu.',
+        'Kesi kama hii zimeshinda. Na wewe unaweza.',
+        'Hatua kwa hatua. Tuko pamoja.',
+        'Sheria iko upande wako.'
       ],
       en: [
-        'Don\'t let this go — your rights matter.',
-        'People win cases like this. You can too.',
-        'One step at a time from here.',
+        'Don\'t let this slide — your rights matter.',
+        'Similar cases have been won before. You can too.',
+        'One step at a time. We\'ll get through this.',
         'The law is on your side here.'
       ]
     };
 
-    const randomEmpathy = empathyPhrases[lang][Math.floor(Math.random() * empathyPhrases[lang].length)];
-    const randomEncouragement = encouragementPhrases[lang][Math.floor(Math.random() * encouragementPhrases[lang].length)];
+    const randomEmpathy = empathyPhrases[lang]?.[Math.floor(Math.random() * (empathyPhrases[lang]?.length || 1))] || empathyPhrases.en[0];
+    const randomEncouragement = encouragementPhrases[lang]?.[Math.floor(Math.random() * (encouragementPhrases[lang]?.length || 1))] || encouragementPhrases.en[0];
 
-    // Build conversational response
     if (lang === 'sw') {
       let response = `${randomEmpathy}\n\n`;
 
       if (violation) {
-        response += `Kimsingi, unaelezea *${violation.description}*. Sheria ya Kenya haikubali hili.\n\n`;
-        response += `*Sheria inayohusika:*\n`;
+        response += `Kulingana na ulivyosema, hii ni *${violation.description}*. Sheria ya Kenya hairuhusu hii.\n\n`;
+        response += `*Sheria inayotumika:*\n`;
 
         for (const law of violation.applicable_laws) {
           response += `📜 ${law.law} (${law.section})\n`;
           response += `   "${law.detail}"\n\n`;
         }
 
-        response += `*Hatua za kufuata:*\n`;
+        response += `*Hatua unazoweza kuchukua:*\n`;
         for (const pathway of violation.remedy_pathways) {
           response += `🏛️ ${pathway.institution}\n`;
           response += `   ${pathway.action}\n`;
@@ -313,28 +286,27 @@ If you're not sure where to start, ask about your rights, or type "numbers" for 
         }
 
         response += `${randomEncouragement}\n\n`;
-        response += `Ukihitaji msaada zaidi, andika "msaada".`;
+        response += `Kwa msaada zaidi, andika "help".`;
       } else {
-        response += `Niambie zaidi kuhusu hali yako. Kwa mfano: "Nalipwa KES 200 tu kwa siku" au "Hawatupi barakoa".\n\n`;
-        response += `Au andika "haki zangu" ujue haki zako zote.`;
+        response += `Niambie zaidi kuhusu hali yako. Mfano: "Napewa KES 200 tu kwa siku" au "Wananipa barakoa tu".\n\n`;
+        response += `Au andika "rights" kuona haki zote sheria inazokupa.`;
       }
 
       return response;
     }
 
-    // English version
     let response = `${randomEmpathy}\n\n`;
 
     if (violation) {
-      response += `So you're dealing with *${violation.description}*. Kenyan law does not allow this.\n\n`;
-      response += `*The law that applies:*\n`;
+      response += `What you're describing is *${violation.description}*. Kenyan law does not allow this.\n\n`;
+      response += `*Applicable laws:*\n`;
 
       for (const law of violation.applicable_laws) {
         response += `📜 ${law.law} (${law.section})\n`;
         response += `   "${law.detail}"\n\n`;
       }
 
-      response += `*What you can do:*\n`;
+      response += `*Steps you can take:*\n`;
       for (const pathway of violation.remedy_pathways) {
         response += `🏛️ ${pathway.institution}\n`;
         response += `   ${pathway.action}\n`;
@@ -345,80 +317,65 @@ If you're not sure where to start, ask about your rights, or type "numbers" for 
       }
 
       response += `${randomEncouragement}\n\n`;
-      response += `If you need anything else, just type "help".`;
+      response += `For more help, reply "help".`;
     } else {
-      response += `Tell me a bit more about your situation. For example: "I am paid only KES 200 per day" or "They don't give us gloves".\n\n`;
-      response += `Or type "rights" to see what the law says you're entitled to.`;
+      response += `Tell me more about your situation. For example: "I'm only paid KES 200 a day" or "They don't provide gloves".\n\n`;
+      response += `Or type "rights" to see all the rights the law gives you.`;
     }
 
     return response;
   }
 
-  // ============================================
-  // CONVERSATIONAL CLARIFICATION
-  // ============================================
-
   getClarificationMessage(lang = 'en') {
     if (lang === 'sw') {
-      return `🤔 Nina taka kuelewa vizuri. Niambie zaidi: unafanya kazi gani, na tatizo hasa ni lipi? Inasaidia pia ukijua kaunti yako.
+      return `🤔 Nataka kuhakikisha nimeelewa. Tafadhali nieleze zaidi: unafanya kazi gani, na tatizo ni nini? Kujua county yako pia inasaidia.
 
-Mfano: "Nafanya kazi ya kuvuna kahawa Nyeri. Nalipwa KES 200 tu kwa siku na sina mkataba."`;
+Mfano: "Nafanya kazi ya kuvuna kahawa Nyeri, nalipwa KES 200 tu kwa siku, na sina mkataba."`;
     }
 
-    return `🤔 I want to make sure I understand you right. Tell me a bit more: what work do you do, and what exactly is the problem? Knowing your county helps too.
+    return `🤔 I want to make sure I understand correctly. Please tell me more: what kind of work do you do, and what exactly is the problem? Knowing your county also helps.
 
-For example: "I pick coffee in Nyeri and I'm paid KES 200 a day with no contract."`;
+Example: "I pick coffee in Nyeri, earn only KES 200/day, and have no contract."`;
   }
-
-  // ============================================
-  // CONVERSATIONAL FOLLOW-UPS
-  // ============================================
 
   getFollowUpMessage(user, lang = 'en') {
     const hour = new Date().getHours();
-    const timeOfDay = hour < 12 ? 'asubuhi' : hour < 17 ? 'mchana' : 'jioni';
+    const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
 
     if (lang === 'sw') {
-      return `Habari za ${timeOfDay}, ${user.firstName || 'rafiki'}! 🇰🇪
+      const timeSw = hour < 12 ? 'asubuhi' : hour < 17 ? 'mchana' : 'jioni';
+      return `Habari za ${timeSw}, ${user.firstName || 'rafiki'}! 🇰🇪
 
-Kuna jambo jipya? Ikiwa ulikuwa na tatizo lililopita, niambie ulivyofika nayo.`;
+Kuna jambo jipya? Ukiwa na swali la awali, niambie umefikia hatua gani.`;
     }
 
     return `Good ${timeOfDay}, ${user.firstName || 'friend'}! 🇰🇪
 
-Anything new? If you had a problem earlier, let me know how far you've gotten with it — happy to pick it up from there.`;
+Any updates? If you had a previous issue, tell me where things stand — we can pick up from there.`;
   }
-
-  // ============================================
-  // HUMAN-LIKE ERROR HANDLING
-  // ============================================
 
   getErrorMessage(lang = 'en') {
     if (lang === 'sw') {
-      return `😅 Samahani, kuna hitilafu upande wangu. Tuma ujumbe tena tafadhali.
+      return `😅 Pole, kuna tatizo upande wangu. Tafadhali tuma tena ujumbe wako.
 
-Ikiwa itaendelea, piga NLAS bure: 0800 723 255.`;
+Endelea kutokea, piga NLAS kwa nambari hii: 0800 723 255.`;
     }
 
-    return `😅 Sorry, something went wrong on my end. Could you send that again?
+    return `😅 Sorry, something went wrong on my end. Could you try sending your message again?
 
-If it keeps happening, call NLAS for free on 0800 723 255.`;
+If this keeps happening, call NLAS toll-free: 0800 723 255.`;
   }
-
-  // ============================================
-  // HUMAN-LIKE CLOSING
-  // ============================================
 
   getClosingMessage(user, lang = 'en') {
     if (lang === 'sw') {
-      return `🙏 Asante sana, ${user.firstName || 'rafiki'}! Haki yako ina thamani — usiache kuifuatilia.
+      return `🙏 Asante sana, ${user.firstName || 'rafiki'}! Haki yako inastahili kupigania — usiache kufuatilia.
 
-NLAS wanatoa msaada wa kisheria bure: 0800 723 255. Karibu tena ukihitaji. 🇰🇪`;
+NLAS wanatoa msaada wa kisheria bila malipo: 0800 723 255. Rejea wakati wowote. 🇰🇪`;
     }
 
-    return `🙏 Thank you, ${user.firstName || 'friend'}! Your rights are worth fighting for — don't let this drop.
+    return `🙏 Thank you so much, ${user.firstName || 'friend'}! Your rights are worth fighting for — don't let this drop.
 
-NLAS gives free legal help if you need a person to talk to: 0800 723 255. Come back any time. 🇰🇪`;
+If you want to talk to a real person, NLAS offers free legal aid: 0800 723 255. Come back anytime. 🇰🇪`;
   }
 }
 

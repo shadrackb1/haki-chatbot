@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import LLMRouter from './llm-router.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +13,7 @@ const legalKB = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'l
 
 // ============================================
 // LLM PROVIDER CONFIGURATION
-// Priority: NVIDIA → Groq → Google AI Studio
+// All configured keys stay active. Routing (llm-router.js) rotates across them.
 // ============================================
 
 const LLM_PROVIDERS = {
@@ -42,21 +43,36 @@ const LLM_PROVIDERS = {
   }
 };
 
-// Provider priority order (first enabled wins)
-const PROVIDER_PRIORITY = ['nvidia', 'groq', 'google'];
-
 class LLMReasoningEngine {
   constructor() {
-    // Find the first available provider
-    this.activeProvider = PROVIDER_PRIORITY.find(p => LLM_PROVIDERS[p].enabled);
-    this.enabled = !!this.activeProvider;
-    
+    // Build a provider pool from every configured key. The router rotates
+    // across ALL active providers (round-robin by default) with retry,
+    // failure-weighting and cascade — no key sits unused.
+    this.router = new LLMRouter(
+      Object.entries(LLM_PROVIDERS).map(([key, p]) => ({
+        key,
+        name: p.name,
+        model: p.model,
+        enabled: p.enabled
+      }))
+    );
+    this.enabled = this.router.any();
+    this._lastProvider = null;
+
     if (this.enabled) {
-      const provider = LLM_PROVIDERS[this.activeProvider];
-      console.log(`🤖 LLM Engine initialized with: ${provider.name} (${provider.model})`);
+      const active = this.router.enabled();
+      console.log(`🤖 LLM Engine unlocked (${this.router.mode}): ${active.map(p => `${p.name} [${p.model}]`).join(' · ')}`);
     } else {
       console.log('⚠️ No LLM provider configured - using rule-based fallback only');
     }
+  }
+
+  getActiveProviders() {
+    return this.router.enabled().map(p => ({ key: p.key, name: p.name, model: p.model }));
+  }
+
+  getRouterSnapshot() {
+    return this.router.snapshot();
   }
 
   // ============================================
@@ -68,23 +84,25 @@ class LLMReasoningEngine {
 
   async processMessage(message, userContext = {}) {
     if (!this.enabled) {
+      console.log('⚠️ No LLM available — using rule-based fallback');
       return this.fallbackProcess(message, userContext);
     }
 
+    // Resolve the routing order ONCE per message so "reason" and "generate
+    // response" use the same provider. context.llm = { provider, mode } lets a
+    // caller force a specific provider or mode for any single message.
+    const llmOpts = userContext.llm && typeof userContext.llm === 'object' ? userContext.llm : {};
+    const order = this.router.order(llmOpts.provider, llmOpts.mode);
+
     try {
-      // Step 1: REASON about the message
-      const reasoning = await this.reason(message, userContext);
-      
-      // Step 2: GENERATE response based on reasoning
-      const response = await this.generateResponseFromReasoning(message, reasoning, userContext);
-      
-      return {
-        reasoning,
-        response,
-        usedLLM: true
-      };
+      const reasoning = await this.reason(message, userContext, order);
+      const response = await this.generateResponseFromReasoning(message, reasoning, userContext, order);
+      const provider = this._lastProvider;
+      this._lastProvider = null;
+      return { reasoning, response, usedLLM: true, provider };
     } catch (error) {
-      console.log('⚠️ LLM processing failed, using fallback');
+      this._lastProvider = null;
+      console.log(`⚠️ LLM pipeline failed (${error.message}) — falling back to rules`);
       return this.fallbackProcess(message, userContext);
     }
   }
@@ -135,7 +153,7 @@ class LLMReasoningEngine {
     ];
   }
 
-  async reason(message, context = {}) {
+  async reason(message, context = {}, order = null) {
     const violationInfo = context.violation;
     let violationContext = '';
 
@@ -165,7 +183,7 @@ Use this specific legal information to inform your reasoning about the user's me
       conversationCount: context.conversationCount
     });
 
-    const systemPrompt = `You are Haki, an AI assistant for Kenyan agribusiness workers' rights. You must think step by step before responding.
+    const systemPrompt = `You are Haki, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers. You protect workplace rights under Kenyan law: wages, contracts, working conditions, safety, child labour, harassment, environmental harm and land issues. You must think step by step before responding.
 
 REASONING PROCESS:
 1. **Understand**: What is the user really asking or saying?
@@ -197,7 +215,8 @@ Return your reasoning as a JSON object:
   "language": "en"
 }`;
 
-    const response = await this.callLLM(this.buildMessages(systemPrompt, message, context));
+    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), { order });
+    this._lastProvider = provider;
 
     const content = response.choices[0].message.content;
 
@@ -215,14 +234,38 @@ Return your reasoning as a JSON object:
       console.log(`⚠️ Reasoning returned no JSON. Raw: ${content.slice(0, 300)}`);
     }
 
-    return this.normalizeReasoning({}, message);
+    // Prose fallback: LLM answered in free text instead of JSON.
+    // Try to extract intent/topic from keywords in the response.
+    const lc = content.toLowerCase();
+    const proseFallback = {
+      understanding: content.slice(0, 200),
+      intent: /greet|hello|welcome/i.test(lc) ? 'greeting'
+        : /thank|appreciate/i.test(lc) ? 'thanks'
+        : /wage|pay|salary|mshahara/i.test(lc) ? 'request'
+        : /violation|illegal|unlawful|breach/i.test(lc) ? 'request'
+        : 'question',
+      topic: /wage|pay|salary|mshahara/i.test(lc) ? 'wages'
+        : /safety|hazard|ppe|barakoa/i.test(lc) ? 'safety'
+        : /contract|mkataba/i.test(lc) ? 'contract'
+        : /child|minor|mtoto/i.test(lc) ? 'child_labor'
+        : /harass|abuse|nyanyasaji/i.test(lc) ? 'gender'
+        : 'other',
+      sentiment: /urgent|emergency|scared|afraid/i.test(lc) ? 'urgent'
+        : /frustrated|angry|upset/i.test(lc) ? 'frustrated'
+        : 'neutral',
+      urgency: /urgent|emergency|immediate/i.test(lc) ? 'immediate' : 'routine',
+      key_points: [],
+      response_strategy: 'answer directly',
+      language: 'en'
+    };
+    return this.normalizeReasoning(proseFallback, message);
   }
 
   // ============================================
   // STEP 2: GENERATE RESPONSE FROM REASONING
   // ============================================
 
-  async generateResponseFromReasoning(message, reasoning, context = {}) {
+  async generateResponseFromReasoning(message, reasoning, context = {}, order = null) {
     const violationInfo = context.violation;
     let violationContext = '';
     let violationInstructions = '';
@@ -253,7 +296,7 @@ Since a specific violation has been classified, your response should:
            .join('\n')
        : 'None retrieved.';
 
-     const systemPrompt = `You are Haki, a helpful assistant for Kenyan agribusiness workers' rights.
+     const systemPrompt = `You are Haki, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers, protecting workplace rights under Kenyan law.
 
 Based on your reasoning, generate a response:
 
@@ -299,38 +342,54 @@ If it's unclear:
 
 Keep responses under 200 words unless detailed legal steps are needed.`;
 
-    const response = await this.callLLM(this.buildMessages(systemPrompt, message, context));
+    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), { order });
+    this._lastProvider = provider;
 
     return response.choices[0].message.content;
   }
 
   // ============================================
-  // MULTI-PROVIDER LLM API CALL WITH FALLBACK
+  // MULTI-PROVIDER LLM API CALL
+  // Rotates across every active key (router), retries transient errors up to
+  // twice per provider, then cascades to the next provider in the order.
   // ============================================
 
-  async callLLM(messages) {
-    // Try providers in priority order
-    for (const providerKey of PROVIDER_PRIORITY) {
-      const provider = LLM_PROVIDERS[providerKey];
-      
-      if (!provider.enabled) {
-        continue;
-      }
-      
-      try {
-        console.log(`🤖 Trying ${provider.name}: ${provider.model}`);
-        const result = await this.callProvider(provider, messages);
-        console.log(`✅ ${provider.name} responded successfully`);
-        return result;
-      } catch (error) {
-        console.log(`❌ ${provider.name} failed: ${error.message}`);
-        // Continue to next provider
-        continue;
+  async callLLM(messages, options = {}) {
+    const active = this.router.enabled();
+    if (active.length === 0) throw new Error('No LLM provider configured');
+
+    const order = Array.isArray(options.order) && options.order.length > 0
+      ? options.order
+      : this.router.order(options.provider, options.mode);
+
+    let lastError = null;
+
+    for (const key of order) {
+      const provider = LLM_PROVIDERS[key];
+      if (!provider || !provider.enabled) continue;
+
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          console.log(`🤖 ${provider.name} attempt ${attempt}`);
+          const result = await this.callProvider(provider, messages);
+          console.log(`✅ ${provider.name} OK`);
+          this.router.record(key, true);
+          return { response: result, provider: key };
+        } catch (error) {
+          lastError = error;
+          this.router.record(key, false);
+          const isTransient = /429|500|503|ECONNRESET|ETIMEDOUT/i.test(error.message);
+          console.log(`❌ ${provider.name} attempt ${attempt}: ${error.message}`);
+          if (isTransient && attempt < 2) {
+            await new Promise(r => setTimeout(r, attempt * 2000));
+            continue;
+          }
+          break; // non-transient or last attempt → next provider
+        }
       }
     }
-    
-    // All providers failed
-    throw new Error('All LLM providers failed');
+
+    throw lastError || new Error('All LLM providers failed');
   }
 
   async callProvider(provider, messages) {
@@ -473,7 +532,7 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
     // Generate simple response
     const response = this.generateSimpleResponse(message, reasoning, context);
 
-    return { reasoning, response, usedLLM: false };
+    return { reasoning, response, usedLLM: false, provider: null };
   }
 
   generateSimpleResponse(message, reasoning, context) {
@@ -482,8 +541,8 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
 
     if (reasoning.intent === 'greeting') {
       return lang === 'sw'
-        ? 'Habari! Karibu Haki Chatbot. Nasaidia na masuala ya haki za kazi — mshahara, mkataba, usalama. Ni nini kinakusumbua?'
-        : 'Hello! Welcome to Haki Chatbot. I help with workplace rights in Kenya — wages, contracts, safety. What\'s going on?';
+        ? 'Habari! Karibu Haki. Nasaidia na haki za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji na ardhi. Ni nini kinakusumbua?'
+        : 'Hello! Welcome to Haki. I help with workplace rights — wages, contracts, safety, child labour, harassment and land. What can I do for you?';
     }
 
     if (reasoning.intent === 'thanks') {

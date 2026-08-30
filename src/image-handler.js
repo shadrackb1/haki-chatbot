@@ -26,7 +26,7 @@ class ImageHandler {
     }
 
     try {
-      const instruction = `You are the eyes of Haki, a workplace rights assistant for workers in Kenya's agribusiness sector. A worker sent this photo on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Look closely and report:
+      const instruction = `You are the eyes of Haki, a WhatsApp rights-assistant for Kenya's agribusiness workers. A worker sent this photo on WhatsApp${caption ? ` with the message: "${caption}"` : ''}. Look closely and report:
 - Scene: setting, location clues, lighting or time-of-day hints.
 - People: how many, what they are doing, visible injuries, protective equipment or its absence.
 - Text: transcribe ALL legible text verbatim — payslips, contracts, notices, signs, labels. Copy every number, date, name and amount exactly as written. Mark barely-legible parts with [?].
