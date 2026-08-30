@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import { SmsHandler } from '../src/sms-handler.js';
 import { createSmsGateway } from '../src/sms-gateway.js';
+import CaseStore from '../src/case-store.js';
+import SLAEngine from '../src/sla-engine.js';
 
 function stubPipeline(result) {
   return {
@@ -108,4 +113,48 @@ test('gateway start() routes inbound messages into the handler', async () => {
   await new Promise((r) => setTimeout(r, 10));
   assert.equal(gateway.outbox.length, 1, 'bot should reply to the injected SMS');
   handler.stop();
+});
+
+test('opens a tracked case with an SLA deadline for violations', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-sms-cases-'));
+  const caseStore = new CaseStore({ path: path.join(dir, 'cases.json') });
+  const slaEngine = new SLAEngine({ caseStore });
+  const gateway = createSmsGateway('simulator');
+  const handler = new SmsHandler({
+    pipeline: stubPipeline({
+      kind: 'normal',
+      reply: 'Let us check.',
+      reasoning: { intent: 'request', topic: 'safety' },
+      violation: { id: 'SAFETY_VIOLATION', data: {} }
+    }),
+    gateway,
+    conversationManager: stubConversation(),
+    caseStore,
+    slaEngine
+  });
+
+  await handler.handle({ from: '0712345678', text: 'Hakuna PPE!' });
+  assert.equal(caseStore.stats().total, 1);
+  const c = caseStore.all()[0];
+  assert.equal(c.channel, 'sms');
+  assert.equal(c.violation, 'SAFETY_VIOLATION');
+  assert.match(c.caseId, /^HAKI-/);
+  assert.ok(c.slaDeadline, 'must carry a computed SLA deadline');
+  assert.ok(new Date(c.slaDeadline) > new Date());
+});
+
+test('does not open a case for casual chatter', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'haki-sms-cases-'));
+  const caseStore = new CaseStore({ path: path.join(dir, 'cases.json') });
+  const gateway = createSmsGateway('simulator');
+  const handler = new SmsHandler({
+    pipeline: stubPipeline({ kind: 'normal', reply: 'Karibu', reasoning: {}, violation: null }),
+    gateway,
+    conversationManager: stubConversation(),
+    caseStore,
+    slaEngine: new SLAEngine({ caseStore })
+  });
+
+  await handler.handle({ from: '0712345678', text: 'Asante' });
+  assert.equal(caseStore.stats().total, 0);
 });

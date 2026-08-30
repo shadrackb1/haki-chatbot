@@ -14,12 +14,16 @@ class SmsHandler {
     gateway,
     conversationManager,
     monitor,
+    caseStore = null,
+    slaEngine = null,
     maxLength = 480
   }) {
     this.pipeline = pipeline;
     this.gateway = gateway;
     this.conversationManager = conversationManager;
     this.monitor = monitor || null;
+    this.caseStore = caseStore;
+    this.slaEngine = slaEngine;
     this.maxLength = maxLength;
   }
 
@@ -65,6 +69,8 @@ class SmsHandler {
         : undefined
     });
 
+    this._openCaseIfNeeded(result, callerId);
+
     // reply in whatever language the pipeline produced, split for SMS
     const reply = result.reply || result.error || 'Sorry, something went wrong.';
     const segments = this.chunk(reply);
@@ -100,6 +106,29 @@ class SmsHandler {
       return { ok: true, kind: 'crisis', escalate: true, sent, reply };
     }
     return { ok: true, kind: result.kind, sent, reply };
+  }
+
+  // Serious matters (crisis escalation or a classified violation) get a
+  // tracked case with an SLA deadline, just like WhatsApp.
+  _openCaseIfNeeded(result, callerId) {
+    if (!this.caseStore || !result || result.kind === 'error') return null;
+    const severe = result.kind === 'crisis' && result.crisisResult && result.crisisResult.level === 'severe';
+    if (!severe && !result.violation) return null;
+    const user = this.conversationManager ? this.conversationManager.getUser(callerId) : null;
+    return this.caseStore.create({
+      channel: 'sms',
+      phone: callerId,
+      county: user && user.location ? user.location : 'unknown',
+      category: result.violation ? result.violation.id.toLowerCase().replace('_', ' ') : 'crisis',
+      violation: result.violation ? result.violation.id : null,
+      crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
+      slaDeadline: this.slaEngine
+        ? this.slaEngine.deadlineFor({
+            crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
+            violation: result.violation ? result.violation.id : null
+          })
+        : null
+    });
   }
 
   // Attach to the gateway's inbound callback.

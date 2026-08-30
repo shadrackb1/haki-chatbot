@@ -29,6 +29,8 @@ import CrisisSupport from './crisis-support.js';
 import LanguageLibrary from './language-library.js';
 import { createSmsGateway } from './sms-gateway.js';
 import SmsHandler from './sms-handler.js';
+import CaseStore from './case-store.js';
+import SLAEngine from './sla-engine.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -136,7 +138,44 @@ const pipeline = new GrievancePipeline({ llmEngine, retriever, embedder, empathy
 
 // ── SMS 入口：复用共享管线，按 MSISDN 建档（模拟器 / TextBee / Gammu）──
 smsGateway = createSmsGateway();
-const smsHandler = new SmsHandler({ pipeline, gateway: smsGateway, conversationManager, monitor });
+
+// ── 案例台账 + SLA 升级（Phase 3）──
+const caseStore = new CaseStore();
+const slaEngine = new SLAEngine({
+  caseStore,
+  monitor,
+  csoContacts: (process.env.CSO_CONTACTS || '').split(',').map(s => s.trim()).filter(Boolean)
+});
+slaEngine.start();
+console.log(`📋 Case store: ${caseStore.stats().total} cases on file`);
+
+// 严重事项自动开案（WhatsApp 与 SMS 共用）
+function openCaseIfNeeded(result, channel, callerId, county) {
+  if (!result || result.kind === 'error') return null;
+  const severe = result.kind === 'crisis' && result.crisisResult && result.crisisResult.level === 'severe';
+  if (!severe && !result.violation) return null;
+  return caseStore.create({
+    channel,
+    phone: callerId,
+    county,
+    category: result.violation ? result.violation.id.toLowerCase().replace('_', ' ') : 'crisis',
+    violation: result.violation ? result.violation.id : null,
+    crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
+    slaDeadline: slaEngine.deadlineFor({
+      crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
+      violation: result.violation ? result.violation.id : null
+    })
+  });
+}
+
+const smsHandler = new SmsHandler({
+  pipeline,
+  gateway: smsGateway,
+  conversationManager,
+  monitor,
+  caseStore,
+  slaEngine
+});
 smsHandler.start();
 console.log(`📱 SMS channel: ${smsGateway.kind} (${smsGateway.kind === 'simulator' ? 'https://localhost:' + HEALTH_PORT + '/sms console' : 'shortcode 22141'})`);
 
@@ -455,6 +494,7 @@ async function startBot() {
               level: 'severe',
               action: 'warm-handoff'
             }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
+            openCaseIfNeeded(result, 'whatsapp', from, user.location); // 计入 SLA 台账
           }
           console.log(`💛 Crisis intervention (${result.crisisResult.level}) >> ${from}`);
           continue;
@@ -504,6 +544,7 @@ async function startBot() {
         if (result.violation && ['WAGE_VIOLATION', 'SAFETY_VIOLATION', 'HARASSMENT'].includes(result.violation.id)) {
           autonomy.scheduleFollowUp(from, `The ${result.violation.id.toLowerCase().replace('_', ' ')} issue you reported`);
           monitor.push('follow-up-scheduled', { sessionId: session.sessionId, violation: result.violation.id }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
+          openCaseIfNeeded(result, 'whatsapp', from, user.location); // 计入 SLA 台账
         }
 
         console.log(`✅ 已回复 ${from}（通过 ${result.usedLLM ? (result.provider ? `LLM [${result.provider}${result.tier ? ':' + result.tier : ''}]` : 'LLM') : '兜底规则'}${result.analysisTranslated ? ' · 已回译' : ''}）`);
