@@ -16,15 +16,6 @@ class EmbeddingEngine {
 
     this.providers = [
       {
-        key: 'nvidia',
-        name: 'NVIDIA NV-Embed',
-        apiKey: nvidiaKey,
-        apiUrl: options.nvidiaUrl || process.env.NVIDIA_EMBED_URL || 'https://integrate.api.nvidia.com/v1/embeddings',
-        model: options.nvidiaModel || process.env.NVIDIA_EMBED_MODEL || 'nvidia/nv-embed-v1',
-        format: 'openai',
-        enabled: !!nvidiaKey
-      },
-      {
         key: 'google',
         name: 'Google text-embedding',
         apiKey: googleKey,
@@ -32,6 +23,15 @@ class EmbeddingEngine {
         model: options.googleModel || process.env.GOOGLE_EMBED_MODEL || 'text-embedding-004',
         format: 'google',
         enabled: !!googleKey
+      },
+      {
+        key: 'nvidia',
+        name: 'NVIDIA NV-Embed',
+        apiKey: nvidiaKey,
+        apiUrl: options.nvidiaUrl || process.env.NVIDIA_EMBED_URL || 'https://integrate.api.nvidia.com/v1/embeddings',
+        model: options.nvidiaModel || process.env.NVIDIA_EMBED_MODEL || 'nvidia/nv-embed-v1',
+        format: 'openai',
+        enabled: !!nvidiaKey
       }
     ];
 
@@ -152,18 +152,25 @@ class EmbeddingEngine {
       return [Array.isArray(values) ? values : null];
     }
 
-    const res = await this.fetchFn(`${provider.apiUrl}/${provider.model}:batchEmbedContents?key=${provider.apiKey}`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        requests: texts.map((t) => ({ model: `models/${provider.model}`, content: { parts: [{ text: t }] } }))
-      })
-    });
-    if (!res.ok) {
-      throw new Error(`Google embeddings ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`);
+    // Google batchEmbedContents caps at 100 requests per call — chunk larger batches.
+    const BATCH = 100;
+    const allResults = [];
+    for (let i = 0; i < texts.length; i += BATCH) {
+      const chunk = texts.slice(i, i + BATCH);
+      const res = await this.fetchFn(`${provider.apiUrl}/${provider.model}:batchEmbedContents?key=${provider.apiKey}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          requests: chunk.map((t) => ({ model: `models/${provider.model}`, content: { parts: [{ text: t }] } }))
+        })
+      });
+      if (!res.ok) {
+        throw new Error(`Google embeddings ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`);
+      }
+      const data = await res.json();
+      allResults.push(...(data.embeddings || []).map((e) => e?.values));
     }
-    const data = await res.json();
-    return (data.embeddings || []).map((e) => e?.values);
+    return allResults;
   }
 
   // L2-normalize a vector (best cosine performance + fair dot-product scoring).

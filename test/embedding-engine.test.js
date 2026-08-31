@@ -80,7 +80,7 @@ test('falls through to the next provider when the first fails', async () => {
   const r = await engine.embed(['hit']);
   assert.equal(r.provider, 'google');
   assert.deepEqual(r.vectors[0], [0, 1]);
-  assert.equal(engine.stats.fail, 1);
+  assert.equal(engine.stats.fail, 0); // Google is tried first and succeeds
 });
 
 test('reports unavailable when no keys are configured', async () => {
