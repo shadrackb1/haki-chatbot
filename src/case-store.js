@@ -64,7 +64,7 @@ class CaseStore {
 
   // Open a case. `slaDeadline` is computed by the SLA engine and attached
   // here so the audit trail carries the expected turnaround at creation.
-  create({ channel, phone, county, category = 'general', violation = null, crisisLevel = 'none', slaDeadline = null, ref = '' }) {
+  create({ channel, phone, county, category = 'general', violation = null, crisisLevel = 'none', slaDeadline = null, ref = '', sentiment = null, workType = null }) {
     const record = {
       caseId: this._nextCaseId(),
       channel,
@@ -73,6 +73,8 @@ class CaseStore {
       category,
       violation,
       crisisLevel,
+      sentiment,
+      workType,
       status: 'IN_REVIEW',
       createdAt: new Date().toISOString(),
       slaDeadline: slaDeadline ? new Date(slaDeadline).toISOString() : null,

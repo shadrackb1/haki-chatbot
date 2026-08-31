@@ -43,6 +43,7 @@ pre{background:#1c2b22;color:#c8f0d8;padding:10px;border-radius:8px;font-size:11
 <div class="grid" id="kpis"></div>
 <div class="row">
   <div class="col card"><h3>County risk hotspots</h3><div id="hotspots"></div></div>
+  <div class="col card"><h3>Sentiment heatmap by county</h3><div id="sentiment"></div></div>
   <div class="col card"><h3>SLA windows</h3><table><tbody id="sla-windows"></tbody></table>
       <h3>Overdue</h3><table><thead><tr><th>Case</th><th>Category</th><th>Overdue</th><th>Status</th></tr></thead><tbody id="overdue"></tbody></table></div>
 </div>
@@ -62,15 +63,20 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 async function load(){
   try{
-    const [o,c,h,s,sms]=await Promise.all([
+    const [o,c,h,s,sms,sen]=await Promise.all([
       fetch('/api/overview').then(r=>r.json()),
       fetch('/api/cases').then(r=>r.json()),
       fetch('/api/hotspots').then(r=>r.json()),
       fetch('/api/sla').then(r=>r.json()),
-      fetch('/api/sms').then(r=>r.json())]);
+      fetch('/api/sms').then(r=>r.json()),
+      fetch('/api/sentiment').then(r=>r.json())]);
     $('kpis').innerHTML=Object.entries(o.kpis).map(([k,v])=>'<div class="card"><h3>'+esc(k)+'</h3><div class="kpi">'+esc(String(v))+'</div></div>').join('');
     const max=Math.max(1,...h.map(x=>x.count));
     $('hotspots').innerHTML=h.length?h.map(x=>'<div class="bar-wrap"><span class="bar-label">'+esc(x.county)+'</span><div class="bar" style="width:'+Math.round(100*x.count/max)+'%"></div><span>'+x.count+'</span></div>').join(''):'<div>No cases yet.</div>';
+    $('sentiment').innerHTML=(sen.counties.length?sen.counties.map(x=>{
+      const color= x.heat>=60?'#b3261e':x.heat>=30?'#e08a3d':'#3d8a5a';
+      return '<div class="bar-wrap"><span class="bar-label">'+esc(x.county)+'</span><div class="bar bar-heat" style="width:'+x.heat+'%;background:'+color+'"></div><span>'+x.heat+'%</span></div>';
+    }).join('')+('<div style="margin-top:8px;font-size:12px;color:#5c6b60">Red = high distress · '+sen.totals.negative+'/'+sen.totals.cases+' negative</div>'):'<div>No cases yet.</div>');
     $('sla-windows').innerHTML=Object.entries(s.windows).map(([k,v])=>'<tr><td>'+k+'</td><td>'+v+'h</td></tr>').join('');
     $('overdue').innerHTML=s.overdue.length?s.overdue.map(x=>'<tr><td>'+esc(x.caseId)+'</td><td>'+esc(x.category)+'</td><td class="sla-warn">'+x.overdueByH+'h</td><td>'+esc(x.status)+'</td></tr>').join(''):'<tr><td colspan=4>Nothing overdue 🎉</td></tr>';
     const counties=new Set(c.map(x=>x.county));$('f-county').innerHTML='<option value="">all counties</option>'+[...counties].map(x=>'<option>'+esc(x)+'</option>').join('');
@@ -153,6 +159,31 @@ class Dashboard {
     return { windows: WINDOW_HOURS, overdue, upcoming };
   }
 
+  // Sentiment heatmap: aggregate case sentiment by county (anonymized).
+  _sentimentView() {
+    const order = { fearful: 5, angry: 4, sad: 3, urgent: 3, negative: 2, frustrated: 2, neutral: 1, positive: 0, hopeful: 0 };
+    const byCounty = new Map();
+    for (const c of this.caseStore ? this.caseStore.all() : []) {
+      const key = c.county || '(unknown)';
+      if (!byCounty.has(key)) byCounty.set(key, { county: key, total: 0, negative: 0, distribution: {} });
+      const e = byCounty.get(key);
+      e.total += 1;
+      const sent = c.sentiment || 'neutral';
+      e.distribution[sent] = (e.distribution[sent] || 0) + 1;
+      if ((order[sent] ?? 1) >= 2) e.negative += 1;
+    }
+    const arr = [...byCounty.values()].map((e) => ({
+      county: e.county,
+      total: e.total,
+      negative: e.negative,
+      // normalized red-zone intensity 0..100 (share of negative sentiment)
+      heat: e.total ? Math.round((e.negative / e.total) * 100) : 0,
+      distribution: e.distribution
+    }));
+    arr.sort((a, b) => b.heat - a.heat || b.total - a.total);
+    return { counties: arr, totals: { cases: arr.reduce((s, c) => s + c.total, 0), negative: arr.reduce((s, c) => s + c.negative, 0) } };
+  }
+
   _smsView() {
     const g = this.smsGateway;
     if (!g) return { kind: 'none', inbox: [], outbox: [] };
@@ -170,6 +201,7 @@ class Dashboard {
     app.get('/api/overview', (_req, res) => res.json(this._overview()));
     app.get('/api/hotspots', (_req, res) => res.json(this._hotspots()));
     app.get('/api/sla', (_req, res) => res.json(this._slaView()));
+    app.get('/api/sentiment', (_req, res) => res.json(this._sentimentView()));
     app.get('/api/sms', (_req, res) => res.json(this._smsView()));
     app.post('/api/sms/inject', (req, res) => {
       if (!this.smsGateway || this.smsGateway.kind !== 'simulator') {

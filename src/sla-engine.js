@@ -3,16 +3,16 @@
 // Per-severity turnaround windows aligned with UNGP 31 (legitimate,
 // equitable, transparent) timelines:
 //   crisis   → 2 hours   (mental-health / severe safety)
-//   critical → 24 hours  (SAFETY_VIOLATION, HARASSMENT)
-//   standard → 72 hours  (wage, contract, child labour, environment, land)
+//   critical → 24 hours  (SAFETY_VIOLATION, GENDER_VIOLENCE)
+//   standard → 72 hours  (wage, no-contract, child labour, environment, land)
 //   info     → 5 days    (general inquiries)
 // On each tick, any IN_REVIEW case past its deadline is escalated and an
 // event lands in Monitor (and CSO contacts get notified via callback).
 // ============================================
 
 export const WINDOW_HOURS = { crisis: 2, critical: 24, standard: 72, info: 120 };
-export const CRITICAL_VIOLATIONS = ['SAFETY_VIOLATION', 'HARASSMENT'];
-export const STANDARD_VIOLATIONS = ['WAGE_VIOLATION', 'CONTRACT_VIOLATION', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS'];
+export const CRITICAL_VIOLATIONS = ['SAFETY_VIOLATION', 'GENDER_VIOLENCE'];
+export const STANDARD_VIOLATIONS = ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS'];
 
 export function severityFor({ crisisLevel, violation } = {}) {
   if (String(crisisLevel || '').toLowerCase() === 'severe') return 'crisis';

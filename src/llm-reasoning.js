@@ -383,6 +383,14 @@ Since a specific violation has been classified, your response should:
 - Email: ${context.countyOffice.email}`
       : '';
 
+    const respUserProfile = JSON.stringify({
+      language: context.language,
+      location: context.location,
+      workType: context.workType,
+      isNewUser: context.isNewUser,
+      conversationCount: context.conversationCount
+    });
+
      const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers, protecting workplace rights under Kenyan law.
 
 Based on your reasoning, generate a response:
@@ -398,6 +406,9 @@ REASONING SUMMARY:
 SUPPORTING LEGAL PASSAGES (cite these when relevant — use exact wording so the worker knows their rights):
 ${knowledgePassages}
 ${countyOffice}
+
+USER PROFILE (tailor the reply to these when relevant — e.g. reference their county office, sector, or that these are known details, not assumptions):
+${respUserProfile}
 
 RESPONSE RULES:
 1. **Write like a WhatsApp text from a knowledgeable friend** - not like an essay or a customer service bot
@@ -702,9 +713,16 @@ Keep responses under 200 words unless detailed legal steps are needed.`;
       ? `\n📍 ${context.countyOffice.county}: ${context.countyOffice.officer} (${context.countyOffice.office_location})\n   ${context.countyOffice.mobile || context.countyOffice.tel}\n   ${context.countyOffice.email}`
       : '';
 
+    // 多轮记忆：把已登记的行业融入兜底建议（若已知）
+    const workTypeNote = context.workType
+      ? (lang === 'sw'
+        ? `\n🏷️ Katika sekta yako (${context.workType}), hifadhi muda wa kazi, malipo na barua zozote.`
+        : `\n🏷️ In your line of work (${context.workType}), keep records of hours, pay and any papers.`)
+      : '';
+
     response += '\n' + (lang === 'sw'
       ? '📞 NLAS (Bure): 0800 720 640\n💬 WhatsApp: +254 703 149 933'
-      : '📞 NLAS (Free): 0800 720 640\n💬 WhatsApp: +254 703 149 933') + countyOffice;
+      : '📞 NLAS (Free): 0800 720 640\n💬 WhatsApp: +254 703 149 933') + workTypeNote + countyOffice;
 
     return response;
   }

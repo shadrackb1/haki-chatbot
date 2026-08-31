@@ -33,6 +33,8 @@ import SmsHandler from './sms-handler.js';
 import CaseStore from './case-store.js';
 import SLAEngine from './sla-engine.js';
 import Dashboard from './dashboard.js';
+import { isMenuRequest, buildInteractiveMenu, buildTextMenu, handleMenuAction, parseMenuSelection, parseNumericMenu } from './quick-menu.js';
+import { isCaseStatusRequest, formatCaseStatus } from './case-lookup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -157,6 +159,7 @@ function openCaseIfNeeded(result, channel, callerId, county) {
   if (!result || result.kind === 'error') return null;
   const severe = result.kind === 'crisis' && result.crisisResult && result.crisisResult.level === 'severe';
   if (!severe && !result.violation) return null;
+  const userObj = conversationManager.getUser(callerId);
   return caseStore.create({
     channel,
     phone: callerId,
@@ -164,6 +167,8 @@ function openCaseIfNeeded(result, channel, callerId, county) {
     category: result.violation ? result.violation.id.toLowerCase().replace('_', ' ') : 'crisis',
     violation: result.violation ? result.violation.id : null,
     crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
+    sentiment: result.sentiment ? result.sentiment.sentiment : null,
+    workType: userObj ? userObj.workType : null,
     slaDeadline: slaEngine.deadlineFor({
       crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
       violation: result.violation ? result.violation.id : null
@@ -353,6 +358,23 @@ async function startBot() {
       // 群聊中仅在被@提及时响应
       if (isGroup && !mentionsMe) continue;
 
+      // ── 交互按钮菜单处理：先截取按钮/list 回复，再读取文本 ──
+      const menuSelectionId = parseMenuSelection(msg);
+      if (menuSelectionId) {
+        const menuLang = detectLanguage('sw'); // default sw for button taps
+        const action = handleMenuAction(menuSelectionId, menuLang);
+        if (action && action.kind === 'text' && action.reply) {
+          await sock.sendMessage(from, { text: toWhatsApp(action.reply) });
+          continue;
+        }
+        if (action && action.kind === 'action' && action.action === 'register') {
+          const prompt = registration.start(from, menuLang);
+          await sock.sendMessage(from, { text: prompt });
+          continue;
+        }
+        // fall through if unknown selection
+      }
+
       let messageText = msg.message?.conversation ||
                         msg.message?.extendedTextMessage?.text ||
                         msg.message?.imageMessage?.caption || '';
@@ -449,6 +471,36 @@ async function startBot() {
           continue;
         }
 
+        // ── 菜单快捷键：文本关键词 / 数字 1-4 ──
+        if (isMenuRequest(messageText)) {
+          await sock.sendMessage(from, { text: buildTextMenu(lang) });
+          // 附上交互按钮（Baileys 支持 nativeFlowMessage 时自动展示按钮）
+          try { await sock.sendMessage(from, buildInteractiveMenu(lang)); } catch { /* ignore if unsupported */ }
+          monitor.push('activity', { sessionId: session.sessionId, kind: 'menu-opened' });
+          continue;
+        }
+        const numericAction = parseNumericMenu(messageText, lang);
+          if (numericAction) {
+          const action = handleMenuAction(numericAction, lang);
+          if (action && action.reply) {
+            await sock.sendMessage(from, { text: toWhatsApp(action.reply) });
+            continue;
+          }
+          if (action && action.action === 'register') {
+            const prompt = registration.start(from, lang);
+            await sock.sendMessage(from, { text: prompt });
+            continue;
+          }
+        }
+
+        // ── 案件进度查询：用户输入案件参考号时，直接查状态 ──
+        if (isCaseStatusRequest(messageText)) {
+          const statusReply = formatCaseStatus(messageText, caseStore, lang);
+          await sock.sendMessage(from, { text: toWhatsApp(statusReply) });
+          monitor.push('activity', { sessionId: session.sessionId, kind: 'case-status-check' });
+          continue;
+        }
+
         // 获取用户资料
         const user = conversationManager.getUser(from);
 
@@ -462,6 +514,7 @@ async function startBot() {
           conversationManager.markAsReturning(from);
           const welcomeMsg = conversationManager.getWelcomeMessage(user, lang);
           await sock.sendMessage(from, { text: welcomeMsg });
+          try { await sock.sendMessage(from, buildInteractiveMenu(lang)); } catch { /* ignore */ }
           monitor.push('activity', { kind: 'welcome' });
           console.log(`✅ Welcome sent to ${from}\n`);
           // Do NOT continue — let the user's actual message flow to LLM
@@ -511,6 +564,7 @@ async function startBot() {
             triggers: (result.crisisResult.triggers || []).slice(0, 3).map(t => t.phrase)
           }, ORIGINS.KNOWN_TRIGGER);
 
+          let openedCase = null;
           // 严重危机 → 24 小时后暖回访 + 标记转介人工/CSO 跟进
           if (result.crisisResult.escalate) {
             autonomy.scheduleFollowUp(from, 'checking in on you after your last message', 24);
@@ -519,7 +573,13 @@ async function startBot() {
               level: 'severe',
               action: 'warm-handoff'
             }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
-            openCaseIfNeeded(result, 'whatsapp', from, user.location); // 计入 SLA 台账
+            openedCase = openCaseIfNeeded(result, 'whatsapp', from, user.location); // 计入 SLA 台账
+          }
+          // 回访时告知案件参考号，便于用户随时自查进度
+          if (openedCase) {
+            await sock.sendMessage(from, {
+              text: `🔖 *Your case reference:* ${openedCase.caseId}\n\nKeep this number — reply with it anytime to check your status.`
+            });
           }
           console.log(`💛 Crisis intervention (${result.crisisResult.level}) >> ${from}`);
           continue;
@@ -572,11 +632,19 @@ async function startBot() {
           tier: result.tier || null
         }, ORIGINS.KNOWN_TRIGGER);
 
-        // 为严重违规安排自主跟进回访
-        if (result.violation && ['WAGE_VIOLATION', 'SAFETY_VIOLATION', 'HARASSMENT'].includes(result.violation.id)) {
+        // 为严重违规安排自主跟进回访。
+        // NOTE: 必须用真实的 KB 违规 id（NO_CONTRACT/GENDER_VIOLENCE …），
+        // 否则跟进永远不触发。CHILD_LABOR 只列入关注但不骚扰受害者本身。
+        if (result.violation && ['WAGE_VIOLATION', 'SAFETY_VIOLATION', 'GENDER_VIOLENCE', 'NO_CONTRACT'].includes(result.violation.id)) {
           autonomy.scheduleFollowUp(from, `The ${result.violation.id.toLowerCase().replace('_', ' ')} issue you reported`);
           monitor.push('follow-up-scheduled', { sessionId: session.sessionId, violation: result.violation.id }, ORIGINS.AUTONOMOUS_FOLLOW_UP);
-          openCaseIfNeeded(result, 'whatsapp', from, user.location); // 计入 SLA 台账
+          const opened = openCaseIfNeeded(result, 'whatsapp', from, user.location); // 计入 SLA 台账
+          // 告知案件参考号，便于用户稍后自查进度
+          if (opened) {
+            await sock.sendMessage(from, {
+              text: `🔖 *Your case reference:* ${opened.caseId}\n\nReply with this number anytime to check your status.`
+            });
+          }
         }
 
         console.log(`✅ 已回复 ${from}（通过 ${result.usedLLM ? (result.provider ? `LLM [${result.provider}${result.tier ? ':' + result.tier : ''}]` : 'LLM') : '兜底规则'}${result.analysisTranslated ? ' · 已回译' : ''}）`);

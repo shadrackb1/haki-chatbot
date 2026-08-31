@@ -122,6 +122,8 @@ class SmsHandler {
       category: result.violation ? result.violation.id.toLowerCase().replace('_', ' ') : 'crisis',
       violation: result.violation ? result.violation.id : null,
       crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',
+      sentiment: result.sentiment ? result.sentiment.sentiment : null,
+      workType: user ? user.workType : null,
       slaDeadline: this.slaEngine
         ? this.slaEngine.deadlineFor({
             crisisLevel: result.crisisResult ? result.crisisResult.level : 'none',

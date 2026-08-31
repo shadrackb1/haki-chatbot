@@ -82,6 +82,23 @@ test('/api/sla lists overdue and upcoming cases with windows', async () => {
   s.dash.stop();
 });
 
+test('/api/sentiment aggregates case sentiment by county as a heatmap', async () => {
+  const s = setup();
+  s.caseStore.create({ channel: 'whatsapp', phone: '+254700000001', county: 'Kericho', category: 'wages', violation: 'WAGE_VIOLATION', sentiment: 'angry' });
+  s.caseStore.create({ channel: 'whatsapp', phone: '+254700000002', county: 'Kericho', category: 'wages', violation: 'WAGE_VIOLATION', sentiment: 'fearful' });
+  s.caseStore.create({ channel: 'sms', phone: '+254700000003', county: 'Nyeri', category: 'general', sentiment: 'positive' });
+  const v = await get(s.dash.url, '/api/sentiment');
+  assert.equal(v.totals.cases, 3);
+  assert.equal(v.totals.negative, 2);
+  assert.equal(v.counties.length, 2);
+  // Kericho has 2 negative of 2 → heat 100, ranks first
+  assert.equal(v.counties[0].county, 'Kericho');
+  assert.equal(v.counties[0].heat, 100);
+  assert.equal(v.counties[1].county, 'Nyeri');
+  assert.equal(v.counties[1].heat, 0);
+  s.dash.stop();
+});
+
 test('/api/sms exposes the simulator inbox/outbox and inject works', async () => {
   const s = setup();
   s.smsGateway.inject({ from: '+254722222222', text: 'Hujambo' });
