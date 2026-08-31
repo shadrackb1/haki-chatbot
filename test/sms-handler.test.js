@@ -7,6 +7,7 @@ import { SmsHandler } from '../src/sms-handler.js';
 import { createSmsGateway } from '../src/sms-gateway.js';
 import CaseStore from '../src/case-store.js';
 import SLAEngine from '../src/sla-engine.js';
+import RateLimiter from '../src/rate-limiter.js';
 
 function stubPipeline(result) {
   return {
@@ -157,4 +158,25 @@ test('does not open a case for casual chatter', async () => {
 
   await handler.handle({ from: '0712345678', text: 'Asante' });
   assert.equal(caseStore.stats().total, 0);
+});
+
+test('throttles a phone that exceeds the per-window budget', async () => {
+  const gateway = createSmsGateway('simulator');
+  const limiter = new RateLimiter({ windowMs: 60000, max: 1 });
+  const handler = new SmsHandler({
+    pipeline: stubPipeline({ kind: 'normal', reply: 'OK', reasoning: {}, violation: null }),
+    gateway,
+    conversationManager: stubConversation(),
+    rateLimiter: limiter
+  });
+
+  const first = await handler.handle({ from: '0712345678', text: 'mshahara' });
+  assert.equal(first.ok, true);
+  assert.equal(gateway.outbox.length, 1);
+
+  const second = await handler.handle({ from: '0712345678', text: 'mshahara' });
+  assert.equal(second.ok, false);
+  assert.equal(second.kind, 'throttled');
+  assert.equal(second.throttled, true);
+  assert.equal(gateway.outbox.length, 1, 'throttled SMS must not trigger the pipeline or an outbound reply');
 });

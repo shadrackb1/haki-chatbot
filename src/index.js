@@ -35,6 +35,7 @@ import SLAEngine from './sla-engine.js';
 import Dashboard from './dashboard.js';
 import { isMenuRequest, buildInteractiveMenu, buildTextMenu, handleMenuAction, parseMenuSelection, parseNumericMenu } from './quick-menu.js';
 import { isCaseStatusRequest, formatCaseStatus } from './case-lookup.js';
+import RateLimiter from './rate-limiter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -54,6 +55,13 @@ const healthServer = http.createServer((req, res) => {
     const gateway = smsGateway;
     // POST → inject an inbound SMS from any number into the simulator.
     if (req.method === 'POST') {
+      // Only the simulator accepts injections; optional bearer token guard.
+      const auth = process.env.SMS_ADMIN_TOKEN;
+      const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+      if (auth && authHeader !== auth) {
+        respond(401, JSON.stringify({ ok: false, error: 'unauthorized' }));
+        return;
+      }
       let raw = '';
       req.on('data', (c) => { raw += c; if (raw.length > 4096) req.destroy(); });
       req.on('end', () => {
@@ -63,7 +71,17 @@ const healthServer = http.createServer((req, res) => {
             respond(400, JSON.stringify({ ok: false, error: `no simulator gateway (active: ${gateway ? gateway.kind : 'none'})` }));
             return;
           }
-          const message = gateway.inject({ from: input.from, text: input.text });
+          const from = String(input.from || '').trim();
+          const text = String(input.text || '').trim();
+          if (!from || !/^\+?\d{9,15}$/.test(from)) {
+            respond(400, JSON.stringify({ ok: false, error: 'invalid "from" (expected MSISDN, e.g. +254700000001)' }));
+            return;
+          }
+          if (!text || text.length > 480) {
+            respond(400, JSON.stringify({ ok: false, error: 'invalid "text" (expected 1-480 chars)' }));
+            return;
+          }
+          const message = gateway.inject({ from, text });
           respond(200, JSON.stringify({ ok: true, message }));
         } catch (e) {
           respond(400, JSON.stringify({ ok: false, error: e.message }));
@@ -87,7 +105,7 @@ const healthServer = http.createServer((req, res) => {
 healthServer.on('error', (err) => {
   console.log(`⚠️ 健康检查服务器不可用（${err.code}）— 主服务继续运行`);
 });
-healthServer.listen(HEALTH_PORT, () => console.log(`💓 健康检查: http://localhost:${HEALTH_PORT}/health`));
+healthServer.listen(HEALTH_PORT, '127.0.0.1', () => console.log(`💓 健康检查: http://localhost:${HEALTH_PORT}/health`));
 
 // ============================================
 // AGRISHIELD 聊天机器人 — AI 引擎
@@ -138,6 +156,12 @@ const antiAI = new AntiAIFlows();
 const embedder = new EmbeddingEngine();
 const translation = new TranslationEngine();
 
+// Per-phone throttle on the LLM/cost path (abuse + runaway-loop guard).
+const rateLimiter = new RateLimiter({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 60000),
+  max: Number(process.env.RATE_LIMIT_MAX || 12)
+});
+
 // ── 共享受理管线（WhatsApp + SMS 同一套核心）──
 const pipeline = new GrievancePipeline({ llmEngine, retriever, embedder, empathy, iq, crisisSupport, langLib, translation });
 
@@ -182,7 +206,8 @@ const smsHandler = new SmsHandler({
   conversationManager,
   monitor,
   caseStore,
-  slaEngine
+  slaEngine,
+  rateLimiter
 });
 smsHandler.start();
 console.log(`📱 SMS channel: ${smsGateway.kind} (${smsGateway.kind === 'simulator' ? 'https://localhost:' + HEALTH_PORT + '/sms console' : 'shortcode 22141'})`);
@@ -384,7 +409,7 @@ async function startBot() {
       if (msg.message?.imageMessage) {
         if (!imageHandler.enabled) {
           if (!messageText) {
-            await sock.sendMessage(from, { text: '🖼️ I can\'t see photos yet. Could you describe what happened in your own words?' });
+            await sock.sendMessage(from, { text: 'I can\'t look at photos just yet — could you tell me what happened in your own words?' });
             continue;
           }
           // 有图注但无视觉密钥：仅用图注文字继续
@@ -393,7 +418,7 @@ async function startBot() {
           const { description, error } = await imageHandler.processImageMessage(msg, sock);
           if (error || !description) {
             console.log(`⚠️ 照片分析失败: ${error}`);
-            await sock.sendMessage(from, { text: '😅 I couldn\'t quite make out that photo. Try sending it again, or just describe it in text.' });
+            await sock.sendMessage(from, { text: 'I couldn\'t quite make out that photo. Mind sending it again, or describing it as text?' });
             continue;
           }
           messageText = messageText
@@ -406,14 +431,14 @@ async function startBot() {
       // 视频 → Gemini 观看事故/违规片段（支持 ffmpeg 帧抽帧兜底）
       if (!messageText && msg.message?.videoMessage) {
         if (!imageHandler.enabled) {
-          await sock.sendMessage(from, { text: '🎬 I can\'t watch videos yet. Could you describe what happened in your own words?' });
+          await sock.sendMessage(from, { text: 'I can\'t watch videos yet — could you describe what happened in your own words?' });
           continue;
         }
         console.log(`🎬 来自 ${from} 的视频 — 分析中…`);
         const { description, error } = await imageHandler.processVideoMessage(msg, sock);
         if (error || !description) {
           console.log(`⚠️ 视频分析失败: ${error}`);
-          await sock.sendMessage(from, { text: '😅 I couldn\'t make out that clip. Try again, or describe it in text.' });
+          await sock.sendMessage(from, { text: 'I couldn\'t make out that clip. Mind trying again, or telling me what happened?' });
           continue;
         }
         messageText = `[The user sent a video clip. ${description}]`;
@@ -423,14 +448,14 @@ async function startBot() {
       // 语音留言 → 通过 Whisper/Gemini 转录（如已配置）
       if (!messageText && msg.message?.audioMessage) {
         if (!voiceHandler.enabled) {
-          await sock.sendMessage(from, { text: '🎤 I can\'t process voice messages yet — could you type instead?' });
+          await sock.sendMessage(from, { text: 'I can\'t play voice messages yet — could you type it instead?' });
           continue;
         }
         console.log(`🎤 来自 ${from} 的语音 — 转录中…`);
         const { text: transcript, error } = await voiceHandler.processVoiceMessage(msg, sock);
         if (error || !transcript) {
           console.log(`⚠️ 转录失败: ${error}`);
-          await sock.sendMessage(from, { text: '😅 Sorry, I couldn\'t make out that audio clearly. Try again, or type your message.' });
+          await sock.sendMessage(from, { text: 'Sorry, I couldn\'t make that out clearly. Could you try again, or type your message?' });
           continue;
         }
         messageText = transcript;
@@ -524,6 +549,16 @@ async function startBot() {
         // 共享受理管线：语言检测 → Gemini 翻译 → 情绪 → 危机门 → 分类 →
         // 混合语义 RAG → 分层多模型 LLM → 回复回译（WhatsApp 与 SMS 共用）
         // ============================================
+
+        // Per-phone throttle — protects the LLM cost path from abuse/loops.
+        if (!rateLimiter.hit(from)) {
+          const waitS = Math.ceil(rateLimiter.retryAfterMs(from) / 1000);
+          await sock.sendMessage(from, { text: `Give me a second — too many messages at once. I'll be right here in about ${waitS}s.` });
+          conversationManager.addToHistory(from, 'user', messageText);
+          conversationManager.addToHistory(from, 'assistant', 'too many messages — please wait');
+          continue;
+        }
+
         const history = conversationManager.getConversationHistory(from);
 
         const result = await pipeline.process({

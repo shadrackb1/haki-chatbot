@@ -66,12 +66,30 @@ test('stats aggregate by status, category and county', () => {
 test('severityFor maps crisis/violation to SLA tiers', () => {
   assert.equal(severityFor({ crisisLevel: 'severe' }), 'crisis');
   assert.equal(severityFor({ crisisLevel: 'moderate' }), 'info');
-  assert.equal(severityFor({ violation: 'HARASSMENT' }), 'critical');
+  assert.equal(severityFor({ violation: 'SAFETY_VIOLATION' }), 'critical');
+  assert.equal(severityFor({ violation: 'GENDER_VIOLENCE' }), 'critical');
   assert.equal(severityFor({ violation: 'CHILD_LABOR' }), 'standard');
+  assert.equal(severityFor({ violation: 'NO_CONTRACT' }), 'standard');
   assert.equal(severityFor({ violation: 'ENVIRONMENTAL_HARM' }), 'standard');
   assert.equal(severityFor({}), 'info');
   assert.ok(CRITICAL_VIOLATIONS.length >= 2);
   assert.ok(STANDARD_VIOLATIONS.length >= 5);
+});
+
+test('SLA tier lists use real KB violation ids (no stale HARASSMENT/CONTRACT_VIOLATION)', () => {
+  const real = {
+    critical: ['SAFETY_VIOLATION', 'GENDER_VIOLENCE'],
+    standard: ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS']
+  };
+  for (const v of [...real.critical, ...real.standard]) {
+    assert.ok(!v.includes('HARASSMENT'), `${v} must not reference stale HARASSMENT`);
+    assert.ok(!v.includes('CONTRACT_VIOLATION'), `${v} must not reference stale CONTRACT_VIOLATION`);
+  }
+  for (const v of real.critical) assert.equal(severityFor({ violation: v }), 'critical', `${v} → critical`);
+  for (const v of real.standard) assert.equal(severityFor({ violation: v }), 'standard', `${v} → standard`);
+  // Stale ids must not be treated as critical/standard anymore.
+  assert.equal(severityFor({ violation: 'HARASSMENT' }), 'info');
+  assert.equal(severityFor({ violation: 'CONTRACT_VIOLATION' }), 'info');
 });
 
 test('deadlineFor applies per-severity windows', () => {

@@ -174,17 +174,17 @@ class ConversationManager {
     if (lang === 'sw') {
       return `Karibu AgriShield 🇰🇪
 
-Nisaidie kuelewa haki zako za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji, na ardhi.
+Nisaidie kuelewa haki zako za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji, na ardhi. Kazi yako iwe shambani, kiwandani, pakheni au usafiri.
 
-Sema lolote. Hakuna usajili wa lazima.
+Sema tu kiliotokea. Hakuna usajili wa lazima.
 Mfano: "Ninalipwa KES 200 bila mkataba"
 
-Kwa msaada unaolingana na wewe, andika "register". Lakini si lazima.`;
+Unataka msaada wa kukufaa wewe? Andika "register". Si lazima.`;
     }
 
     return `Welcome to AgriShield 🇰🇪
 
-I help Kenyan workers understand their rights — wages, contracts, safety, child labour, harassment, land. Works across farms, factories, packhouses, transport, and more.
+I help Kenyan workers understand their rights — wages, contracts, safety, child labour, harassment, land. Whether you're on a farm, in a packhouse, factory, or on the road.
 
 Just tell me what happened. No sign-up needed.
 Example: "I'm paid KES 200 with no contract"
@@ -280,6 +280,18 @@ Not sure where to start? Ask about your rights or type "numbers" for helplines.`
           response += `   ⏰ ${pathway.timeline}\n\n`;
         }
 
+        const docs = [];
+        for (const pathway of violation.remedy_pathways || []) {
+          for (const d of pathway.documents_needed || []) {
+            if (!docs.includes(d)) docs.push(d);
+          }
+        }
+        if (docs.length) {
+          response += `📎 *Nini cha kuleta:*\n`;
+          for (const d of docs) response += `   • ${d}\n`;
+          response += `\n`;
+        }
+
         response += `${randomEncouragement}`;
       } else {
         response += `Niambie zaidi. Mfano: "Napewa KES 200 tu kwa siku" au "Wananipa barakoa tu".\n\n`;
@@ -307,6 +319,18 @@ Not sure where to start? Ask about your rights or type "numbers" for helplines.`
           response += `   • ${step}\n`;
         }
         response += `   ⏰ ${pathway.timeline}\n\n`;
+      }
+
+      const docs = [];
+      for (const pathway of violation.remedy_pathways || []) {
+        for (const d of pathway.documents_needed || []) {
+          if (!docs.includes(d)) docs.push(d);
+        }
+      }
+      if (docs.length) {
+        response += `📎 *What to bring:*\n`;
+        for (const d of docs) response += `   • ${d}\n`;
+        response += `\n`;
       }
 
       response += `${randomEncouragement}`;

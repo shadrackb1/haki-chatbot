@@ -770,6 +770,213 @@
       ],
       "instant_response_sw": "Kampuni inadai certification feki? Hii ni udanganyifu. Unaweza kulalamika kwa CAK.",
       "instant_response_en": "Is a company claiming fake certification? This is fraud. You can report to CAK."
+    },
+    {
+      "id": "UNFAIR_DISMISSAL",
+      "keywords_sw": [
+        "kufukuzwa",
+        "kufukuzwa kazi",
+        "kuondolewa kazi",
+        "kutimuliwa",
+        "kupoteza kazi",
+        "wakati wa mkataba"
+      ],
+      "keywords_en": [
+        "fired",
+        "sacked",
+        "dismissed",
+        "laid off",
+        "terminated",
+        "unfair dismissal",
+        "summary dismissal",
+        "no notice",
+        "thrown out of work",
+        "lost my job",
+        "retrenched",
+        "mass layoffs"
+      ],
+      "keywords_local": {
+        "kikuyu": [
+          "guthundwo",
+          "kuingio"
+        ],
+        "luo": [
+          "riemb"
+        ],
+        "kalenjin": [
+          "sigirta"
+        ]
+      },
+      "description": "Unfair or unlawful dismissal including summary termination without notice, without justification, and mass retrenchment without proper procedure",
+      "severity": "high",
+      "applicable_laws": [
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 41",
+          "title": "Fair Hearing Before Termination",
+          "detail": "An employer must, before terminating a worker's employment, explain the grounds and give the worker a chance to respond, in the presence of a colleague or union rep if requested",
+          "penalty": "Compensation up to 12 months' wages for unfair termination"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 45",
+          "title": "Unfair Termination",
+          "detail": "Termination is unfair if the employer fails to prove it was based on a valid reason and fair procedure (misconduct, capacity, operational requirements)",
+          "penalty": "Reinstatement or up to 12 months' compensation"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 35",
+          "title": "Notice Period",
+          "detail": "Termination requires notice (at least 28 days after 5+ years of service) or payment in lieu, unless for proven gross misconduct",
+          "penalty": "Pay in lieu of notice"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 40",
+          "title": "Redundancy Procedure",
+          "detail": "Retrenchment/mass redundancy requires written notice to the worker and the labour officer, and selection criteria (last in, first out) — skipping this makes it unfair",
+          "penalty": "Compensation for unfair redundancy"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "County Labour Office",
+          "action": "Report unfair termination / retrenchment",
+          "process": [
+            "Visit the nearest Labour Office with your ID",
+            "State that you were terminated and why you believe it was unfair",
+            "Labour officer attempts conciliation",
+            "Matter referred to court if not resolved"
+          ],
+          "documents_needed": [
+            "National ID",
+            "Termination/redemption letter if given",
+            "Any records of your employment or dismissal"
+          ],
+          "timeline": "Conciliation then court within 90 days"
+        },
+        {
+          "institution": "Employment and Labour Relations Court",
+          "action": "File claim for unfair termination",
+          "process": [
+            "File a claim within 3 years of termination",
+            "Claim reinstatement or up to 12 months' compensation",
+            "Free legal aid via NLAS if low income",
+            "Court hearing within 90 days"
+          ],
+          "documents_needed": [
+            "National ID",
+            "Evidence of employment",
+            "Evidence of the dismissal"
+          ],
+          "timeline": "90 days for hearing"
+        }
+      ],
+      "instant_response_sw": "Umefukuzwa kazi bila sababu? Hii inaweza kuwa kufukuzwa kwa dhuluma. Unaweza kulalamika kwa Ofisi ya Kazi au Mahakama ya Kazi, na unaweza kupokea fidia hadi miezi 12 ya mshahara.",
+      "instant_response_en": "Were you fired without a fair reason or notice? That can be unfair dismissal. You can report to the Labour Office or Labour Court and may recover up to 12 months' pay in compensation."
+    },
+    {
+      "id": "WORKING_HOURS",
+      "keywords_sw": [
+        "saa za kazi",
+        "masaa",
+        "muda mwingi",
+        "muda mrefu",
+        "hakuna likizo",
+        "hakuna mapumziko",
+        "siku ya kupumzika",
+        "overtime",
+        "kulipwa nyongeza"
+      ],
+      "keywords_en": [
+        "hours",
+        "long hours",
+        "worked overtime",
+        "no rest day",
+        "no break",
+        "working on Sunday",
+        "public holiday",
+        "forced overtime",
+        "excessive hours",
+        "not paid overtime",
+        "14 hour days"
+      ],
+      "keywords_local": {
+        "kikuyu": [
+          "muhuro"
+        ],
+        "luo": [
+          "saa"
+        ],
+        "kalenjin": [
+          "karnga"
+        ]
+      },
+      "description": "Excessive or unlawful working hours, denial of weekly rest day, unpaid overtime, and working through public holidays without the statutory rate",
+      "severity": "high",
+      "applicable_laws": [
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 27",
+          "title": "Hours of Work",
+          "detail": "Maximum hours of work are set by regulation; overtime must be compensated, and a worker is entitled to at least one rest day per week",
+          "penalty": "Wages for overtime plus possible fine"
+        },
+        {
+          "law": "Regulation of Wages (General) (Amendment) Order",
+          "section": "General Wage Order",
+          "title": "Overtime & Rest Days",
+          "detail": "Work beyond normal hours is paid at 1.5x, work on rest days at 1.5x, and work on public holidays at 2x the normal rate"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 27(4)",
+          "title": "Weekly Rest",
+          "detail": "Every worker is entitled to a weekly rest of at least one full day after six consecutive days of work"
+        },
+        {
+          "law": "Employment Act 2007",
+          "section": "Section 78",
+          "title": "Annual Leave",
+          "detail": "Every worker is entitled to at least 21 days of annual leave with pay after every 12 months of continuous service"
+        }
+      ],
+      "remedy_pathways": [
+        {
+          "institution": "County Labour Office",
+          "action": "File complaint for unpaid overtime / denied rest",
+          "process": [
+            "Visit the Labour Office with your ID",
+            "Explain your hours and that overtime/rest is unpaid",
+            "Labour officer investigates the payroll and rota",
+            "Unpaid overtime is recovered, employer warned"
+          ],
+          "documents_needed": [
+            "National ID",
+            "Any rota, clock-in records, or timesheets",
+            "Pay slips showing hours worked"
+          ],
+          "timeline": "30 days for first hearing"
+        },
+        {
+          "institution": "Employment and Labour Relations Court",
+          "action": "File claim for overtime/rest pay",
+          "process": [
+            "File a claim for the unpaid overtime and holiday pay",
+            "Free legal aid via NLAS if low income",
+            "Court awards the statutory overtime rates"
+          ],
+          "documents_needed": [
+            "National ID",
+            "Work records/timesheets",
+            "Evidence of hours worked and no rest"
+          ],
+          "timeline": "90 days for hearing"
+        }
+      ],
+      "instant_response_sw": "Unafanya kazi masaa mengi bila likizo au nyongeza? Sheria inakupa angalau siku moja ya kupumzika kwa wiki, na nyongeza inapaswa kulipwa zaidi (1.5x, likizo za umma 2x).",
+      "instant_response_en": "Working long hours with no rest day or overtime pay? The law guarantees at least one rest day per week, and overtime is paid higher (1.5x, and 2x on public holidays)."
     }
   ],
   "agribusiness_segments": {
@@ -950,6 +1157,33 @@
           "All 47 counties"
         ],
         "contact": "Visit nearest Chief's office"
+      },
+      {
+        "name": "Childline Kenya",
+        "short": "Childline",
+        "services": [
+          "Child labor",
+          "Child abuse hotline",
+          "Counselling for minors"
+        ],
+        "contact": "116 (Toll-free, 24/7)",
+        "website": "www.childlinekenya.org"
+      }
+    ],
+    "unions_and_representation": [
+      {
+        "name": "Kenya Plantation and Agricultural Workers Union (KPAWU)",
+        "short": "KPAWU",
+        "services": [
+          "Union representation for farm & plantation workers",
+          "Wage negotiation (CBA)",
+          "Unfair dismissal & retrenchment representation",
+          "OSH disputes on farms"
+        ],
+        "contact": "020 244 8000 / +254 733 215 603",
+        "address": "Tailors & Garments House, Dedan Kimathi Ave, Nairobi",
+        "website": "www.kpawu.org",
+        "coverage": "Tea, coffee, sugarcane, flower, sisal and general agricultural/plantation workers across Kenya"
       }
     ],
     "ngo_legal_aid": [

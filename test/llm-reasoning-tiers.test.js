@@ -22,7 +22,7 @@ test('resolveTier returns the tier plan for research/analysis/fast', () => {
   assert.ok(research.model);
 
   const analysis = eng.resolveTier('analysis');
-  assert.equal(analysis.structured, false);
+  assert.equal(analysis.structured, true);
   assert.ok(analysis.model);
 });
 
@@ -45,7 +45,7 @@ test('_resolveCallOptions applies tier model/temperature/structured defaults', (
   assert.equal(opts.tierName, 'analysis');
   assert.equal(opts.model, eng.tiers.analysis.model);
   assert.equal(opts.temperature, 0.5);
-  assert.equal(opts.structured, false);
+  assert.equal(opts.structured, true);
   // The provider order starts with the tier's preferred provider.
   assert.equal(opts.order[0].key, eng.tiers.analysis.provider);
 });

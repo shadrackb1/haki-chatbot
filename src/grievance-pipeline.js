@@ -11,7 +11,7 @@ import { findCountyOffice, equippedCountyMessage } from './county-directory.js';
 
 // Must match the violation_categories ids in data/legal-knowledge-base.json.
 const CRITICAL_VIOLATIONS = ['SAFETY_VIOLATION', 'GENDER_VIOLENCE'];
-const ANALYSIS_VIOLATIONS = ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS', 'CERTIFICATION_FRAUD'];
+const ANALYSIS_VIOLATIONS = ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS', 'CERTIFICATION_FRAUD', 'UNFAIR_DISMISSAL', 'WORKING_HOURS'];
 
 const noopTranslation = {
   enabled: false,

@@ -12,7 +12,7 @@
 
 export const WINDOW_HOURS = { crisis: 2, critical: 24, standard: 72, info: 120 };
 export const CRITICAL_VIOLATIONS = ['SAFETY_VIOLATION', 'GENDER_VIOLENCE'];
-export const STANDARD_VIOLATIONS = ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS'];
+export const STANDARD_VIOLATIONS = ['WAGE_VIOLATION', 'NO_CONTRACT', 'CHILD_LABOR', 'ENVIRONMENTAL_HARM', 'LAND_RIGHTS', 'UNFAIR_DISMISSAL', 'WORKING_HOURS'];
 
 export function severityFor({ crisisLevel, violation } = {}) {
   if (String(crisisLevel || '').toLowerCase() === 'severe') return 'crisis';

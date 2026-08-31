@@ -16,7 +16,8 @@ class SmsHandler {
     monitor,
     caseStore = null,
     slaEngine = null,
-    maxLength = 480
+    maxLength = 480,
+    rateLimiter = null
   }) {
     this.pipeline = pipeline;
     this.gateway = gateway;
@@ -25,6 +26,7 @@ class SmsHandler {
     this.caseStore = caseStore;
     this.slaEngine = slaEngine;
     this.maxLength = maxLength;
+    this.rateLimiter = rateLimiter;
   }
 
   // Split an over-long reply into 160/480-char segments SMS can carry.
@@ -54,6 +56,11 @@ class SmsHandler {
     const history = this.conversationManager
       ? this.conversationManager.getConversationHistory(callerId)
       : [];
+
+    // Per-phone throttle on the LLM/cost path (shared with WhatsApp).
+    if (this.rateLimiter && !this.rateLimiter.hit(callerId)) {
+      return { ok: false, kind: 'throttled', throttled: true, reply: 'Too many messages — please wait.' };
+    }
 
     const result = await this.pipeline.process({
       text,
