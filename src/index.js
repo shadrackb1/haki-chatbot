@@ -578,7 +578,7 @@ async function startBot() {
           // 回访时告知案件参考号，便于用户随时自查进度
           if (openedCase) {
             await sock.sendMessage(from, {
-              text: `🔖 *Your case reference:* ${openedCase.caseId}\n\nKeep this number — reply with it anytime to check your status.`
+              text: `🔖 Case opened: *${openedCase.caseId}*\n\nSave this number — reply with it anytime to check your status.`
             });
           }
           console.log(`💛 Crisis intervention (${result.crisisResult.level}) >> ${from}`);
@@ -642,7 +642,7 @@ async function startBot() {
           // 告知案件参考号，便于用户稍后自查进度
           if (opened) {
             await sock.sendMessage(from, {
-              text: `🔖 *Your case reference:* ${opened.caseId}\n\nReply with this number anytime to check your status.`
+              text: `🔖 Case opened: *${opened.caseId}*\n\nSave this number — reply with it anytime to check your status.`
             });
           }
         }

@@ -172,28 +172,24 @@ class ConversationManager {
 
   getWelcomeMessage(user, lang = 'en') {
     if (lang === 'sw') {
-      return `🇰🇪 *Karibu AgriShield!*
+      return `Karibu AgriShield 🇰🇪
 
-Niko hapa kwa haki zako za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji, na ardhi.
+Nisaidie kuelewa haki zako za kazi — mshahara, mkataba, usalama, ajira ya watoto, unyanyasaji, na ardhi.
 
-Uliza chochote, hakuna usajili wa lazima. Kwa mfano:
-• "Ninalipwa KES 200 bila mkataba"
-• "Sijapata mapumziko kwa siku nyingi"
-• "Mwenye shamba hatoi mkataba"
+Sema lolote. Hakuna usajili wa lazima.
+Mfano: "Ninalipwa KES 200 bila mkataba"
 
-Kwa msaada unaolingana na wewe, andika "register" uweke jina na kaunti yako. Lakini si lazima — tuulize tu!`;
+Kwa msaada unaolingana na wewe, andika "register". Lakini si lazima.`;
     }
 
-    return `🇰🇪 *Welcome to AgriShield!*
+    return `Welcome to AgriShield 🇰🇪
 
-I'm here for your rights at work — wages, contracts, safety, child labour, harassment, and land.
+I help Kenyan workers understand their rights — wages, contracts, safety, child labour, harassment, land.
 
-Ask me anything, no registration needed. For example:
-• "I'm paid KES 200 with no contract"
-• "I've worked for days without a break"
-• "My employer won't give me a contract"
+Just tell me what happened. No sign-up needed.
+Example: "I'm paid KES 200 with no contract"
 
-For help that fits you, say "register" to share your name and county. Totally optional — just ask!`;
+Want help tailored to you? Say "register". Optional.`;
   }
 
   getConversationalGreeting(user, lang = 'en') {
@@ -215,48 +211,48 @@ For help that fits you, say "register" to share your name and county. Totally op
     }
 
     if (lang === 'sw') {
-      return `${timeGreeting}, ${user.firstName || 'rafiki'}! 👋
+      return `${timeGreeting}, ${user.firstName || 'rafiki'}!
 
-Karibu tena. Kuna lolote jipya kazini? Niambie nini kilitokea.
+Kuna jipya kazini? Niambie nini kilitokea.
 
-Kama hujui pa kuanzia, uliza kuhusu haki zako au andika "numbers" kwa nambari za msaada.`;
+Hujui pa kuanzia? Uliza kuhusu haki zako au andika "numbers" kwa nambari za msaada.`;
     }
 
-    return `${timeGreeting}, ${user.firstName || 'friend'}! 👋
+    return `${timeGreeting}, ${user.firstName || 'friend'}!
 
-Good to see you again. Anything new at work? Tell me what happened.
+Anything new at work? Tell me what happened.
 
-Not sure where to start? Ask about your rights, or type "numbers" for helpdesk contacts.`;
+Not sure where to start? Ask about your rights or type "numbers" for helplines.`;
   }
 
   getConversationalResponse(intent, violation, user, lang = 'en') {
     const empathyPhrases = {
       sw: [
-        'Pole sana. Hiyo si sawa.',
-        'Naelewa. Asante kwa kujitokeza.',
-        'Hii ni ngumu, lakini unafanya vyema kwa kusema.',
-        'Sikiliza, hii haki haitakiwi.'
+        'Pole. Hiyo si sawa.',
+        'Asante kwa kujitokeza.',
+        'Hii haki haitakiwi.',
+        'Unafanya vyema kwa kusema.'
       ],
       en: [
-        'That\'s really tough. I\'m sorry you\'re going through this.',
-        'You\'re right to speak up — this isn\'t okay.',
-        'Thanks for telling me. That takes courage.',
-        'This sounds exhausting. You deserve better.'
+        'That\'s not right. I\'m sorry.',
+        'Thanks for telling me.',
+        'You shouldn\'t have to deal with this.',
+        'This isn\'t okay.'
       ]
     };
 
     const encouragementPhrases = {
       sw: [
-        'Usikubali hii. Haki yako ni muhimu.',
-        'Kesi kama hii zimeshinda. Na wewe unaweza.',
-        'Hatua kwa hatua. Tuko pamoja.',
-        'Sheria iko upande wako.'
+        'Usikubali hii.',
+        'Kesi kama hii zimeshinda.',
+        'Sheria iko upande wako.',
+        'Hatua kwa hatua.'
       ],
       en: [
-        'Don\'t let this slide — your rights matter.',
-        'Similar cases have been won before. You can too.',
-        'One step at a time. We\'ll get through this.',
-        'The law is on your side here.'
+        'Don\'t let this slide.',
+        'Cases like this have been won before.',
+        'The law is on your side.',
+        'One step at a time.'
       ]
     };
 
@@ -267,11 +263,10 @@ Not sure where to start? Ask about your rights, or type "numbers" for helpdesk c
       let response = `${randomEmpathy}\n\n`;
 
       if (violation) {
-        response += `Kulingana na ulivyosema, hii ni *${violation.description}*. Sheria ya Kenya hairuhusu hii.\n\n`;
-        response += `*Sheria inayotumika:*\n`;
+        response += `Kulingana na ulivyosema, hii ni *${violation.description}*.\n\n`;
 
         for (const law of violation.applicable_laws) {
-          response += `📜 ${law.law} (${law.section})\n`;
+          response += `📜 ${law.law} — ${law.section}\n`;
           response += `   "${law.detail}"\n\n`;
         }
 
@@ -282,14 +277,13 @@ Not sure where to start? Ask about your rights, or type "numbers" for helpdesk c
           for (const step of pathway.process) {
             response += `   • ${step}\n`;
           }
-          response += `   ⏰ Muda: ${pathway.timeline}\n\n`;
+          response += `   ⏰ ${pathway.timeline}\n\n`;
         }
 
-        response += `${randomEncouragement}\n\n`;
-        response += `Kwa msaada zaidi, andika "help".`;
+        response += `${randomEncouragement}`;
       } else {
-        response += `Niambie zaidi kuhusu hali yako. Mfano: "Napewa KES 200 tu kwa siku" au "Wananipa barakoa tu".\n\n`;
-        response += `Au andika "rights" kuona haki zote sheria inazokupa.`;
+        response += `Niambie zaidi. Mfano: "Napewa KES 200 tu kwa siku" au "Wananipa barakoa tu".\n\n`;
+        response += `Au andika "rights" kuona haki zote.`;
       }
 
       return response;
@@ -298,29 +292,27 @@ Not sure where to start? Ask about your rights, or type "numbers" for helpdesk c
     let response = `${randomEmpathy}\n\n`;
 
     if (violation) {
-      response += `What you're describing is *${violation.description}*. Kenyan law does not allow this.\n\n`;
-      response += `*Applicable laws:*\n`;
+      response += `What you're describing is *${violation.description}*.\n\n`;
 
       for (const law of violation.applicable_laws) {
-        response += `📜 ${law.law} (${law.section})\n`;
+        response += `📜 ${law.law} — ${law.section}\n`;
         response += `   "${law.detail}"\n\n`;
       }
 
-      response += `*Steps you can take:*\n`;
+      response += `*What you can do:*\n`;
       for (const pathway of violation.remedy_pathways) {
         response += `🏛️ ${pathway.institution}\n`;
         response += `   ${pathway.action}\n`;
         for (const step of pathway.process) {
           response += `   • ${step}\n`;
         }
-        response += `   ⏰ Timeline: ${pathway.timeline}\n\n`;
+        response += `   ⏰ ${pathway.timeline}\n\n`;
       }
 
-      response += `${randomEncouragement}\n\n`;
-      response += `For more help, reply "help".`;
+      response += `${randomEncouragement}`;
     } else {
-      response += `Tell me more about your situation. For example: "I'm only paid KES 200 a day" or "They don't provide gloves".\n\n`;
-      response += `Or type "rights" to see all the rights the law gives you.`;
+      response += `Tell me more. For example: "I'm only paid KES 200 a day" or "They don't provide gloves".\n\n`;
+      response += `Or type "rights" to see what the law says.`;
     }
 
     return response;
@@ -328,14 +320,20 @@ Not sure where to start? Ask about your rights, or type "numbers" for helpdesk c
 
   getClarificationMessage(lang = 'en') {
     if (lang === 'sw') {
-      return `🤔 Nataka kuelewa vizuri. Niambie zaidi: unafanya kazi gani, na tatizo ni lipi? Kaunti yako pia inasaidia.
+      return `Nataka kuelewa vizuri. Niambie:
+• Unafanya kazi gani?
+• Tatizo ni lipi?
+• Kaunti yako ni ipi?
 
 Mfano: "Nafanya kazi ya kuvuna kahawa Nyeri, nalipwa KES 200 tu kwa siku, na sina mkataba."`;
     }
 
-    return `🤔 Give me a bit more to go on. What kind of work do you do, and what exactly is the problem? Your county helps too.
+    return `I need a bit more detail:
+• What kind of work do you do?
+• What's the problem?
+• Which county are you in?
 
-Example: "I pick coffee in Nyeri, earn only KES 200/day, and have no contract."`;
+Example: "I pick coffee in Nyeri, earn KES 200/day, and have no contract."`;
   }
 
   getFollowUpMessage(user, lang = 'en') {
@@ -346,36 +344,36 @@ Example: "I pick coffee in Nyeri, earn only KES 200/day, and have no contract."`
       const timeSw = hour < 12 ? 'asubuhi' : hour < 17 ? 'mchana' : 'jioni';
       return `Habari za ${timeSw}, ${user.firstName || 'rafiki'}! 🇰🇪
 
-Kuna jambo jipya? Ukiwa na swali la awali, niambie umefikia hatua gani.`;
+Kuna kifungua kiguu? Ukiwa na swali la awali, niambie umefikia hatua gani.`;
     }
 
     return `Good ${timeOfDay}, ${user.firstName || 'friend'}! 🇰🇪
 
-Any updates? If you had a previous issue, tell me where things stand — we can pick up from there.`;
+Any progress on your case? Tell me where things stand — we can pick up from there.`;
   }
 
   getErrorMessage(lang = 'en') {
     if (lang === 'sw') {
-      return `😅 Pole, kuna tatizo upande wangu. Tafadhali tuma tena ujumbe wako.
+      return `Kuna tatizo upande wangu. Tafadhali tuma tena.
 
-Endelea kutokea, piga NLAS kwa nambari hii: 0800 720 640.`;
+Ikiwa inaendelea, piga NLAS: 0800 720 640.`;
     }
 
-    return `😅 Sorry, something went wrong on my end. Could you try sending your message again?
+    return `Something went wrong on my end. Could you try again?
 
-If this keeps happening, call NLAS toll-free: 0800 720 640.`;
+If this keeps up, call NLAS toll-free: 0800 720 640.`;
   }
 
   getClosingMessage(user, lang = 'en') {
     if (lang === 'sw') {
-      return `🙏 Asante sana, ${user.firstName || 'rafiki'}! Haki yako inastahili kupigania — usiache kufuatilia.
+      return `Asante, ${user.firstName || 'rafiki'}! Haki yako inastahili kupigania.
 
-NLAS wanatoa msaada wa kisheria bila malipo: 0800 720 640. Rejea wakati wowote. 🇰🇪`;
+NLAS: 0800 720 640 (bila malipo). Rejea wakati wowote. 🇰🇪`;
     }
 
-    return `🙏 Thank you so much, ${user.firstName || 'friend'}! Your rights are worth fighting for — don't let this drop.
+    return `Thanks, ${user.firstName || 'friend'}! Your rights are worth fighting for.
 
-If you want to talk to a real person, NLAS offers free legal aid: 0800 720 640. Come back anytime. 🇰🇪`;
+NLAS offers free legal aid: 0800 720 640. Come back anytime. 🇰🇪`;
   }
 }
 

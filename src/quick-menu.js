@@ -24,12 +24,12 @@ export function isMenuRequest(text) {
 export function buildInteractiveMenu(lang = 'en') {
   const isSw = lang === 'sw';
   const bodyText = isSw
-    ? 'Chagua chochote hapo chini, au uandike swali lako moja kwa moja.'
-    : 'Pick one below, or type your question directly.';
+    ? 'Chagua au uandike swali lako moja kwa moja.'
+    : 'Pick one below, or type your question.';
 
   const footerText = isSw
-    ? 'AgriShield — haki zako, urahisi.'
-    : 'AgriShield — your rights, made simple.';
+    ? 'AgriShield'
+    : 'AgriShield';
 
   const buttons = [
     { label: isSw ? 'Haki zangu' : 'My rights', id: 'menu_rights' },
@@ -57,21 +57,21 @@ export function buildInteractiveMenu(lang = 'en') {
 // -----------------------------------------------
 export function buildTextMenu(lang = 'en') {
   if (lang === 'sw') {
-    return `📋 *Menyu ya AgriShield*
+    return `Menyu ya AgriShield
 
-1️⃣ *Haki zangu* — haki za msingi kwa wafanyikazi
-2️⃣ *Nambari za msaada* — NLAS, DOSHS, Childline
-3️⃣ *Jisajili* — weka jina na kaunti yako
-4️⃣ *Hali ya kesi* — uliza kuhusu kesi yako
+1️⃣ Haki zangu — haki za msingi kwa wafanyikazi
+2️⃣ Nambari za msaada — NLAS, DOSHS, Childline
+3️⃣ Jisajili — weka jina na kaunti yako
+4️⃣ Hali ya kesi — uliza kuhusu kesi yako
 
 Andika nambari (1–4) au tuulize swali lolote.`;
   }
-  return `📋 *AgriShield Menu*
+  return `AgriShield Menu
 
-1️⃣ *My rights* — core workplace rights
-2️⃣ *Help numbers* — NLAS, DOSHS, Childline
-3️⃣ *Register* — set your name and county
-4️⃣ *My case* — check a case reference
+1️⃣ My rights — core workplace rights
+2️⃣ Help numbers — NLAS, DOSHS, Childline
+3️⃣ Register — set your name and county
+4️⃣ My case — check a case reference
 
 Type 1–4 or ask me anything.`;
 }
@@ -81,52 +81,52 @@ Type 1–4 or ask me anything.`;
 // Returns a { kind: 'text'|'action', reply, action? } response.
 // -----------------------------------------------
 const RIGHTS_TEXT = {
-  en: `⚖️ *Your core rights as a Kenyan worker*
+  en: `Your rights as a Kenyan worker:
 
-1. *Fair pay* — at least KES 15,000/month (Economic Survey 2026); farm wages vary by county.
-2. *Written contract* — your employer must provide one within 2 months of starting work (Employment Act s.10).
-3. *Safe workplace* — you have the right to protective equipment, training, and to refuse dangerous work (OSHA s.12, 44).
-4. *Weekly rest* — at least 1 day off every 7 days (Employment Act s.27).
-5. *No child labour* — under-18s are protected (Children Act s.56; OSHA s.58).
-6. *Harassment protection* — sexual, verbal, or physical harassment is illegal (Employment Act s.81).
+1. Fair pay — at least KES 15,000/month (Economic Survey 2026); farm wages vary by county.
+2. Written contract — must be provided within 2 months (Employment Act s.10).
+3. Safe workplace — PPE, training, and the right to refuse dangerous work (OSHA s.12, 44).
+4. Weekly rest — at least 1 day off per 7 days (Employment Act s.27).
+5. No child labour — under-18s are protected (Children Act s.56; OSHA s.58).
+6. Harassment protection — sexual, verbal, or physical (Employment Act s.81).
 
-Type "register" to get help tailored to your county and sector.`,
-  sw: `⚖️ *Haki zako msingi kama mfanyikazi wa Kenya*
+Say "register" for help tailored to your county.`,
+  sw: `Haki zako kama mfanyikazi wa Kenya:
 
-1. *Mshahara wa haki* — angalau KES 15,000/mwezi (Economic Survey 2026); mishahara ya kilimo inatofautiana kulingana na kaunti.
-2. *Mkataba wa maandishi* — mwenye ajira anapaswa kukupa ndani ya miezi 2 (Employment Act s.10).
-3. *Usalama kazini* — una haki ya vifaa vya ulinzi, mafunzo, na kukataa kazi hatari (OSHA s.12, 44).
-4. *Mapumziko ya kila wiki* — angalau siku 1 kwa siku 7 (Employment Act s.27).
-5. *Hakuna kazi ya watoto* — chini ya miaka 18 inalindwa (Children Act s.56; OSHA s.58).
-6. *Ulinzi dhidi ya unyanyasaji* — unyanyasaji wa kijinsia, maneno, au kimwili ni haramu (Employment Act s.81).
+1. Mshahara wa haki — angalau KES 15,000/mwezi (Economic Survey 2026); mishahara ya kilimo inatofautiana.
+2. Mkataba wa maandishi — lazima upewe ndani ya miezi 2 (Employment Act s.10).
+3. Usalama kazini — vifaa vya ulinzi, mafunzo, na haki ya kukataa kazi hatari (OSHA s.12, 44).
+4. Mapumziko ya kila wiki — angalau siku 1 kwa siku 7 (Employment Act s.27).
+5. Hakuna kazi ya watoto — chini ya miaka 18 inalindwa (Children Act s.56; OSHA s.58).
+6. Ulinzi dhidi ya unyanyasaji — wa kijinsia, maneno, au kimwili (Employment Act s.81).
 
-Andika "register" kupata msaada unaolingana na wewe.`
+Andika "register" kwa msaada unaolingana na wewe.`
 };
 
 const NUMBERS_TEXT = {
-  en: `📞 *Help numbers*
+  en: `Help numbers:
 
-• *NLAS* (free legal aid): 0800 720 640 · WhatsApp: +254 703 149 933
-• *DOSHS* (occupational safety): +254 (020) 2729801
-• *Childline Kenya* (child labour): 116
-• *GBV Hotline*: 1195
-• *Befrienders Kenya* (emotional support): +254 722 178 177
+• NLAS (free legal aid): 0800 720 640 · WhatsApp: +254 703 149 933
+• DOSHS (occupational safety): +254 (020) 2729801
+• Childline Kenya (child labour): 116
+• GBV Hotline: 1195
+• Befrienders Kenya (emotional support): +254 722 178 177
 
 All crisis lines are toll-free and confidential.`,
-  sw: `📞 *Nambari za msaada*
+  sw: `Nambari za msaada:
 
-• *NLAS* (msaada wa kisheria bure): 0800 720 640 · WhatsApp: +254 703 149 933
-• *DOSHS* (usalama kazini): +254 (020) 2729801
-• *Childline Kenya* (ajira ya watoto): 116
-• *GBV Hotline* (unyanyasaji wa kijinsia): 1195
-• *Befrienders Kenya* (msaada wa kihemko): +254 722 178 177
+• NLAS (msaada wa kisheria bure): 0800 720 640 · WhatsApp: +254 703 149 933
+• DOSHS (usalama kazini): +254 (020) 2729801
+• Childline Kenya (ajira ya watoto): 116
+• GBV Hotline (unyanyasaji wa kijinsia): 1195
+• Befrienders Kenya (msaada wa kihemko): +254 722 178 177
 
 Zote ni bure na za siri.`
 };
 
 const CASE_TEXT = {
-  en: `📝 To check your case status, type the case reference number the bot gave you (e.g. AGRI-2026-0001). Don't have one yet? Describe your issue and one will be opened automatically.`,
-  sw: `📝 Kuangalia hali ya kesi yako, andika nambari ya kesi uliyopewa (mfano AGRI-2026-0001). Hujaipata bado? Eleza tatizo lako na kesi itafunguliwa moja kwa moja.`
+  en: `To check your case status, type the reference number the bot gave you (e.g. AGRI-2026-0001). Don't have one yet? Describe your issue and one will be opened automatically.`,
+  sw: `Kuangalia hali ya kesi yako, andika nambari uliyopewa (mfano AGRI-2026-0001). Hujaipata bado? Eleza tatizo lako na kesi itafunguliwa.`
 };
 
 export function handleMenuAction(actionId, lang = 'en') {

@@ -64,8 +64,8 @@ export function formatCaseStatus(ref, store, lang = 'en') {
   const { case: rec } = resolveCaseRef(ref, store);
   if (!rec) {
     return lang === 'sw'
-      ? `😕 Sikuweza kupata kesi hiyo. Hakikisha nambari ni sahihi (mfano AGRI-2026-0001).`
-      : `😕 I couldn't find that case. Double-check the reference (e.g. AGRI-2026-0001).`;
+      ? `Sikuweza kupata kesi hiyo. Hakikisha nambari ni sahihi (mfano AGRI-2026-0001).`
+      : `I couldn't find that case. Check the reference number (e.g. AGRI-2026-0001).`;
   }
   const label = STATUS_LABEL[rec.status] || rec.status.toLowerCase();
   const deadline = rec.slaDeadline
@@ -73,23 +73,21 @@ export function formatCaseStatus(ref, store, lang = 'en') {
     : (lang === 'sw' ? 'haijawekwa' : 'not set');
 
   if (lang === 'sw') {
-    return `📋 *Kesi yako: ${rec.caseId}*
-
+    return `Kesi: *${rec.caseId}*
 • Hali: *${label}*
 • Kategoria: ${rec.category}
 • Kaunti: ${rec.county}
-• Muda wa matokeo (SLA): ${deadline}
+• Muda wa matokeo: ${deadline}
 
-Kama hali ni "escalated", mtaalamu atawasiliana nawe. Endelea kutuma ujumbe ukihitaji msaada zaidi.`;
+Kama imeongezwa (escalated), mtaalamu atawasiliana nawe.`;
   }
-  return `📋 *Your case: ${rec.caseId}*
-
+  return `Case: *${rec.caseId}*
 • Status: *${label}*
 • Category: ${rec.category}
 • County: ${rec.county}
-• SLA deadline (result by): ${deadline}
+• SLA deadline: ${deadline}
 
-If it says "escalated", a specialist will reach out. Keep messaging if you need more help.`;
+If escalated, a specialist will reach out. Keep messaging if you need more help.`;
 }
 
 export default { extractCaseRef, isCaseStatusRequest, resolveCaseRef, formatCaseStatus };
