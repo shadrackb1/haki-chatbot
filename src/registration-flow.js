@@ -10,7 +10,7 @@ const KENYAN_COUNTIES = [
   'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot'
 ];
 
-const WORK_TYPES = ['farm worker', 'farmer', 'plantation', 'domestic', 'casual labourer', 'trader'];
+const WORK_TYPES = ['farm worker', 'packhouse worker', 'factory worker', 'transport/logistics', 'plantation worker', 'domestic worker', 'casual labourer', 'trader', 'other'];
 
 const STEPS = {
   ASK_NAME: {
@@ -33,8 +33,8 @@ const STEPS = {
   ASK_WORK_TYPE: {
     next: null,
     prompt: (lang) => lang === 'sw'
-      ? 'Sawa! Unafanya kazi gani? (farm worker, farmer, plantation, domestic, casual labourer, trader)'
-      : 'Nice! What kind of work do you do? (farm worker, farmer, plantation, domestic, casual labourer, trader)',
+      ? 'Sawa! Unafanya kazi gani? (mfanyakazi wa shamba, packhouse, kiwanda, usafirishaji, plantasheni, mfanyakazi wa nyumbani, kazi ya muda, muuzaji, nyingine)'
+      : 'Nice! What kind of work do you do? (farm, packhouse, factory, transport, plantation, domestic, casual, trader, other)',
     apply: (db, phone, text) => db.setCredential(phone, 'workType', matchWorkType(text) || text.toLowerCase())
   }
 };

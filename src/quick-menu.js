@@ -83,7 +83,7 @@ Type 1–4 or ask me anything.`;
 const RIGHTS_TEXT = {
   en: `Your rights as a Kenyan worker:
 
-1. Fair pay — at least KES 15,000/month (Economic Survey 2026); farm wages vary by county.
+1. Fair pay — at least KES 15,000/month (Economic Survey 2026); rates vary by sector and county.
 2. Written contract — must be provided within 2 months (Employment Act s.10).
 3. Safe workplace — PPE, training, and the right to refuse dangerous work (OSHA s.12, 44).
 4. Weekly rest — at least 1 day off per 7 days (Employment Act s.27).
@@ -93,7 +93,7 @@ const RIGHTS_TEXT = {
 Say "register" for help tailored to your county.`,
   sw: `Haki zako kama mfanyikazi wa Kenya:
 
-1. Mshahara wa haki — angalau KES 15,000/mwezi (Economic Survey 2026); mishahara ya kilimo inatofautiana.
+1. Mshahara wa haki — angalau KES 15,000/mwezi (Economic Survey 2026); viwango vinatofautiana kulingana na sekta na kaunti.
 2. Mkataba wa maandishi — lazima upewe ndani ya miezi 2 (Employment Act s.10).
 3. Usalama kazini — vifaa vya ulinzi, mafunzo, na haki ya kukataa kazi hatari (OSHA s.12, 44).
 4. Mapumziko ya kila wiki — angalau siku 1 kwa siku 7 (Employment Act s.27).

@@ -184,7 +184,7 @@ Kwa msaada unaolingana na wewe, andika "register". Lakini si lazima.`;
 
     return `Welcome to AgriShield 🇰🇪
 
-I help Kenyan workers understand their rights — wages, contracts, safety, child labour, harassment, land.
+I help Kenyan workers understand their rights — wages, contracts, safety, child labour, harassment, land. Works across farms, factories, packhouses, transport, and more.
 
 Just tell me what happened. No sign-up needed.
 Example: "I'm paid KES 200 with no contract"

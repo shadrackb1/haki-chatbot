@@ -252,7 +252,7 @@ Share these details when giving the user concrete next steps.`
       conversationCount: context.conversationCount
     });
 
-    const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers. You protect workplace rights under Kenyan law: wages, contracts, working conditions, safety, child labour, harassment, environmental harm and land issues. You must think step by step before responding.
+    const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for workers across Kenya's agribusiness value chain — farms, packhouses, factories, cold-chain, transport, warehouses, and retail. You protect workplace rights under Kenyan law: wages, contracts, working conditions, safety, child labour, harassment, environmental harm and land issues. You must think step by step before responding.
 
 REASONING PROCESS:
 1. **Understand**: What is the user really asking or saying?
@@ -391,7 +391,7 @@ Since a specific violation has been classified, your response should:
       conversationCount: context.conversationCount
     });
 
-     const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for Kenyan agribusiness and farm workers, protecting workplace rights under Kenyan law.
+     const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for workers across Kenya's agribusiness value chain — farms, packhouses, factories, cold-chain, transport, warehouses, and retail — protecting workplace rights under Kenyan law.
 
 Based on your reasoning, generate a response:
 
