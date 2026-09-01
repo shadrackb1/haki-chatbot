@@ -192,7 +192,13 @@ class SkillRegistry {
             }
 
             if (bestTriggerLength > 0) {
-                matches.push({ skill, specificity: bestTriggerLength });
+                // Skills can declare priorityBoost (e.g. 1 = double weight) so
+                // intent-bearing triggers like "case summary" outrank longer
+                // topic-only matches from other skills.
+                const weight = skill.priorityBoost
+                    ? bestTriggerLength * (1 + skill.priorityBoost)
+                    : bestTriggerLength;
+                matches.push({ skill, specificity: weight });
             }
         }
 

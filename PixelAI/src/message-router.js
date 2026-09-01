@@ -41,9 +41,11 @@ class MessageRouter {
         }
 
         try {
-            const skill = await this.skillRegistry.getSkillForMessage(message);
+            // getSkillForMessage returns matches sorted by trigger specificity
+            const matches = await this.skillRegistry.getSkillForMessage(message);
+            const skill = Array.isArray(matches) ? matches[0] : matches;
             if (skill && typeof skill.execute === 'function') {
-                const response = await skill.execute(message, context);
+                const result = await skill.execute(message, context);
                 this.recordAnalytics({
                     decision: 'skill',
                     source: 'skill',
@@ -53,7 +55,8 @@ class MessageRouter {
                     duration: Date.now() - startTime
                 });
                 return {
-                    response,
+                    response: typeof result === 'string' ? result : result?.response ?? null,
+                    file: result?.file ?? null,
                     source: 'skill',
                     skillName: skill.name || skill.constructor?.name,
                     metadata: { duration: Date.now() - startTime }

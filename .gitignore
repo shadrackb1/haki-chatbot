@@ -52,3 +52,4 @@ temp/
 # Python (PixelAI-Instagram)
 __pycache__/
 *.pyc
+temp-test-output.pdf

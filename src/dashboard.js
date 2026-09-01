@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import { WINDOW_HOURS } from './sla-engine.js';
 
 // ============================================
@@ -304,6 +305,8 @@ class Dashboard {
     this.server = null;
     this._unsub = null;
     this._sseClients = new Set();
+    this.io = null;
+    this._feedHistory = [];
   }
 
   _overview() {
@@ -391,6 +394,97 @@ class Dashboard {
     return { kind: g.kind, inbox, outbox, snapshot: g.snapshot ? g.snapshot() : null };
   }
 
+  // Live timeseries: bucket recent events into a rolling activity window for the
+  // client to animate. Every bucket carries reactive (user-triggered) and
+  // autonomous (self-initiated push) counts so the dashboard shows motion.
+  _feedView({ windowMs = 60 * 60 * 1000, bucketMs = 60 * 1000 } = {}) {
+    const now = Date.now();
+    const start = now - windowMs;
+    const history = this._feedHistory.filter((e) => e.at >= start);
+    const bucket = (t) => Math.floor(t / bucketMs) * bucketMs;
+    const first = bucket(start);
+    const last = bucket(now);
+    const nBuckets = Math.max(1, Math.floor((last - first) / bucketMs) + 1);
+    const buckets = new Array(nBuckets).fill(0).map((_, i) => ({
+      t: first + i * bucketMs,
+      reactive: 0,
+      autonomous: 0
+    }));
+    let totalReactive = 0;
+    let totalAutonomous = 0;
+    for (const e of history) {
+      const b = bucket(e.at);
+      if (b < first || b > last) continue;
+      const slot = buckets[Math.floor((b - first) / bucketMs)];
+      if (!slot) continue;
+      const origin = e.origin || 'KNOWN_TRIGGER';
+      if (origin === 'AUTONOMOUS_IMPORTANT_INFO' || origin === 'AUTONOMOUS_FOLLOW_UP') {
+        slot.autonomous += 1;
+        totalAutonomous += 1;
+      } else {
+        slot.reactive += 1;
+        totalReactive += 1;
+      }
+    }
+    return {
+      windowMs,
+      bucketMs,
+      start,
+      end: now,
+      totalReactive,
+      totalAutonomous,
+      buckets,
+      events: history.slice(-30).map((e) => ({
+        type: e.type,
+        origin: e.origin,
+        at: e.at,
+        payload: e.payload || {}
+      }))
+    };
+  }
+
+  // Demo/simulator: push synthetic monitor events so the dashboard animates even
+  // when the bot is idle (guarded by the dashboard demo toggle).
+  _simulate(count = 3) {
+    const kinds = ['activity', 'activity', 'activity', 'registration', 'autonomous-notification', 'crisis', 'sla-escalation'];
+    const intents = ['question', 'request', 'greeting', 'grievance', 'thanks'];
+    const counties = ['Kericho', 'Nyeri', 'Migori', 'Kisumu', 'Uasin Gishu', 'Bungoma'];
+    const pushed = [];
+    const now = Date.now();
+    for (let i = 0; i < count; i++) {
+      const kind = kinds[Math.floor(Math.random() * kinds.length)];
+      const origin = kind === 'autonomous-notification' ? 'AUTONOMOUS_IMPORTANT_INFO' : 'KNOWN_TRIGGER';
+      const evt = {
+        type: kind,
+        origin,
+        payload: kind === 'activity' ? { intent: intents[Math.floor(Math.random() * intents.length)] }
+          : kind === 'registration' ? { phone: '+254***', registration: 'COMPLETE' }
+          : kind === 'crisis' ? { level: ['moderate', 'severe'][Math.floor(Math.random() * 2)] }
+          : kind === 'sla-escalation' ? { caseId: `AGRI-${new Date().getFullYear()}-${1000 + i}`, county: counties[i % counties.length] }
+          : { phone: '+254***', origin: counties[i % counties.length] },
+        // stagger across the last few minutes so the chart visibly moves
+        at: new Date(now - (count - i) * 7000 + (i && Math.random() * 2000)).toISOString(),
+        simulated: true
+      };
+      this._ingestEvent(evt);
+      pushed.push(evt);
+    }
+    return pushed;
+  }
+
+  // Record an event into the rolling history and fan it out to live clients.
+  _ingestEvent(event) {
+    const t = new Date(event.at).getTime();
+    if (!event.at || Number.isNaN(t)) return null;
+    const evt = { ...event, at: Number.isNaN(t) ? Date.now() : t };
+    evt.origin = evt.origin || 'KNOWN_TRIGGER';
+    this._feedHistory.push(evt);
+    const MAX = 2000;
+    if (this._feedHistory.length > MAX) this._feedHistory.splice(0, this._feedHistory.length - MAX);
+    if (this.io) this.io.emit('monitor:event', evt);
+    return evt;
+  }
+
   start() {
     if (this.server) return this;
     const app = express();
@@ -398,10 +492,21 @@ class Dashboard {
 
     app.get('/', (_req, res) => res.type('html').send(inlinePage()));
     app.get('/api/overview', (_req, res) => res.json(this._overview()));
+    app.get('/api/cases', (_req, res) => res.json(this.caseStore ? this.caseStore.all() : []));
     app.get('/api/hotspots', (_req, res) => res.json(this._hotspots()));
     app.get('/api/sla', (_req, res) => res.json(this._slaView()));
     app.get('/api/sentiment', (_req, res) => res.json(this._sentimentView()));
     app.get('/api/sms', (_req, res) => res.json(this._smsView()));
+    app.get('/api/feed', (req, res) => {
+      const windowMs = (Number(req.query.window) || 60) * 60 * 1000;
+      const bucketMs = Number(req.query.bucket) ? Number(req.query.bucket) * 1000 : 60 * 1000;
+      res.json(this._feedView({ windowMs, bucketMs }));
+    });
+    app.post('/api/simulate', (req, res) => {
+      const count = Math.min(200, Math.max(0, Number(req.query.count) || 3));
+      const pushed = this._simulate(count);
+      res.json({ ok: true, pushed: pushed.length });
+    });
     app.post('/api/sms/inject', (req, res) => {
       if (!this.smsGateway || this.smsGateway.kind !== 'simulator') {
         return res.status(400).json({ ok: false, error: 'SMS simulator not active' });
@@ -441,8 +546,20 @@ class Dashboard {
     });
 
     this.server = http.createServer(app);
+    this.io = new SocketIOServer(this.server, {
+      pingInterval: 15000,
+      pingTimeout: 20000,
+      cors: { origin: true, credentials: true }
+    });
+    this.io.on('connection', (socket) => {
+      socket.on('simulate', (count) => {
+        const n = Math.min(200, Math.max(0, Number(count) || 3));
+        socket.emit('monitor:event', { type: 'simulation', payload: { pushed: this._simulate(n).length }, at: new Date().toISOString(), origin: 'SIMULATION' });
+      });
+    });
     this._unsub = this.monitor && typeof this.monitor.subscribe === 'function'
       ? this.monitor.subscribe((event) => {
+          this._ingestEvent(event);
           for (const client of this._sseClients) {
             if (!client.writableEnded) client.write(`data: ${JSON.stringify(event)}\n\n`);
           }
@@ -475,10 +592,19 @@ class Dashboard {
       try { client.end(); } catch {}
     }
     this._sseClients.clear();
-    if (this.server) {
-      this.server.closeAllConnections?.();
-      this.server.close();
-      this.server = null;
+    const closeServer = () => {
+      if (this.server) {
+        this.server.closeAllConnections?.();
+        this.server.close();
+        this.server = null;
+      }
+    };
+    if (this.io) {
+      const io = this.io;
+      this.io = null;
+      io.close(closeServer);
+    } else {
+      closeServer();
     }
   }
 }

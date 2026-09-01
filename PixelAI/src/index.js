@@ -14,6 +14,7 @@ import LLMReasoningEngine from './llm-reasoning.js';
 import Humanizer from './humanizer.js';
 import SkillRegistry from './skill-registry.js';
 import MessageRouter from './message-router.js';
+import Agent from './agent.js';
 import RateLimiter from './rate-limiter.js';
 import Analytics from './analytics.js';
 import { AdminCommands } from './admin-commands.js';
@@ -25,11 +26,49 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ── Health Check Server (for uptime monitoring) ──
 let botLive = false;
+let latestQr = null;
 const HEALTH_PORT = process.env.HEALTH_PORT || 3002;
-const healthServer = http.createServer((req, res) => {
+const healthServer = http.createServer(async (req, res) => {
   if (req.url === '/health') {
     res.writeHead(botLive ? 200 : 503, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: botLive ? 'ok' : 'starting', bot: 'PixelAI', uptime: process.uptime() }));
+  } else if (req.url === '/qr.png') {
+    // Raw QR image — scan straight from the browser
+    if (!latestQr) {
+      res.writeHead(503, { 'Content-Type': 'text/plain' });
+      res.end('QR not ready yet. Refresh in a few seconds.');
+      return;
+    }
+    try {
+      const png = await QRCode.toBuffer(latestQr, { width: 512, margin: 2 });
+      res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
+      res.end(png);
+    } catch (e) {
+      res.writeHead(500);
+      res.end('QR render failed');
+    }
+  } else if (req.url === '/qr') {
+    // Auto-refreshing page with a big scannable QR
+    if (!latestQr) {
+      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+      res.end('<meta http-equiv="refresh" content="3"><p style="font-family:sans-serif;font-size:20px;padding:40px">Waiting for QR from WhatsApp… this page refreshes itself.</p>');
+      return;
+    }
+    try {
+      const dataUrl = await QRCode.toDataURL(latestQr, { width: 480, margin: 2 });
+      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+      res.end(`<!doctype html><html><head><title>PixelAI — Scan to connect</title>
+<meta http-equiv="refresh" content="15">
+<style>body{font-family:sans-serif;background:#111;color:#eee;text-align:center;padding-top:30px}
+img{background:#fff;padding:16px;border-radius:12px}</style></head><body>
+<h1>📱 PixelAI — WhatsApp QR</h1>
+<p>WhatsApp → <b>Linked Devices</b> → <b>Link a Device</b> → scan below.<br>Page auto-refreshes every 15s (QR expires fast — scan the newest).</p>
+<img src="${dataUrl}" alt="WhatsApp QR">
+</body></html>`);
+    } catch (e) {
+      res.writeHead(500);
+      res.end('QR render failed');
+    }
   } else {
     res.writeHead(404);
     res.end('Not found');
@@ -60,9 +99,10 @@ const adminCommands = new AdminCommands({
     rateLimiter
 });
 const messageRouter = new MessageRouter(skillRegistry, llmEngine, rateLimiter, analytics);
+const agent = new Agent(llmEngine, skillRegistry);
 
 console.log('🧠 Pixel AI: Intelligent Conversational Companion');
-console.log('🤖 LLM Engine: ' + (llmEngine.isAvailable() ? `Active (${llmEngine.getModelInfo().model})` : 'Not configured - using fallback'));
+console.log('🤖 LLM Engine: ' + (llmEngine.isAvailable() ? `Active (${llmEngine.getModelInfo().provider} + failover)` : 'Not configured - using fallback'));
 console.log('💾 Memory: Persistent conversation history + user learning');
 console.log('📦 Skills loaded: ' + skillRegistry.getAllSkills().length);
 console.log('🚀 Rate limiter: Active');
@@ -265,28 +305,21 @@ async function startBot() {
         const { connection, lastDisconnect, qr } = update;
 
         if (qr) {
+            latestQr = qr;
             console.log('\n');
-            console.log('╔══════════════════════════════════════════════════════════╗');
-            console.log('║           PIXEL AI - WHATSAPP CONNECTION            ║');
-            console.log('╚══════════════════════════════════════════════════════════╝');
-            console.log('');
-            console.log('📱 STEP 1: Open WhatsApp on your phone');
-            console.log('📱 STEP 2: Tap ⋮ (3 dots) → Linked Devices');
-            console.log('📱 STEP 3: Tap "Link a Device"');
-            console.log('📱 STEP 4: Scan the QR code below');
-            console.log('');
-            qrcode.generate(qr, { small: true }, (qrCode) => {
-                console.log(qrCode);
-            });
-            console.log('');
-            console.log('💡 TIP: Make terminal narrower (~60 chars) for better QR');
-            console.log('💡 TIP: Or open qr-code.png in file explorer');
-            console.log('');
+            console.log('════════════════════════════════════════════');
+            console.log('  SCAN THIS QR: WhatsApp → Linked Devices');
+            console.log('════════════════════════════════════════════');
+            try {
+                qrcode.generate(qr, { small: true }, (qrCode) => {
+                    console.log(qrCode);
+                });
+            } catch (e) {
+                console.log('(QR could not render in this terminal)');
+            }
+            console.log(`Can't see it? Open http://localhost:${HEALTH_PORT}/qr or qr-code.png`);
             QRCode.toFile(path.join(__dirname, '..', 'qr-code.png'), qr, { width: 400, margin: 2 })
-                .then(() => {
-                    console.log('📸 QR saved: ' + path.join(__dirname, '..', 'qr-code.png'));
-                })
-                .catch(err => console.log('⚠️ QR save failed:', err.message));
+                .catch(() => {});
         }
 
         if (connection === 'open') {
@@ -542,6 +575,7 @@ async function startBot() {
                 let responseText = null;
                 let responseBuffer = null;
                 let responseMimeType = null;
+                let responseFileName = null;
 
                 // ---- IMAGE MESSAGE HANDLING ----
                 if (body.type === 'image') {
@@ -663,11 +697,33 @@ async function startBot() {
                     const triggerType = isDirectMessage ? 'DM' : (mentionsMe ? 'MENTION' : 'GROUP');
                     console.log(`📩 ${triggerType} [${chatId}] from ${senderId}: ${cleanText}`);
 
-                    // Route through the message router (skill registry + LLM fallback)
+                    // Agent first (tool-grounded, anti-hallucination); router as fallback
                     try {
-                        const routeResult = await messageRouter.route(cleanText, chatContext);
-                        responseText = routeResult?.text || routeResult?.response || null;
-                    } catch (routeErr) {
+                        if (agent.isAvailable()) {
+                            const agentResult = await agent.run(cleanText, chatContext);
+                            responseText = agentResult?.response || null;
+                            if (agentResult?.file?.buffer) {
+                                responseBuffer = agentResult.file.buffer;
+                                responseMimeType = agentResult.file.mimetype || 'application/pdf';
+                                responseFileName = agentResult.file.fileName || 'document.pdf';
+                            }
+                            if (agentResult?.metadata?.toolsUsed?.length) {
+                                console.log(`🛠️ tools used: ${agentResult.metadata.toolsUsed.join(' → ')}`);
+                            }
+                        } else {
+                            throw new Error('agent unavailable');
+                        }
+                    } catch (agentErr) {
+                        console.log('↪️ falling back to router:', agentErr.message);
+                        try {
+                            const routeResult = await messageRouter.route(cleanText, chatContext);
+                            responseText = routeResult?.text || routeResult?.response || null;
+                            if (routeResult?.file?.buffer) {
+                                responseBuffer = routeResult.file.buffer;
+                                responseMimeType = routeResult.file.mimetype || 'application/pdf';
+                                responseFileName = routeResult.file.fileName || 'document.pdf';
+                            }
+                        } catch (routeErr) {
                         console.error('⚠️ Router failed, falling back to LLM:', routeErr.message);
                         // Fallback to original LLM path
                         const userContext = conversationManager.getChatContext(chatId, {
@@ -692,6 +748,7 @@ async function startBot() {
                         if (reasoning.connectionsToMake.length) console.log(`🔗 [${chatType}] Connections:`, reasoning.connectionsToMake.join(', '));
 
                         responseText = response;
+                        }
                     }
                 }
 
@@ -708,14 +765,25 @@ async function startBot() {
                     console.log(`✅ Sent text (${humanizedResponse.length} chars) to ${chatId}\n`);
                 }
 
-                // If the route returned a media buffer (image), send it separately
+                // If the route returned a media buffer (image / video / document), send it
                 if (responseBuffer) {
-                    const mediaPayload = { [responseMimeType.startsWith('image') ? 'image' : 'video']: responseBuffer };
+                    let mediaPayload;
+                    if (responseMimeType.startsWith('image')) {
+                        mediaPayload = { image: responseBuffer };
+                    } else if (responseMimeType.startsWith('video')) {
+                        mediaPayload = { video: responseBuffer };
+                    } else {
+                        mediaPayload = {
+                            document: responseBuffer,
+                            mimetype: responseMimeType,
+                            fileName: responseFileName
+                        };
+                    }
                     if (isGroup) {
                         mediaPayload.mentions = [senderId];
                     }
                     await sock.sendMessage(chatId, mediaPayload);
-                    console.log(`✅ Sent media to ${chatId}\n`);
+                    console.log(`✅ Sent media (${responseMimeType}) to ${chatId}\n`);
                 }
 
                 // Record analytics
