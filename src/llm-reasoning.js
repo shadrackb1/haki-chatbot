@@ -152,7 +152,22 @@ class LLMReasoningEngine {
     // lets a caller force a specific provider/mode/tier for any single message.
     const callOpts = this._resolveCallOptions(userContext);
 
+    // Fast path (default): one LLM round-trip that returns both the reasoning
+    // JSON and the final prose response together — roughly halves reply latency.
+    // Falls back to the two-step path if the combined output can't be parsed,
+    // and to rule-based rules if the LLM is entirely unavailable.
+    const single = !userContext.llm || userContext.llm.single !== false;
+
     try {
+      if (single) {
+        const r = await this.combinedResponse(message, userContext, callOpts);
+        if (r) {
+          const provider = this._lastProvider;
+          this._lastProvider = null;
+          return { reasoning: r.reasoning, response: r.response, usedLLM: true, provider, tier: callOpts.tierName };
+        }
+      }
+
       const reasoning = await this.reason(message, userContext, callOpts);
       const response = await this.generateResponseFromReasoning(message, reasoning, userContext, callOpts);
       const provider = this._lastProvider;
@@ -163,6 +178,109 @@ class LLMReasoningEngine {
       console.log(`⚠️ LLM pipeline failed (${error.message}) — falling back to rules`);
       return this.fallbackProcess(message, userContext);
     }
+  }
+
+  // ============================================
+  // FAST PATH — reason + respond in a single LLM call
+  // Returns { reasoning, response } or null if the model didn't honour the
+  // JSON envelope (the caller then falls back to the two-step path).
+  // ============================================
+  async combinedResponse(message, context = {}, callOpts = null) {
+    const violationInfo = context.violation;
+    let violationContext = '';
+    let violationInstructions = '';
+
+    if (violationInfo) {
+      violationContext = `\n\nCLASSIFIED VIOLATION INFORMATION:
+- ID: ${violationInfo.id}
+- Description: ${violationInfo.description}
+- Applicable Laws: ${JSON.stringify(violationInfo.applicable_laws)}
+- Remedy Pathways: ${JSON.stringify(violationInfo.remedy_pathways)}
+
+Use this specific legal information to inform your answer.`;
+      violationInstructions = `
+\nIf the user describes \`${violationInfo.id}\`, prioritise its classified laws, remedy pathways (institution, action, steps, timeline) and the exact documents the worker should bring — tell them what evidence to gather.`;
+    }
+
+    const knowledgePassages = Array.isArray(context.knowledge) && context.knowledge.length > 0
+      ? context.knowledge.map((k) => `- [${k.id || k.title}] ${k.text}`).join('\n')
+      : 'None retrieved.';
+
+    const countyOffice = context.countyOffice
+      ? `\nCOUNTY LABOUR OFFICE (use when the user needs to report or visit an office):
+- County: ${context.countyOffice.county}
+- Officer: ${context.countyOffice.officer}
+- Office location: ${context.countyOffice.office_location}
+- Tel: ${context.countyOffice.tel}
+- Mobile: ${context.countyOffice.mobile}
+- Email: ${context.countyOffice.email}
+Share these details when giving the user concrete next steps.`
+      : '';
+
+    const profile = JSON.stringify({
+      language: context.language,
+      location: context.location,
+      workType: context.workType,
+      isNewUser: context.isNewUser,
+      conversationCount: context.conversationCount
+    });
+
+    const systemPrompt = `You are AgriShield, a WhatsApp rights-assistant for workers across Kenya's agribusiness value chain — farms, packhouses, factories, cold-chain, transport, warehouses, and retail — protecting workplace rights under Kenyan law. Read the earlier conversation turns as your memory; pronouns like "it/that/here" refer to what they said before.${violationContext}
+
+RECALLED LEGAL PASSAGES (ground your answer in these; cite the human law name + section):
+${knowledgePassages}
+${countyOffice}
+
+USER PROFILE (tailor to these when relevant):
+${profile}
+
+RESPONSE RULES:
+1. Write like a WhatsApp text from a knowledgeable friend — empathetic, plain language, no jargon
+2. Be actionable — always end with one concrete next step (a number to call, a doc to keep, an office to visit)
+3. Never use chatbot filler — banned: "Certainly!", "Of course!", "Great question!", "I hope this helps", "As an AI", "I'm here to help", "That's a great question", "I understand your concern", "Absolutely", "Happy to help"
+4. Always English by default; only switch if the user explicitly asks
+5. Sound human: contractions, uneven sentence lengths, vary your openings, don't mirror their words back
+6. No AI essay tics — never "delve/tapestry/seamless/furthermore/moreover/importantly/in conclusion", no "Firstly...Secondly...Finally"
+7. Format for a phone screen — short lines, one idea per line, *bold* only the key number or single most important sentence
+8. Spell out the human name of the law ("the Employment Act", not "the Act")
+9. Match their sector from the profile (farm vs packhouse vs transport vs factory) — don't default to "farm"
+10. Keep it under 200 words unless detailed legal steps are needed; if unclear, ask ONE or TWO clarifying questions max${violationInstructions}
+
+Return ONLY a JSON object with exactly two fields:
+{
+  "reasoning": {
+    "understanding": "what they are saying/asking, in one sentence",
+    "intent": "question|request|greeting|thanks|confused",
+    "topic": "wages|safety|contract|child_labor|environment|gender|land|rights_info|other",
+    "sentiment": "neutral|urgent|frustrated|hopeful|scared",
+    "urgency": "immediate|soon|routine",
+    "key_points": ["point 1", "point 2"],
+    "response_strategy": "how to answer",
+    "language": "en"
+  },
+  "response": "the final reply to the user, as plain prose text"
+}`;
+
+    const { response, provider } = await this.callLLM(this.buildMessages(systemPrompt, message, context), callOpts || {});
+    this._lastProvider = provider;
+
+    const content = response.choices[0].message.content;
+    const cleaned = String(content || '').replace(/```(?:json)?/gi, '');
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      return null;
+    }
+
+    const reasoning = this.normalizeReasoning(parsed.reasoning, message);
+    let reply = typeof (parsed.response || parsed.answer) === 'string' ? (parsed.response || parsed.answer) : '';
+    if (!reply || !reply.trim()) return null;
+
+    return { reasoning, response: reply.trim() };
   }
 
   // ============================================
